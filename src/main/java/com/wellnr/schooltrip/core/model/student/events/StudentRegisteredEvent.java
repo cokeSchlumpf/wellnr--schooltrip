@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.core.model.student.student;
+package com.wellnr.schooltrip.core.model.student.events;
 
 import com.wellnr.schooltrip.core.model.student.Student;
 import lombok.AllArgsConstructor;

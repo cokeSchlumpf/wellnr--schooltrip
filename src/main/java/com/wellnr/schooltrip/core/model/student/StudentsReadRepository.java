@@ -27,4 +27,10 @@ public interface StudentsReadRepository extends DomainRepository {
         return findStudentByToken(token).orElseThrow();
     }
 
+    Optional<Student> findStudentByConfirmationToken(String token);
+
+    default Student getStudentByConfirmationToken(String token) {
+        return findStudentByConfirmationToken(token).orElseThrow();
+    }
+
 }

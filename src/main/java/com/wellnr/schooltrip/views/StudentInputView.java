@@ -1,6 +1,5 @@
 package com.wellnr.schooltrip.views;
 
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -22,12 +21,12 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.wellnr.common.markup.When;
+import com.wellnr.schooltrip.core.application.commands.CompleteStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.GetStudentActionsForToken;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
 import com.wellnr.schooltrip.views.components.Container;
-import com.wellnr.schooltrip.views.components.Markdown;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -48,7 +47,7 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
     private ExperienceSection experienceSection;
     private RentalSection rentalSection;
     private CostSection costSection;
-    private NutritionSection nutritionSection;
+    private AdditionalInformationSection additionalInformationSection;
 
     private Student student;
 
@@ -76,14 +75,14 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
         experienceSection = new ExperienceSection();
         rentalSection = new RentalSection();
         costSection = new CostSection();
-        nutritionSection = new NutritionSection();
+        additionalInformationSection = new AdditionalInformationSection();
 
         var layout = new VerticalLayout();
         layout.add(new H3("Anmeldung Ski-Kurs 2023 für " + student.getDisplayName()));
         layout.add(disciplinSection);
         layout.add(experienceSection);
         layout.add(rentalSection);
-        layout.add(nutritionSection);
+        layout.add(additionalInformationSection);
         layout.add(costSection);
         layout.add(new SubmitSection());
 
@@ -212,15 +211,16 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
 
             return List.copyOf(items);
         }
+
     }
 
-    private class NutritionSection extends Section {
+    private class AdditionalInformationSection extends Section {
 
         public final NutritionCheckboxes nutrition;
 
         public final TextArea comments;
 
-        public NutritionSection() {
+        public AdditionalInformationSection() {
             nutrition = new NutritionCheckboxes();
 
             comments = new TextArea("Möchten Sie uns noch etwas mitteilen?");
@@ -278,16 +278,16 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
 
     }
 
-    private static class SubmitSection extends Section {
+    private class SubmitSection extends Section {
+
+        private final EmailField email;
 
         public SubmitSection() {
-            var email = new EmailField("E-Mail");
+            this.email = new EmailField("E-Mail");
 
             add(new H4("Bestätigung"));
             add(new Paragraph("Bitte verifizieren Sie die verbindliche Anmeldung. Die Angaben zu Sportart, " +
                 "Ausleihe, Körpergröße und -gewicht können noch bis zum 13.12.2023 angepasst werden."));
-
-            this.add(Markdown.apply("# Hello\n\nHello **World**!"));
 
             var form = new FormLayout();
             form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
@@ -295,9 +295,69 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
 
             var submit = new Button("Absenden");
             submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            submit.setEnabled(false);
+            email.addValueChangeListener(event -> {
+                submit.setEnabled(!event.getValue().isBlank());
+            });
+            submit.addClickListener(event -> this.submit());
 
             this.add(form);
             this.add(submit);
+        }
+
+        private void submit() {
+            var discipline = When
+                .isTrue(disciplinSection.disciplin.getValue().equals(Ski.class))
+                .<Discipline>then(() -> {
+                    var ski = Ski.apply(experienceSection.experience.getValue());
+
+                    if (rentalSection.rental.getValue()) {
+                        ski = ski.withSkiRental(SkiRental.apply(
+                            rentalSection.rentalDetails.height.getValue(),
+                            rentalSection.rentalDetails.weight.getValue()
+                        ));
+                    }
+
+                    if (rentalSection.bootRental.getValue()) {
+                        ski = ski.withSkiBootRental(SkiBootRental.apply(
+                            rentalSection.bootRentalDetails.size.getValue()
+                        ));
+                    }
+
+                    return ski;
+                })
+                .otherwise(() -> {
+                    var snowboard = Snowboard.apply(experienceSection.experience.getValue());
+
+                    if (rentalSection.rental.getValue()) {
+                        snowboard = snowboard.withSnowboardRental(SnowboardRental.apply(
+                            rentalSection.rentalDetails.height.getValue(),
+                            rentalSection.rentalDetails.weight.getValue()
+                        ));
+                    }
+
+                    if (rentalSection.bootRental.getValue()) {
+                        snowboard = snowboard.withSnowboardBootRental(SnowboardBootRental.apply(
+                            rentalSection.bootRentalDetails.size.getValue()
+                        ));
+                    }
+
+                    return snowboard;
+                });
+
+            var nutrition = Nutrition.apply(
+                additionalInformationSection.nutrition.isVegetarian(),
+                additionalInformationSection.nutrition.isHalal()
+            );
+
+            var comment = additionalInformationSection.comments.getValue();
+            var questionnaire = Questionaire.apply(discipline, nutrition, comment);
+
+            var cmd = CompleteStudentRegistrationCommand.apply(
+                student.getToken(), questionnaire
+            );
+
+            commandRunner.run(cmd);
         }
 
     }

@@ -5,8 +5,8 @@ import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
+import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
-import com.wellnr.schooltrip.core.model.student.student.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
 import lombok.*;
@@ -36,9 +36,15 @@ public class Student extends AggregateRoot<String, Student> {
 
     Gender gender;
 
+    RegistrationState registrationState;
+
     String token;
 
+    String confirmationToken;
+
     Questionaire questionaire;
+
+    String notificationEmail;
 
     /**
      * Creates a new instance of this entity.
@@ -60,7 +66,12 @@ public class Student extends AggregateRoot<String, Student> {
 
         var id = UUID.randomUUID().toString();
         var token = RandomStringUtils.randomAlphanumeric(8);
-        return new Student(id, schoolTrip, schoolClass, firstName, lastName, birthday, gender, token, null);
+        var confirmationToken = RandomStringUtils.randomAlphanumeric(8);
+
+        return new Student(
+            id, schoolTrip, schoolClass, firstName, lastName, birthday, gender,
+            RegistrationState.CREATED, token, confirmationToken, null, null
+        );
     }
 
     /**
@@ -127,8 +138,21 @@ public class Student extends AggregateRoot<String, Student> {
         return Optional.of(questionaire);
     }
 
-    public void updateQuestionaire(Questionaire questionaire, StudentsRepository students) {
+    public void completeStudentRegistration(
+        Questionaire questionaire,
+        String notificationEmail,
+        StudentsRepository students) {
+
         this.questionaire = questionaire;
+        this.registrationState = RegistrationState.WAITING_FOR_CONFIRMATION;
+        this.notificationEmail = notificationEmail;
+
+        // TODO: Send E-Mail with confirmation link.
+        students.insertOrUpdateStudent(this);
+    }
+
+    public void confirmStudentRegistration(StudentsRepository students) {
+        this.registrationState = RegistrationState.REGISTERED;
         students.insertOrUpdateStudent(this);
     }
 

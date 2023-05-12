@@ -4,7 +4,7 @@ import com.wellnr.ddd.events.DomainServices;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolTripCreatedEvent;
 import com.wellnr.schooltrip.core.model.student.StudentId;
-import com.wellnr.schooltrip.core.model.student.student.StudentRegisteredEvent;
+import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import lombok.AllArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
