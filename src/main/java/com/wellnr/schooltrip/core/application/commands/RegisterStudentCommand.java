@@ -1,7 +1,6 @@
 package com.wellnr.schooltrip.core.application.commands;
 
 import com.wellnr.common.markup.Nothing;
-import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
@@ -15,7 +14,7 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RegisterStudentCommand implements DomainCommand {
+public class RegisterStudentCommand implements AbstractSchoolTripCommand<MessageResult<Nothing>> {
 
     String schoolTrip;
 

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.wellnr.ddd.commands.Command;
 import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.ddd.commands.DomainCommands;
-import com.wellnr.schooltrip.core.application.commands.DomainCommand;
+import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 import com.wellnr.schooltrip.core.model.user.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
@@ -45,7 +45,7 @@ public class DomainCommandController {
          */
         var packages = AutoConfigurationPackages.get(applicationContext.getAutowireCapableBeanFactory());
         var provider = new ClassPathScanningCandidateComponentProvider(false);
-        provider.addIncludeFilter(new AssignableTypeFilter(DomainCommand.class));
+        provider.addIncludeFilter(new AssignableTypeFilter(AbstractSchoolTripCommand.class));
 
         Set<Class<? extends Command<?>>> allCommands = new HashSet<>();
 

@@ -1,19 +1,23 @@
 package com.wellnr.schooltrip.core.model.student;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
+import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.student.student.StudentRegisteredEvent;
-import com.wellnr.schooltrip.core.model.user.AuthenticatedUser;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
 import lombok.*;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
-@Data
+@Getter
+@ToString
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Student extends AggregateRoot<String, Student> {
@@ -31,6 +35,10 @@ public class Student extends AggregateRoot<String, Student> {
     Instant birthday;
 
     Gender gender;
+
+    String token;
+
+    Questionaire questionaire;
 
     /**
      * Creates a new instance of this entity.
@@ -51,7 +59,8 @@ public class Student extends AggregateRoot<String, Student> {
         Gender gender) {
 
         var id = UUID.randomUUID().toString();
-        return new Student(id, schoolTrip, schoolClass, firstName, lastName, birthday, gender);
+        var token = RandomStringUtils.randomAlphanumeric(8);
+        return new Student(id, schoolTrip, schoolClass, firstName, lastName, birthday, gender, token, null);
     }
 
     /**
@@ -104,9 +113,23 @@ public class Student extends AggregateRoot<String, Student> {
         }
     }
 
+    @JsonIgnore
+    public String getDisplayName() {
+        return String.format("%s %s", firstName, lastName);
+    }
+
     @Override
     public String getId() {
         return id;
+    }
+
+    public Optional<Questionaire> getQuestionaire() {
+        return Optional.of(questionaire);
+    }
+
+    public void updateQuestionaire(Questionaire questionaire, StudentsRepository students) {
+        this.questionaire = questionaire;
+        students.insertOrUpdateStudent(this);
     }
 
 }

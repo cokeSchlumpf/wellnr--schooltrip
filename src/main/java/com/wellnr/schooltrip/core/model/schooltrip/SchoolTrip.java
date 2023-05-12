@@ -9,7 +9,10 @@ import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolClassRegisteredE
 import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolTripCreatedEvent;
 import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsRepository;
+import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.StudentId;
+import com.wellnr.schooltrip.core.model.student.StudentsReadRepository;
+import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
 import jakarta.validation.constraints.NotBlank;
@@ -75,6 +78,21 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         @NotNull @NotBlank String title
     ) {
         return create(title, null);
+    }
+
+    public List<Student> getRegisteredStudents(User executor, StudentsReadRepository students) {
+        /*
+         * Validate Permissions
+         */
+        executor.hasPermission(
+            DomainPermissions.APPLICATION__MANAGE_TRIPS,
+            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(this.getUri())
+        );
+
+        /*
+         * Return results.
+         */
+        return students.findStudentsBySchoolTrip(new SchoolTripId(this.getId()));
     }
 
     /**

@@ -1,6 +1,6 @@
 package com.wellnr.schooltrip.core.application.commands;
 
-import com.wellnr.ddd.commands.CommandResult;
+import com.wellnr.common.markup.Nothing;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.user.User;
@@ -12,12 +12,12 @@ import lombok.Value;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RenameSchoolTripCommand implements DomainCommand {
+public class RenameSchoolTripCommand implements AbstractSchoolTripCommand<MessageResult<Nothing>> {
 
-    private String newTitle;
+    String newTitle;
 
     @Override
-    public CommandResult run(User user, SchoolTripDomainRegistry domainRegistry) {
+    public MessageResult<Nothing> run(User user, SchoolTripDomainRegistry domainRegistry) {
         return MessageResult.formatted("Renamed trip to `%s`.", newTitle);
     }
 

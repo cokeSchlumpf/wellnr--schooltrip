@@ -26,7 +26,9 @@ public interface SchoolTripsReadRepository {
     }
 
     default SchoolTrip getSchoolTripByName(String name) {
-        return findSchoolTripByName(name).orElseThrow();
+        return findSchoolTripByName(name).orElseThrow(
+            () -> new RuntimeException("Schooltrip `" + name + "` not found.")
+        );
     }
 
     Collection<SchoolTrip> findAllSchoolTrips();

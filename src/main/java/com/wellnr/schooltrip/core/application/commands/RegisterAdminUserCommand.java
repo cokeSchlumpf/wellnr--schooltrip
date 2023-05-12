@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip.core.application.commands;
 
+import com.wellnr.common.markup.Nothing;
 import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
@@ -18,7 +19,7 @@ import java.util.Set;
 @Value
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RegisterAdminUserCommand implements DomainCommand {
+public class RegisterAdminUserCommand implements AbstractSchoolTripCommand<MessageResult<Nothing>> {
 
     String email;
 
@@ -29,7 +30,7 @@ public class RegisterAdminUserCommand implements DomainCommand {
     String lastName;
 
     @Override
-    public CommandResult run(User user, SchoolTripDomainRegistry domainRegistry) {
+    public MessageResult<Nothing> run(User user, SchoolTripDomainRegistry domainRegistry) {
         var newUser = RegisteredUser.createNew(
             email, password, firstName, lastName, Set.of(
                 AssignedDomainRole.apply(

@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class LoginCommand implements DomainCommand {
+public class LoginCommand implements AbstractSchoolTripCommand<MessageResult<Result<RegisteredUser>>> {
 
     @Email
     @NotBlank

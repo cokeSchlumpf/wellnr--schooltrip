@@ -1,18 +1,18 @@
 package com.wellnr.schooltrip.views;
 
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.wellnr.ddd.DomainException;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
+import com.wellnr.schooltrip.core.application.commands.GetSchoolTripDetailsCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterSchoolClassCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
-import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
-import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolClassAlreadyExistsException;
+import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.views.components.Container;
 import com.wellnr.schooltrip.views.components.ExcelImportDialog;
@@ -30,29 +30,17 @@ public class SchoolTripView extends Container implements SchoolTripAppView, Befo
 
     private final UserSession userSession;
 
-    private SchoolTrip schoolTrip;
+    private GetSchoolTripDetailsCommand.SchoolTripDetailsProjection schoolTrip;
 
-    private final Text name;
+    private String name;
+
+    private final Grid<Student> students;
 
     public SchoolTripView(UserSession userSession, SchoolTripDomainRegistry domainRegistry) {
         this.domainRegistry = domainRegistry;
         this.userSession = userSession;
-        this.name = new Text("");
 
         this.add(this.name);
-
-        /*
-        var buffer = new MemoryBuffer();
-        var upload = new Upload(buffer);
-
-        upload.addSucceededListener(event -> {
-            var dialog = new ExcelImportDialog(buffer.getInputStream());
-            this.add(dialog);
-            dialog.open();
-        });
-
-        this.add(upload);
-         */
 
         var button = new Button("Upload");
         button.addClickListener(event -> {
@@ -64,7 +52,7 @@ public class SchoolTripView extends Container implements SchoolTripAppView, Befo
                     var lastName = parameters.get(2).toString();
 
                     return RegisterStudentCommand.apply(
-                        schoolTrip.getName(), schoolClass, firstName, lastName
+                        schoolTrip.schoolTrip().getName(), schoolClass, firstName, lastName
                     );
                 }
             );
@@ -84,7 +72,7 @@ public class SchoolTripView extends Container implements SchoolTripAppView, Befo
                     .collect(Collectors.toSet())
                     .stream()
                     .map(schoolClass -> RegisterSchoolClassCommand.apply(
-                        schoolTrip.getName(),
+                        schoolTrip.schoolTrip().getName(),
                         schoolClass
                     ))
                     .forEach(cmd -> {
@@ -107,6 +95,8 @@ public class SchoolTripView extends Container implements SchoolTripAppView, Befo
                         System.out.println(ex.getSummary());
                     }
                 });
+
+                this.updateView();
             });
 
             this.add(dialog);
@@ -114,6 +104,21 @@ public class SchoolTripView extends Container implements SchoolTripAppView, Befo
         });
 
         this.add(button);
+
+        this.students = new Grid<>();
+        var classColumn = this.students.addColumn(Student::getSchoolClass).setHeader("Class").setSortable(true);
+        var lastNameColumn = this.students.addColumn(Student::getLastName).setHeader("Last Name").setSortable(true);
+        var firstNameColumn = this.students.addColumn(Student::getFirstName).setHeader("First Name").setSortable(true);
+        this.students.addColumn(Student::getToken).setHeader("Token");
+
+        this.students.sort(List.of(
+            new GridSortOrder<>(classColumn, SortDirection.ASCENDING),
+            new GridSortOrder<>(lastNameColumn, SortDirection.ASCENDING),
+            new GridSortOrder<>(firstNameColumn, SortDirection.ASCENDING)
+        ));
+
+        this.add(this.students);
+        this.updateView();
     }
 
     @Override
@@ -121,26 +126,35 @@ public class SchoolTripView extends Container implements SchoolTripAppView, Befo
         if (Objects.isNull(schoolTrip)) {
             return "School Trip";
         } else {
-            return this.schoolTrip.getTitle();
+            return this.schoolTrip.schoolTrip().getTitle();
         }
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        // TODO Not found?
-        var name = beforeEnterEvent
+        this.name = beforeEnterEvent
             .getRouteParameters()
             .get("name")
             .orElseThrow();
 
-        this.schoolTrip = domainRegistry.getSchoolTrips().getSchoolTripByName(name);
+        updateView();
     }
 
     private void updateView() {
-        if (Objects.isNull(this.schoolTrip)) {
+        if (Objects.isNull(this.name)) {
             return;
         }
 
-        this.name.setText(this.schoolTrip.getName());
+        var cmd = GetSchoolTripDetailsCommand.apply(name);
+        this.schoolTrip = cmd
+            .run(
+                userSession.getRegisteredUser().orElseGet(
+                    () -> domainRegistry.getUsers().getOneByEmail("michael.wellner@gmail.com")
+                ),
+                domainRegistry
+            )
+            .getData();
+
+        this.students.setItems(schoolTrip.students());
     }
 }

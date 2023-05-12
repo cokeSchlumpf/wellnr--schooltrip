@@ -6,6 +6,7 @@ import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -17,6 +18,16 @@ public class StudentsMongoRepository implements StudentsRepository {
     @Override
     public Optional<Student> findStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(SchoolTripId schoolTripId, String schoolClassName, String firstName, String lastName) {
         return spring.findStudentBySchoolTripAndSchoolClassAndFirstNameAndLastName(schoolTripId, schoolClassName, firstName, lastName);
+    }
+
+    @Override
+    public List<Student> findStudentsBySchoolTrip(SchoolTripId schoolTripId) {
+        return spring.findStudentsBySchoolTrip(schoolTripId);
+    }
+
+    @Override
+    public Optional<Student> findStudentByToken(String token) {
+        return spring.findStudentByToken(token);
     }
 
     @Override

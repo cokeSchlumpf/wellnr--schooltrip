@@ -5,7 +5,7 @@ import com.wellnr.ddd.commands.DataResult;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.user.User;
 
-public class ListSchoolTripsCommand implements DomainCommand {
+public class ListSchoolTripsCommand implements AbstractSchoolTripCommand<CommandResult> {
 
     @Override
     public CommandResult run(User user, SchoolTripDomainRegistry domainRegistry) {
