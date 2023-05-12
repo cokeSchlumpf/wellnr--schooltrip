@@ -31,6 +31,11 @@ public class StudentsMongoRepository implements StudentsRepository {
     }
 
     @Override
+    public Optional<Student> findStudentByConfirmationToken(String token) {
+        return spring.findStudentByConfirmationToken(token);
+    }
+
+    @Override
     public void insertOrUpdateStudent(Student student) {
         spring.save(student);
     }

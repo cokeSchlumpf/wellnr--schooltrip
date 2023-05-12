@@ -9,8 +9,11 @@ import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
+import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -135,20 +138,28 @@ public class Student extends AggregateRoot<String, Student> {
     }
 
     public Optional<Questionaire> getQuestionaire() {
-        return Optional.of(questionaire);
+        return Optional.ofNullable(questionaire);
     }
 
     public void completeStudentRegistration(
         Questionaire questionaire,
         String notificationEmail,
-        StudentsRepository students) {
+        StudentsRepository students,
+        JavaMailSender mailSender,
+        SchoolTripMessages messages) {
 
         this.questionaire = questionaire;
         this.registrationState = RegistrationState.WAITING_FOR_CONFIRMATION;
         this.notificationEmail = notificationEmail;
-
-        // TODO: Send E-Mail with confirmation link.
         students.insertOrUpdateStudent(this);
+
+        // Send E-Mail for confirmation.
+        var message = new SimpleMailMessage();
+        message.setFrom("michael.wellner@gmail.com");
+        message.setTo(notificationEmail);
+        message.setSubject("Prima Sache, dass du dabei bist.");
+        message.setText(messages.registrationConfirmationEmailText(this));
+        mailSender.send(message);
     }
 
     public void confirmStudentRegistration(StudentsRepository students) {

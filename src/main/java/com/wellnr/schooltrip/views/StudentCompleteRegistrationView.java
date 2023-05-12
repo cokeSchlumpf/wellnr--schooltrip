@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip.views;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
@@ -22,7 +23,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.wellnr.common.markup.When;
 import com.wellnr.schooltrip.core.application.commands.CompleteStudentRegistrationCommand;
-import com.wellnr.schooltrip.core.application.commands.GetStudentActionsForToken;
+import com.wellnr.schooltrip.core.application.commands.CompleteStudentRegistrationViewCommand;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
@@ -32,9 +33,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route("/students/:token")
+@Route("/students/complete-registration/:token")
 @PageTitle("School Trip")
-public class StudentInputView extends Container implements BeforeEnterObserver {
+public class StudentCompleteRegistrationView extends Container implements BeforeEnterObserver {
 
     private static final double SKI_RENTAL_PRICE = 65.0;
     private static final double SKI_BOOTS_PRICE = 15.0;
@@ -51,7 +52,7 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
 
     private Student student;
 
-    public StudentInputView(SchoolTripCommandRunner commandRunner) {
+    public StudentCompleteRegistrationView(SchoolTripCommandRunner commandRunner) {
         this.commandRunner = commandRunner;
     }
 
@@ -64,7 +65,7 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
 
         student = commandRunner
             .run(
-                GetStudentActionsForToken.apply(token)
+                CompleteStudentRegistrationViewCommand.apply(token)
             )
             .getData();
 
@@ -295,9 +296,10 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
 
             var submit = new Button("Absenden");
             submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+            submit.addClickShortcut(Key.ENTER);
             submit.setEnabled(false);
             email.addValueChangeListener(event -> {
-                submit.setEnabled(!event.getValue().isBlank());
+                submit.setEnabled(!event.getValue().isBlank() && !email.isInvalid());
             });
             submit.addClickListener(event -> this.submit());
 
@@ -354,7 +356,7 @@ public class StudentInputView extends Container implements BeforeEnterObserver {
             var questionnaire = Questionaire.apply(discipline, nutrition, comment);
 
             var cmd = CompleteStudentRegistrationCommand.apply(
-                student.getToken(), questionnaire
+                student.getToken(), questionnaire, email.getValue()
             );
 
             commandRunner.run(cmd);

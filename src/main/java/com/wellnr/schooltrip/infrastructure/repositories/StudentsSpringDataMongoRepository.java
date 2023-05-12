@@ -15,4 +15,6 @@ public interface StudentsSpringDataMongoRepository extends MongoRepository<Stude
 
     Optional<Student> findStudentByToken(String token);
 
+    Optional<Student> findStudentByConfirmationToken(String token);
+
 }

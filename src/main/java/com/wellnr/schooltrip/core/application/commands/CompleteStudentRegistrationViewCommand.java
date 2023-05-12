@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class GetStudentActionsForToken implements AbstractSchoolTripCommand<DataResult<Student>> {
+public class CompleteStudentRegistrationViewCommand implements AbstractSchoolTripCommand<DataResult<Student>> {
 
     String token;
 

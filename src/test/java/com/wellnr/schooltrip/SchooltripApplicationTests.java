@@ -1,12 +1,11 @@
 package com.wellnr.schooltrip;
 
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
-import com.wellnr.schooltrip.core.application.commands.RegisterAdminUserCommand;
 import com.wellnr.schooltrip.core.application.commands.CreateSchoolTripCommand;
+import com.wellnr.schooltrip.core.application.commands.RegisterAdminUserCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterSchoolClassCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
-import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.AnonymousUser;
 import com.wellnr.schooltrip.util.MongoContainer;
 import org.springframework.boot.SpringApplication;
@@ -86,7 +85,7 @@ class SchooltripApplicationTests {
                 new SchoolTripId(trip.getId()), "8a", "Egon", "Olsen"
             );
 
-        System.out.println("http://localhost:8080/students/" + student.getToken());
+        System.out.println("http://localhost:8080/students/complete-registration/" + student.getToken());
     }
 
 }

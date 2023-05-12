@@ -24,7 +24,10 @@ public class CompleteStudentRegistrationCommand implements AbstractSchoolTripCom
     @Override
     public MessageResult<Nothing> run(User user, SchoolTripDomainRegistry domainRegistry) {
         var student = domainRegistry.getStudents().getStudentByToken(token);
-        student.completeStudentRegistration(questionaire, notificationEmail, domainRegistry.getStudents());
+        student.completeStudentRegistration(
+            questionaire, notificationEmail, domainRegistry.getStudents(),
+            domainRegistry.getMailSender(), domainRegistry.getMessages()
+        );
 
         return MessageResult.formatted(
             "Successfully updated `%s`.", student.getDisplayName()

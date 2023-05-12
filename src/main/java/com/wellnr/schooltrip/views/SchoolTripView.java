@@ -110,6 +110,8 @@ public class SchoolTripView extends Container implements SchoolTripAppView, Befo
         var lastNameColumn = this.students.addColumn(Student::getLastName).setHeader("Last Name").setSortable(true);
         var firstNameColumn = this.students.addColumn(Student::getFirstName).setHeader("First Name").setSortable(true);
         this.students.addColumn(Student::getToken).setHeader("Token");
+        this.students.addColumn(Student::getRegistrationState).setHeader("Registration");
+        this.students.setMultiSort(true);
 
         this.students.sort(List.of(
             new GridSortOrder<>(classColumn, SortDirection.ASCENDING),

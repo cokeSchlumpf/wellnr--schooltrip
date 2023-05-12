@@ -4,6 +4,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.wellnr.common.helper.FakeMailSender;
 import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.student.StudentsRepository;
@@ -13,11 +14,11 @@ import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.repositories.SchoolTripsMongoRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -40,7 +41,8 @@ public class SchoolTripApplicationConfiguration implements WebMvcConfigurer {
         SchoolTripsMongoRepository schoolTrips,
         StudentsRepository students,
         RegisteredUsersRepository users,
-        PasswordEncryptionPort passwordEncryptionPort
+        PasswordEncryptionPort passwordEncryptionPort,
+        JavaMailSender mailSender
     ) {
         return SchoolTripDomainRegistry.apply(
             beanValidation,
@@ -48,7 +50,8 @@ public class SchoolTripApplicationConfiguration implements WebMvcConfigurer {
             students,
             users,
             passwordEncryptionPort,
-            new SchoolTripMessages() { }
+            new SchoolTripMessages() { },
+            mailSender
         );
     }
 
@@ -65,6 +68,11 @@ public class SchoolTripApplicationConfiguration implements WebMvcConfigurer {
 
             }
         };
+    }
+
+    @Bean
+    public JavaMailSender getMailSender() {
+        return new FakeMailSender();
     }
 
     @Bean

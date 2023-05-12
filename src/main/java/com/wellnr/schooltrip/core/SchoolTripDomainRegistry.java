@@ -9,6 +9,7 @@ import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.mail.javamail.JavaMailSender;
 
 @Getter
 @AllArgsConstructor(staticName = "apply")
@@ -25,5 +26,7 @@ public class SchoolTripDomainRegistry implements DomainRegistry {
     PasswordEncryptionPort passwordEncryptionPort;
 
     SchoolTripMessages messages;
+
+    JavaMailSender mailSender;
 
 }
