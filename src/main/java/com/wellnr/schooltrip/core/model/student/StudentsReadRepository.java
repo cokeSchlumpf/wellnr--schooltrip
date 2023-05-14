@@ -21,6 +21,12 @@ public interface StudentsReadRepository extends DomainRepository {
         SchoolTripId schoolTripId
     );
 
+    Optional<Student> findStudentById(String id);
+
+    default Student getStudentById(String id) {
+        return findStudentById(id).orElseThrow();
+    }
+
     Optional<Student> findStudentByToken(String token);
 
     default Student getStudentByToken(String token) {

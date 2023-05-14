@@ -15,7 +15,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -35,7 +35,7 @@ public class Student extends AggregateRoot<String, Student> {
 
     String lastName;
 
-    Instant birthday;
+    LocalDate birthday;
 
     Gender gender;
 
@@ -64,7 +64,7 @@ public class Student extends AggregateRoot<String, Student> {
         String schoolClass,
         String firstName,
         String lastName,
-        Instant birthday,
+        LocalDate birthday,
         Gender gender) {
 
         var id = UUID.randomUUID().toString();
@@ -164,6 +164,25 @@ public class Student extends AggregateRoot<String, Student> {
 
     public void confirmStudentRegistration(StudentsRepository students) {
         this.registrationState = RegistrationState.REGISTERED;
+        students.insertOrUpdateStudent(this);
+    }
+
+    public void updateStudentProperties(
+        String schoolClass, String firstName, String lastName, LocalDate birthday, Gender gender,
+        StudentsRepository students, SchoolTripsReadRepository schoolTrips
+    ) {
+        // Will throw an exception if school class not found.
+        var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
+        schoolTrip.getSchoolClassByName(this.schoolClass);
+
+        this.schoolClass = schoolClass;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthday = birthday;
+        this.gender = gender;
+
+        // TODO: Event if schoolClass has changed.
+
         students.insertOrUpdateStudent(this);
     }
 

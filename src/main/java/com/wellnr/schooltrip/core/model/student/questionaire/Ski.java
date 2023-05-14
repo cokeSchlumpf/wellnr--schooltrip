@@ -22,11 +22,11 @@ public class Ski implements Discipline {
         return apply(experience, null, null);
     }
 
-    public Optional<SkiBootRental> getSkiBootRental() {
+    public Optional<SkiBootRental> getBootRental() {
         return Optional.ofNullable(skiBootRental);
     }
 
-    public Optional<SkiRental> getSkiRental() {
+    public Optional<SkiRental> getRental() {
         return Optional.ofNullable(skiRental);
     }
 

@@ -26,6 +26,11 @@ public class StudentsMongoRepository implements StudentsRepository {
     }
 
     @Override
+    public Optional<Student> findStudentById(String id) {
+        return spring.findStudentById(id);
+    }
+
+    @Override
     public Optional<Student> findStudentByToken(String token) {
         return spring.findStudentByToken(token);
     }

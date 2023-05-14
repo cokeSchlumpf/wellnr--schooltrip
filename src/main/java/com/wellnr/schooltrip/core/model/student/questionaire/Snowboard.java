@@ -25,11 +25,11 @@ public class Snowboard implements Discipline {
         return apply(experience, null, null);
     }
 
-    public Optional<SnowboardRental> getSnowboardRental() {
+    public Optional<SnowboardRental> getRental() {
         return Optional.ofNullable(snowboardRental);
     }
 
-    public Optional<SnowboardBootRental> getSnowboardBootRental() {
+    public Optional<SnowboardBootRental> getBootRental() {
         return Optional.ofNullable(snowboardBootRental);
     }
 

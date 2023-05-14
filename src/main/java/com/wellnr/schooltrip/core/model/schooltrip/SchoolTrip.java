@@ -12,7 +12,6 @@ import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReposit
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.StudentId;
 import com.wellnr.schooltrip.core.model.student.StudentsReadRepository;
-import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
 import jakarta.validation.constraints.NotBlank;
@@ -35,7 +34,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     private static final String ID = "id";
     private static final String NAME = "name";
     private static final String TITLE = "title";
+    private static final String SETTINGS = "settings";
     private static final String SCHOOL_CLASSES = "schoolClasses";
+
 
     @JsonProperty(ID)
     private final String id;
@@ -43,8 +44,11 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     @JsonProperty(TITLE)
     private String title;
 
-    @JsonProperty
+    @JsonProperty(NAME)
     private String name;
+
+    @JsonProperty(SETTINGS)
+    private SchoolTripSettings settings;
 
     @JsonProperty(SCHOOL_CLASSES)
     private Set<SchoolClass> schoolClasses;
@@ -65,7 +69,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             name = Operators.stringToTechFriendlyName(title);
         }
 
-        return new SchoolTrip(id, title, name, new HashSet<>());
+        return new SchoolTrip(id, title, name, SchoolTripSettings.apply(), new HashSet<>());
     }
 
     /**
@@ -195,6 +199,11 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
 
     public SchoolClass getSchoolClassByName(String name) {
         return this.findSchoolClassByName(name).orElseThrow(); // TODO mw: Nice exception.
+    }
+
+    public void updateSettings(SchoolTripSettings settings, SchoolTripsRepository schoolTrips) {
+        this.settings = settings;
+        schoolTrips.save(this);
     }
 
     @Override

@@ -12,6 +12,24 @@ public class Operators {
 
     }
 
+    public static String camelCaseToHumanReadable(String s) {
+        var result = s.replaceAll(
+            String.format("%s|%s|%s",
+                "(?<=[A-Z])(?=[A-Z][a-z])",
+                "(?<=[^A-Z])(?=[A-Z])",
+                "(?<=[A-Za-z])(?=[^A-Za-z])"
+            ),
+            " "
+        );
+
+        if (result.length() > 1) {
+            return result.substring(0, 1).toUpperCase() + result.substring(1);
+        } else {
+            return result.toUpperCase();
+        }
+    }
+
+
     public static String camelCaseToKebabCase(String s) {
         return s
             .replaceAll("([a-z0-9])([A-Z])", "$1-$2")

@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class SnowboardRental {
+public class SnowboardRental implements Rental {
 
     /**
      * Student height in centimeters.

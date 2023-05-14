@@ -12,6 +12,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.RouterLink;
@@ -26,6 +27,8 @@ public class SchoolTripAppLayout extends AppLayout {
 
     private final H2 areaTitle;
 
+    private final VerticalLayout subMenuContainer;
+
     private final UserSession userSession;
 
     public SchoolTripAppLayout(UserSession userSession) {
@@ -34,6 +37,10 @@ public class SchoolTripAppLayout extends AppLayout {
         this.userSession = userSession;
         this.areaTitle = new H2("");
         this.areaTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+        this.subMenuContainer = new VerticalLayout();
+        this.subMenuContainer.setAlignItems(FlexComponent.Alignment.CENTER);
+        this.subMenuContainer.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        this.subMenuContainer.setSizeUndefined();
 
         addNavBarContent();
         addDrawerContent();
@@ -70,6 +77,7 @@ public class SchoolTripAppLayout extends AppLayout {
          * Finalize
          */
         addToDrawer(header, scroller, footer);
+        this.setDrawerOpened(false);
     }
 
     private void addNavBarContent() {
@@ -95,7 +103,7 @@ public class SchoolTripAppLayout extends AppLayout {
         layout.setSizeFull();
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        layout.add(this.areaTitle, getTabs(), userMenu);
+        layout.add(this.areaTitle, this.subMenuContainer, userMenu);
 
         addToNavbar(true, toggle, layout);
     }
@@ -106,11 +114,11 @@ public class SchoolTripAppLayout extends AppLayout {
 
         if (content instanceof SchoolTripAppView view) {
             this.areaTitle.setText(view.getSectionTitle());
-        }
-    }
 
-    public Component getTabs() {
-        return new Div();
+            this.subMenuContainer.removeAll();
+            var maybeSubmenu = view.getSubmenu();
+            maybeSubmenu.ifPresent(this.subMenuContainer::add);
+        }
     }
 
 }

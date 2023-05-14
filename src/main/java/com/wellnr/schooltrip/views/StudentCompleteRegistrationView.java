@@ -24,6 +24,7 @@ import com.vaadin.flow.router.Route;
 import com.wellnr.common.markup.When;
 import com.wellnr.schooltrip.core.application.commands.CompleteStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.CompleteStudentRegistrationViewCommand;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
@@ -37,11 +38,6 @@ import java.util.List;
 @PageTitle("School Trip")
 public class StudentCompleteRegistrationView extends Container implements BeforeEnterObserver {
 
-    private static final double SKI_RENTAL_PRICE = 65.0;
-    private static final double SKI_BOOTS_PRICE = 15.0;
-    private static final double SNOWBOARD_PRICE = 70.0;
-    private static final double SNOWBOARD_BOOTS_PRICE = 75.0;
-
     private final SchoolTripCommandRunner commandRunner;
 
     private DisciplinSection disciplinSection;
@@ -51,6 +47,8 @@ public class StudentCompleteRegistrationView extends Container implements Before
     private AdditionalInformationSection additionalInformationSection;
 
     private Student student;
+
+    private SchoolTrip schoolTrip;
 
     public StudentCompleteRegistrationView(SchoolTripCommandRunner commandRunner) {
         this.commandRunner = commandRunner;
@@ -63,11 +61,14 @@ public class StudentCompleteRegistrationView extends Container implements Before
             .get("token")
             .orElseThrow();
 
-        student = commandRunner
+        var projection = commandRunner
             .run(
                 CompleteStudentRegistrationViewCommand.apply(token)
             )
             .getData();
+
+        student = projection.student();
+        schoolTrip = projection.schoolTrip();
 
         /*
          * Initialize view.
@@ -125,7 +126,10 @@ public class StudentCompleteRegistrationView extends Container implements Before
         @Override
         public List<PriceLineItem> getPriceLineItems() {
             return List.of(
-                new PriceLineItem("An- und Abfahrt, Unterkunft und Verpflegung (Semi-Voll-Pension)", 442.0)
+                new PriceLineItem(
+                    "An- und Abfahrt, Unterkunft und Verpflegung (Semi-Voll-Pension)",
+                    schoolTrip.getSettings().getBasePrice()
+                )
             );
         }
     }
@@ -191,22 +195,23 @@ public class StudentCompleteRegistrationView extends Container implements Before
         @Override
         public List<PriceLineItem> getPriceLineItems() {
             var items = new ArrayList<PriceLineItem>();
+            var settings = schoolTrip.getSettings();
 
             if (disciplinSection.disciplin.getValue().equals(Ski.class)) {
                 if (rental.getValue().equals(Boolean.TRUE)) {
-                    items.add(new PriceLineItem("Ski-Ausleihe", SKI_RENTAL_PRICE));
+                    items.add(new PriceLineItem("Ski-Ausleihe", settings.getSkiRentalPrice()));
                 }
 
                 if (bootRental.getValue().equals(Boolean.TRUE)) {
-                    items.add(new PriceLineItem("Ski-Schuhe-Ausleihe", SKI_BOOTS_PRICE));
+                    items.add(new PriceLineItem("Ski-Schuhe-Ausleihe", settings.getSkiBootsRentalPrice()));
                 }
             } else {
                 if (rental.getValue().equals(Boolean.TRUE)) {
-                    items.add(new PriceLineItem("Snowboard-Ausleihe", SNOWBOARD_PRICE));
+                    items.add(new PriceLineItem("Snowboard-Ausleihe", settings.getSnowboardRentalPrice()));
                 }
 
                 if (rental.getValue().equals(Boolean.TRUE)) {
-                    items.add(new PriceLineItem("Snowboard-Boots-Ausleihe", SNOWBOARD_BOOTS_PRICE));
+                    items.add(new PriceLineItem("Snowboard-Boots-Ausleihe", settings.getSnowboardBootsRentalPrice()));
                 }
             }
 

@@ -12,6 +12,7 @@ import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.repositories.SchoolTripsMongoRepository;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;

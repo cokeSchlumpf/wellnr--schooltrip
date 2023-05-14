@@ -7,9 +7,12 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.user.User;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor(staticName = "apply")
@@ -34,7 +37,7 @@ public class RegisterStudentCommand implements AbstractSchoolTripCommand<Message
 
         var student = Student.createNew(
             schoolTripId, schoolClass, firstName, lastName,
-            Instant.now(), Gender.Male
+            LocalDate.now(), Gender.Male
         );
 
         student.register(
