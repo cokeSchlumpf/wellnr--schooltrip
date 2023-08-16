@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.views;
+package com.wellnr.schooltrip.ui;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -28,7 +28,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.views.components.Container;
+import com.wellnr.schooltrip.ui.components.Container;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;

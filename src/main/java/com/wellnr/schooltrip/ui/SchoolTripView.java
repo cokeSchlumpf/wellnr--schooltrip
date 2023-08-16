@@ -1,54 +1,45 @@
-package com.wellnr.schooltrip.views;
+package com.wellnr.schooltrip.ui;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.Tabs;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
+import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
-import com.wellnr.common.Operators;
-import com.wellnr.common.markup.When;
+import com.vaadin.flow.router.RouteParam;
+import com.vaadin.flow.router.RouteParameters;
+import com.wellnr.common.markup.Nothing;
 import com.wellnr.ddd.DomainException;
 import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.ConfirmStudentRegistrationCommand;
-import com.wellnr.schooltrip.core.application.commands.RegisterSchoolClassCommand;
-import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
-import com.wellnr.schooltrip.core.application.commands.UpdateStudentPropertiesCommand;
-import com.wellnr.schooltrip.core.model.schooltrip.SchoolClass;
-import com.wellnr.schooltrip.core.model.student.Gender;
+import com.wellnr.schooltrip.core.application.commands.*;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.views.components.CommandForm;
-import com.wellnr.schooltrip.views.components.CommandFormBuilder;
-import com.wellnr.schooltrip.views.components.ExcelImportDialog;
-import com.wellnr.schooltrip.views.layout.AbstractSchoolTripView;
-import com.wellnr.schooltrip.views.layout.SchoolTripAppLayout;
+import com.wellnr.schooltrip.ui.components.CommandForm;
+import com.wellnr.schooltrip.ui.components.CommandFormBuilder;
+import com.wellnr.schooltrip.ui.components.ExcelImportDialog;
+import com.wellnr.schooltrip.ui.views.trips.AbstractSchoolTripView;
+import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Route(value = "trips/:name", layout = SchoolTripAppLayout.class)
+@Route(value = "trips/:name", layout = ApplicationAppLayout.class)
 public class SchoolTripView extends AbstractSchoolTripView {
 
     private Grid<Student> students;
@@ -56,7 +47,19 @@ public class SchoolTripView extends AbstractSchoolTripView {
     private StudentDetails studentDetails;
 
     public SchoolTripView(SchoolTripCommandRunner commandRunner) {
-        super(true, commandRunner);
+        super(commandRunner);
+    }
+
+    /**
+     * Helper method to generate the route parameters for this view.
+     *
+     * @param name The name of the school trip to route to.
+     * @return The set of route parameters required to call this view.
+     */
+    public static RouteParameters getRouteParameters(String name) {
+        return new RouteParameters(
+            new RouteParam("name", name)
+        );
     }
 
     @Override
@@ -84,8 +87,8 @@ public class SchoolTripView extends AbstractSchoolTripView {
 
         var mainArea = new HorizontalLayout(gridArea, studentDetails);
         mainArea.setAlignItems(FlexComponent.Alignment.STRETCH);
-        mainArea.setFlexGrow(3, gridArea);
-        mainArea.setFlexGrow(1, studentDetails);
+        mainArea.setFlexGrow(1, gridArea);
+        mainArea.setFlexGrow(0, studentDetails);
         mainArea.setWidthFull();
 
         mainArea.setMargin(false);
@@ -179,20 +182,18 @@ public class SchoolTripView extends AbstractSchoolTripView {
 
     }
 
-    private class StudentDetails extends VerticalLayout {
+    private class StudentDetails extends Scroller {
 
-        private CommandForm<MessageResult<Student>, UpdateStudentPropertiesCommand> basics;
+        private final CommandForm<MessageResult<Student>, UpdateStudentPropertiesCommand> basics;
+
+        private final CommandForm<MessageResult<Nothing>, AddPaymentCommand> addPaymentForm;
 
         private final StudentRegistration registration;
 
         public StudentDetails() {
-            setMaxWidth("640px");
+            setWidth("800px");
+            setMaxWidth("800");
             setVisible(false);
-
-            var tabs = new Tabs();
-            tabs.add(new Tab("Student"));
-            tabs.add(new Tab("Registration"));
-            tabs.add(new Tab("Payments"));
 
             this.basics = new CommandFormBuilder<>(
                 UpdateStudentPropertiesCommand.class,
@@ -201,13 +202,47 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 .addVariant("schoolClass", CommandFormBuilder.FormVariant.LINE_BREAK_AFTER)
                 .build();
 
+            this.addPaymentForm = new CommandFormBuilder<>(
+                AddPaymentCommand.class,
+                commandRunner
+            )
+                .addVariant(
+                    "type",
+                    CommandFormBuilder.FormVariant.LINE_BREAK_AFTER,
+                    CommandFormBuilder.FormVariant.LINE_BREAK_AFTER
+                )
+                .addVariant(
+                    "description",
+                    CommandFormBuilder.FormVariant.FULL_WIDTH,
+                    CommandFormBuilder.FormVariant.LINE_BREAK_AFTER
+                )
+                .addVariant(
+                    "amount",
+                    CommandFormBuilder.FormVariant.EURO_SUFFIX
+                )
+                .build();
+
             this.registration = new StudentRegistration();
 
-            this.add(tabs);
-            this.add(basics);
-            this.add(new Hr());
-            this.add(registration);
-            this.add(new Hr());
+            var tabs = new TabSheet();
+
+            tabs.add(
+                new Tab("Student"),
+                basics
+            );
+
+            tabs.add(
+                new Tab("Registration"),
+                this.registration
+            );
+
+            tabs.add(
+                new Tab("Payments"),
+                this.addPaymentForm
+            );
+
+            var vl = new VerticalLayout(tabs);
+            this.setContent(vl);
         }
 
         public void open(Student student) {
@@ -215,9 +250,15 @@ public class SchoolTripView extends AbstractSchoolTripView {
             this.basics.setGetInitialCommand(
                 () -> UpdateStudentPropertiesCommand.apply(student)
             );
+            this.addPaymentForm.setGetInitialCommand(
+                () -> AddPaymentCommand.apply(student)
+            );
             this.registration.setStudent(student);
         }
 
+        public void close() {
+            this.setVisible(false);
+        }
     }
 
     private class StudentRegistration extends VerticalLayout {
@@ -265,88 +306,37 @@ public class SchoolTripView extends AbstractSchoolTripView {
 
     }
 
-    private class StudentBasicsForm extends VerticalLayout {
-
-        private final Select<String> schoolClass;
-
-        private final TextField firstName;
-
-        private final TextField lastName;
-
-        private final DatePicker birthday;
-
-        private final Select<Gender> gender;
-
-        private final BeanValidationBinder<UpdateStudentPropertiesCommand> binder;
-
-        private final Button save;
-
-        private Student student;
-
-        public StudentBasicsForm() {
-            this.schoolClass = new Select<>();
-            this.schoolClass.setLabel("Class");
-            this.schoolClass.setItems(
-                schoolTrip.schoolTrip().getSchoolClasses().stream().map(SchoolClass::getName).toList()
-            );
-
-            this.firstName = new TextField("Firstname");
-            this.lastName = new TextField("Last Name");
-
-            this.birthday = new DatePicker("Birthday");
-
-            this.gender = new Select<>();
-            this.gender.setItems(Gender.Male, Gender.Female);
-            this.gender.setItemLabelGenerator(
-                g -> When.isTrue(g.equals(Gender.Male)).then("male").otherwise("female")
-            );
-
-            this.binder = new BeanValidationBinder<>(UpdateStudentPropertiesCommand.class);
-            this.binder.bindInstanceFields(this);
-
-            this.save = new Button("Save");
-            save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-            save.addClickListener(event -> {
-                var cmd = UpdateStudentPropertiesCommand.apply(student);
-                Operators.suppressExceptions(() -> binder.writeBean(cmd));
-
-                System.out.println(commandRunner.run(cmd).getData());
-            });
-            binder.addStatusChangeListener(
-                status -> save.setEnabled(!status.hasValidationErrors())
-            );
-
-            var form = new FormLayout();
-            form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
-            form.add(schoolClass);
-            form.add(new Div());
-            form.add(firstName);
-            form.add(lastName);
-            form.add(birthday);
-            form.add(gender);
-
-            this.add(form);
-            this.add(save);
-        }
-
-        public void setStudent(Student student) {
-            var cmd = UpdateStudentPropertiesCommand.apply(student);
-
-            this.student = student;
-            this.binder.readBean(cmd);
-            this.save.setEnabled(true);
-        }
-
-    }
-
     private class StudentsGrid extends Grid<Student> {
 
         public StudentsGrid() {
-            var classColumn = this.addColumn(Student::getSchoolClass).setHeader("Class").setSortable(true);
-            var lastNameColumn = this.addColumn(Student::getLastName).setHeader("Last Name").setSortable(true);
-            var firstNameColumn = this.addColumn(Student::getFirstName).setHeader("First Name").setSortable(true);
-            this.addColumn(Student::getToken).setHeader("Token");
-            this.addColumn(Student::getRegistrationState).setHeader("Registration");
+            var classColumn = this
+                .addColumn(Student::getSchoolClass)
+                .setHeader("Class")
+                .setSortable(true)
+                .setFrozen(true)
+                .setAutoWidth(true);
+
+            var lastNameColumn = this
+                .addColumn(Student::getLastName)
+                .setHeader("Last Name")
+                .setSortable(true)
+                .setFrozen(true)
+                .setAutoWidth(true);
+
+            var firstNameColumn = this
+                .addColumn(Student::getFirstName)
+                .setHeader("First Name")
+                .setSortable(true)
+                .setFrozen(true)
+                .setAutoWidth(true);
+
+            this
+                .addComponentColumn(student -> {
+                    var span = new Span();
+                    span.setClassName("app--trip--registration-state--created");
+                    span.add(VaadinIcon.CHECK.create());
+                    return span;
+                }).setHeader("Status");
 
             this
                 .addColumn(student -> student
@@ -384,12 +374,10 @@ public class SchoolTripView extends AbstractSchoolTripView {
                     bttEdit.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
                     bttEdit.addClickListener(event -> {
                         studentDetails.open(student);
+                        getSelectionModel().select(student);
                     });
 
-                    var bttDelete = new Button(VaadinIcon.TRASH.create());
-                    bttDelete.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_SMALL);
-
-                    var layout = new HorizontalLayout(bttDelete, bttEdit);
+                    var layout = new HorizontalLayout(bttEdit);
                     layout.setAlignItems(FlexComponent.Alignment.CENTER);
                     layout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
                     return layout;
@@ -404,6 +392,14 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 new GridSortOrder<>(lastNameColumn, SortDirection.ASCENDING),
                 new GridSortOrder<>(firstNameColumn, SortDirection.ASCENDING)
             ));
+
+            this.addSelectionListener(event -> {
+                if (event.getFirstSelectedItem().isPresent()) {
+                    studentDetails.open(event.getFirstSelectedItem().get());
+                } else {
+                    studentDetails.close();
+                }
+            });
         }
 
     }

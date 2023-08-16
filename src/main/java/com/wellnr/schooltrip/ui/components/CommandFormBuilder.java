@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.views.components;
+package com.wellnr.schooltrip.ui.components;
 
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -79,6 +79,7 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
             }
 
             var label = getLabel(field.getName());
+            var fullWidthColspan = 2;
 
             if (String.class.isAssignableFrom(field.getType())) {
                 var input = new TextField(field.getName());
@@ -87,18 +88,30 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
 
                 binder.bind(input, field.getName());
                 form.add(input);
+
+                if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                    form.setColspan(input, fullWidthColspan);
+                }
             } else if (Boolean.class.isAssignableFrom(field.getType())) {
                 var input = new Checkbox();
                 input.setLabel(label);
 
                 binder.bind(input, field.getName());
                 form.add(input);
+
+                if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                    form.setColspan(input, fullWidthColspan);
+                }
             } else if (LocalDate.class.isAssignableFrom(field.getType())) {
                 var input = new DatePicker();
                 input.setLabel(label);
 
                 binder.bind(input, field.getName());
                 form.add(input);
+
+                if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                    form.setColspan(input, fullWidthColspan);
+                }
             } else if (
                 Integer.class.isAssignableFrom(field.getType()) ||
                     int.class.isAssignableFrom(field.getType())
@@ -109,6 +122,10 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
 
                 binder.bind(input, field.getName());
                 form.add(input);
+
+                if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                    form.setColspan(input, fullWidthColspan);
+                }
             } else if (
                 Double.class.isAssignableFrom(field.getType()) ||
                     double.class.isAssignableFrom(field.getType())
@@ -123,6 +140,10 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
 
                 binder.bind(input, field.getName());
                 form.add(input);
+
+                if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                    form.setColspan(input, fullWidthColspan);
+                }
             } else if (LocalDateTime.class.isAssignableFrom(field.getType())) {
                 var input = new DateTimePicker();
                 input.setLabel(label);
@@ -144,6 +165,10 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
 
                     binder.bind(input, field.getName());
                     form.add(input);
+
+                    if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                        form.setColspan(input, fullWidthColspan);
+                    }
                 } else {
                     var input = new Select<>();
                     input.setLabel(label);
@@ -152,6 +177,10 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
 
                     binder.bind(input, field.getName());
                     form.add(input);
+
+                    if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                        form.setColspan(input, fullWidthColspan);
+                    }
                 }
             } else {
                 throw new IllegalArgumentException(String.format(
@@ -215,10 +244,15 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
          */
         RADIO_BUTTONS,
 
-        /*
+        /**
          * Use to mark a field to have € suffix.
          */
-        EURO_SUFFIX
+        EURO_SUFFIX,
+
+        /**
+         * Use this to mark a field to have full width.
+         */
+        FULL_WIDTH
     }
 
 }

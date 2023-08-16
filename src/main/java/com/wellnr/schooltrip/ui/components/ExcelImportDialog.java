@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.views.components;
+package com.wellnr.schooltrip.ui.components;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;

@@ -6,6 +6,7 @@ import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
+import com.wellnr.schooltrip.core.model.student.payments.Payment;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
@@ -16,6 +17,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,6 +52,8 @@ public class Student extends AggregateRoot<String, Student> {
 
     String notificationEmail;
 
+    List<Payment> payments;
+
     /**
      * Creates a new instance of this entity.
      *
@@ -73,7 +78,66 @@ public class Student extends AggregateRoot<String, Student> {
 
         return new Student(
             id, schoolTrip, schoolClass, firstName, lastName, birthday, gender,
-            RegistrationState.CREATED, token, confirmationToken, null, null
+            RegistrationState.CREATED, token, confirmationToken, null, null,
+            new ArrayList<>()
+        );
+    }
+
+    /**
+     * Registers a mad payment for the student.
+     *
+     * @param payment The payment which has been made.
+     * @param students The repository to persist the changes.
+     */
+    public void addPayment(
+        User executor, Payment payment, StudentsRepository students, SchoolTripsReadRepository schoolTrips
+    ) {
+        /*
+         * Validate if creator is allowed.
+         */
+        var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
+
+        executor.checkPermission(
+            DomainPermissions.APPLICATION__MANAGE_TRIPS,
+            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(schoolTrip.getUri())
+        );
+
+        /*
+         * Avoid duplicate payments (idempotence)
+         */
+        this.payments = new ArrayList<>(
+            this.payments.stream().filter(p -> !p.equals(payment)).toList()
+        );
+
+        /*
+         * Make changes.
+         */
+        this.payments.add(payment);
+        students.insertOrUpdateStudent(this);
+    }
+
+    /**
+     * Remove an existing payment.
+     * @param id The id of the payment.
+     */
+    public void removePayment(
+        User executor, String id, StudentsRepository studens, SchoolTripsReadRepository schoolTrips) {
+
+        /*
+         * Validate if creator is allowed.
+         */
+        var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
+
+        executor.checkPermission(
+            DomainPermissions.APPLICATION__MANAGE_TRIPS,
+            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(schoolTrip.getUri())
+        );
+
+        /*
+         * Make Changes.
+         */
+        this.payments = new ArrayList<>(
+            this.payments.stream().filter(p -> !p.getId().equals(id)).toList()
         );
     }
 

@@ -1,36 +1,24 @@
-package com.wellnr.schooltrip.views;
+package com.wellnr.schooltrip.ui;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.datetimepicker.DateTimePicker;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
-import com.wellnr.common.Operators;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.UpdateSchoolTripSettingsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.views.components.CommandForm;
-import com.wellnr.schooltrip.views.components.CommandFormBuilder;
-import com.wellnr.schooltrip.views.layout.AbstractSchoolTripView;
-import com.wellnr.schooltrip.views.layout.SchoolTripAppLayout;
-
-import java.time.Duration;
+import com.wellnr.schooltrip.ui.components.CommandForm;
+import com.wellnr.schooltrip.ui.components.CommandFormBuilder;
+import com.wellnr.schooltrip.ui.views.trips.AbstractSchoolTripView;
+import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 
 @SuppressWarnings("FieldCanBeLocal")
-@Route(value = "trips/:name/settings", layout = SchoolTripAppLayout.class)
+@Route(value = "trips/:name/settings", layout = ApplicationAppLayout.class)
 public class SchoolTripSettingsView extends AbstractSchoolTripView {
 
     private final CommandForm<MessageResult<SchoolTrip>, UpdateSchoolTripSettingsCommand> form;
 
 
     public SchoolTripSettingsView(SchoolTripCommandRunner commandRunner) {
-        super(false, commandRunner);
+        super(commandRunner);
 
         this.form = new CommandFormBuilder<>(UpdateSchoolTripSettingsCommand.class, commandRunner)
             .addVariant(

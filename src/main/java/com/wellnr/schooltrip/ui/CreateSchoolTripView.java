@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.views;
+package com.wellnr.schooltrip.ui;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Key;
@@ -17,12 +17,12 @@ import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.CreateSchoolTripCommand;
 import com.wellnr.schooltrip.infrastructure.UserSession;
-import com.wellnr.schooltrip.views.components.Container;
-import com.wellnr.schooltrip.views.layout.SchoolTripAppLayout;
-import com.wellnr.schooltrip.views.layout.SchoolTripAppView;
+import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
+import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
+import com.wellnr.schooltrip.ui.layout.ApplicationAppView;
 
-@Route(value = "trips/create", layout = SchoolTripAppLayout.class)
-public class CreateSchoolTripView extends Container implements SchoolTripAppView {
+@Route(value = "trips/create", layout = ApplicationAppLayout.class)
+public class CreateSchoolTripView extends AbstractApplicationAppView implements ApplicationAppView {
 
     private final SchoolTripDomainRegistry domainRegistry;
 
@@ -61,11 +61,6 @@ public class CreateSchoolTripView extends Container implements SchoolTripAppView
         layout.add(this.submit);
 
         this.add(layout);
-    }
-
-    @Override
-    public String getSectionTitle() {
-        return "Create School Trip";
     }
 
     private void onCreateClick(ClickEvent<Button> event) {

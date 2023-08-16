@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.views;
+package com.wellnr.schooltrip.ui;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.LoginForm;
@@ -10,6 +10,7 @@ import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.LoginCommand;
 import com.wellnr.schooltrip.core.model.user.AnonymousUser;
 import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;
 
 @Route("")
 @PageTitle("Login | Vaadin CRM")

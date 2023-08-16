@@ -2,6 +2,7 @@ package com.wellnr.schooltrip.core.model.schooltrip.repository;
 
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
+import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripNotFoundException;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -27,7 +28,7 @@ public interface SchoolTripsReadRepository {
 
     default SchoolTrip getSchoolTripByName(String name) {
         return findSchoolTripByName(name).orElseThrow(
-            () -> new RuntimeException("Schooltrip `" + name + "` not found.")
+            () -> SchoolTripNotFoundException.withName(name)
         );
     }
 

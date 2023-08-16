@@ -1,0 +1,75 @@
+vaadin-app-layout::part(navbar) {
+    background-color: var(--lumo-primary-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+vaadin-drawer-toggle {
+    color: var(--lumo-primary-contrast-color);
+}
+
+.app--app-layout--navbar {
+    margin-right: var(--lumo-space-m);
+}
+
+.app--app-layout--navbar vaadin-menu-bar-button {
+    background-color: var(--lumo-primary-color);
+    color: var(--lumo-primary-contrast-color);
+}
+
+.app--app-layout--navbar h2 {
+    color: var(--lumo-primary-contrast-color);
+}
+
+.app--app-layout--brand {
+    font-weight: bold;
+    display: inline-block;
+}
+
+.app--app-layout--brand--product {
+    display: inline-block;
+    font-weight: normal;
+    margin-left: var(--lumo-space-s);
+}
+
+vaadin-app-layout::part(drawer) {
+    background-color: var(--lumo-contrast-5pct);
+    box-shadow: inset calc(-1 * var(--lumo-space-xs)) 0px 0px 0px var(--lumo-contrast-20pct);
+    padding: 0;
+}
+
+vaadin-vertical-layout[slot="drawer"] {
+    padding: var(--lumo-space-m) 0;
+}
+
+.app--app-layout--mainmenu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.app--app-layout--mainmenu a {
+    display: block;
+
+    border-right: var(--lumo-space-xs) solid transparent;
+    padding: var(--lumo-space-s) var(--lumo-space-m);
+
+    text-decoration: none;
+    color: var(--lumo-contrast-70pct);
+    transition: all 0.5s;
+}
+
+.app--app-layout--mainmenu a vaadin-icon {
+    margin-right: var(--lumo-space-s);
+}
+
+.app--app-layout--mainmenu a:hover {
+    border-right-color: var(--lumo-contrast-10pct);
+    color: var(--lumo-contrast-90pct);
+}
+
+.app--app-layout--mainmenu a[highlight] {
+    background-color: var(--lumo-contrast-10pct);
+    border-right-color: var(--lumo-primary-color);
+    color: var(--lumo-contrast-90pct);
+}

@@ -1,10 +1,10 @@
 package com.wellnr.common;
 
-import com.vaadin.flow.internal.CaseUtil;
 import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Optional;
 
 public class Operators {
 
@@ -43,6 +43,17 @@ public class Operators {
 
     public static String stringToTechFriendlyName(String s) {
         return camelCaseToKebabCase(stringToCamelCase(s));
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<T> getCauseByType(Throwable chain, Class<T> exType) {
+        if (exType.isInstance(chain)) {
+            return Optional.of((T) chain);
+        } else if (chain.getCause() != null) {
+            return getCauseByType(chain.getCause(), exType);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public static void ignoreExceptions(ExceptionalRunnable runnable, Logger log) {
