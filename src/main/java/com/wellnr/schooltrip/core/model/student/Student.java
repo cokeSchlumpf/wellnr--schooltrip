@@ -6,6 +6,7 @@ import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
+import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
@@ -235,9 +236,17 @@ public class Student extends AggregateRoot<String, Student> {
         String schoolClass, String firstName, String lastName, LocalDate birthday, Gender gender,
         StudentsRepository students, SchoolTripsReadRepository schoolTrips
     ) {
+        /*
+         * Validation
+         */
         // Will throw an exception if school class not found.
         var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
-        schoolTrip.getSchoolClassByName(this.schoolClass);
+        schoolTrip.getSchoolClassByName(schoolClass);
+
+        /*
+         * Update properties.
+         */
+        var schoolClassBefore = this.schoolClass;
 
         this.schoolClass = schoolClass;
         this.firstName = firstName;
@@ -245,7 +254,12 @@ public class Student extends AggregateRoot<String, Student> {
         this.birthday = birthday;
         this.gender = gender;
 
-        // TODO: Event if schoolClass has changed.
+        /*
+         * Events
+         */
+        if (!schoolClassBefore.equals(schoolClass)) {
+            this.registerEvent(StudentsSchoolClassChangedEvent.apply(schoolClassBefore, this));
+        }
 
         students.insertOrUpdateStudent(this);
     }

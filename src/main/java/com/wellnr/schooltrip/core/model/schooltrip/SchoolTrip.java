@@ -160,12 +160,28 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
      * Registers a new student as member of a school class and trip.
      *
      * @param schoolClass The school class the student belongs to.
-     * @param student The student which has been registered.
+     * @param student     The student which has been registered.
      */
     public void registerStudent(
         String schoolClass, StudentId student, SchoolTripsRepository schoolTrips
     ) {
         this.getSchoolClassByName(schoolClass).getStudents().add(student);
+        schoolTrips.save(this);
+    }
+
+    /**
+     * Updates a students membership of a class.
+     *
+     * @param oldClass    The old class he was part of until now.
+     * @param newClass    The new class he is now part of.
+     * @param student     The student id.
+     * @param schoolTrips The repository to store the information.
+     */
+    public void updateStudentsClass(
+        String oldClass, String newClass, StudentId student, SchoolTripsRepository schoolTrips
+    ) {
+        this.getSchoolClassByName(oldClass).getStudents().remove(student);
+        this.getSchoolClassByName(newClass).getStudents().add(student);
         schoolTrips.save(this);
     }
 
@@ -189,6 +205,12 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         schoolTrips.save(this);
     }
 
+    /**
+     * Get a school class by its name.
+     *
+     * @param name The name of the class.
+     * @return The class, if found.
+     */
     public Optional<SchoolClass> findSchoolClassByName(String name) {
         return this
             .schoolClasses
@@ -197,10 +219,22 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             .findFirst();
     }
 
+    /**
+     * Get a school class by its name, throw if class not found.
+     *
+     * @param name The name of the class.
+     * @return The class.
+     */
     public SchoolClass getSchoolClassByName(String name) {
         return this.findSchoolClassByName(name).orElseThrow(); // TODO mw: Nice exception.
     }
 
+    /**
+     * Updates the school trips settings.
+     *
+     * @param settings    The updated settings.
+     * @param schoolTrips The repository to persist the information.
+     */
     public void updateSettings(SchoolTripSettings settings, SchoolTripsRepository schoolTrips) {
         this.settings = settings;
         schoolTrips.save(this);

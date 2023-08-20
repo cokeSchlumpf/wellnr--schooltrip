@@ -5,6 +5,7 @@ import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolTripCreatedEvent;
 import com.wellnr.schooltrip.core.model.student.StudentId;
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
+import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
 import lombok.AllArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -34,5 +35,18 @@ public class SchoolTripsDomainEventHandlers {
             );
     }
 
+    @Async
+    @EventListener
+    public void onStudentsSchoolClassChanged(StudentsSchoolClassChangedEvent event) {
+        domainRegistry
+            .getSchoolTrips()
+            .getSchoolTripById(event.getStudent().getSchoolTrip())
+            .updateStudentsClass(
+                event.getOldClass(),
+                event.getStudent().getSchoolClass(),
+                new StudentId(event.getStudent().getId()),
+                domainRegistry.getSchoolTrips()
+            );
+    }
 
 }

@@ -4,12 +4,9 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.menubar.MenuBar;
-import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
@@ -23,10 +20,7 @@ import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.common.markup.Nothing;
 import com.wellnr.common.markup.Tuple2;
 import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.AddPaymentCommand;
-import com.wellnr.schooltrip.core.application.commands.ConfirmStudentRegistrationCommand;
-import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
-import com.wellnr.schooltrip.core.application.commands.UpdateStudentPropertiesCommand;
+import com.wellnr.schooltrip.core.application.commands.*;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
@@ -68,8 +62,6 @@ public class SchoolTripView extends AbstractSchoolTripView {
             return;
         }
 
-        var actions = new ActionsBar();
-
         if (Objects.isNull(this.students)) {
             this.students = new StudentsGrid();
         }
@@ -77,19 +69,9 @@ public class SchoolTripView extends AbstractSchoolTripView {
         this.students.getGrid().setItems(schoolTrip.students());
         this.studentDetails = new StudentDetails();
 
-        var gridArea = new VerticalLayout();
-        gridArea.setAlignItems(FlexComponent.Alignment.START);
-
-        gridArea.add(actions);
-        gridArea.add(students);
-
-        gridArea.setAlignSelf(FlexComponent.Alignment.START, actions);
-        gridArea.setFlexGrow(0, actions);
-        gridArea.setFlexGrow(1, students);
-
-        var mainArea = new HorizontalLayout(gridArea, studentDetails);
+        var mainArea = new HorizontalLayout(students, studentDetails);
         mainArea.setAlignItems(FlexComponent.Alignment.STRETCH);
-        mainArea.setFlexGrow(1, gridArea);
+        mainArea.setFlexGrow(1, students);
         mainArea.setFlexGrow(0, studentDetails);
         mainArea.setWidthFull();
 
@@ -107,28 +89,6 @@ public class SchoolTripView extends AbstractSchoolTripView {
         this.reload();
     }
 
-    private class ActionsBar extends HorizontalLayout {
-
-        public ActionsBar() {
-            var actionsMenuBar = new MenuBar();
-            actionsMenuBar.addThemeVariants(MenuBarVariant.LUMO_ICON, MenuBarVariant.LUMO_PRIMARY);
-            var actions = actionsMenuBar.addItem(VaadinIcon.TASKS.create());
-            var actionsSubMenu = actions.getSubMenu();
-
-            actionsSubMenu.addItem("Add Student");
-            actionsSubMenu.addItem("Assign Sequential Identifier");
-            actionsSubMenu.addItem("Remove not registered Students");
-            actionsSubMenu.add(new Hr());
-            actionsSubMenu.addItem("Export Excel");
-
-            setWidthFull();
-            setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-            setAlignItems(FlexComponent.Alignment.CENTER);
-            add(actionsMenuBar);
-        }
-
-    }
-
     private class StudentDetails extends Scroller {
 
         private final ApplicationCommandForm<MessageResult<Student>, UpdateStudentPropertiesCommand> basics;
@@ -136,6 +96,8 @@ public class SchoolTripView extends AbstractSchoolTripView {
         private final ApplicationCommandForm<MessageResult<Nothing>, AddPaymentCommand> addPaymentForm;
 
         private final StudentRegistration registration;
+
+        private Student student;
 
         public StudentDetails() {
             setWidth("800px");
@@ -157,6 +119,18 @@ public class SchoolTripView extends AbstractSchoolTripView {
                         .toList()
                 )
                 .build();
+
+            this.basics.addCompletionListener(event -> {
+                reload();
+
+                var selectedStudent = schoolTrip
+                    .students()
+                    .stream()
+                    .filter(s -> event.getResult().getData().getId().equals(s.getId()))
+                    .findFirst();
+
+                selectedStudent.ifPresent(s -> students.getGrid().select(s));
+            });
 
             this.addPaymentForm = new ApplicationCommandFormBuilder<>(
                 AddPaymentCommand.class,
@@ -342,7 +316,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 }
             });
 
-            var bttNew = this.getMenuBar().addItem("Register Student");
+            var bttNew = this.getMenuBar().addItem("Add Student");
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
                 CreateSchoolTripView.class, SchoolTripRegisterStudentView.getRouteParameters(
                     schoolTrip.schoolTrip().getName()

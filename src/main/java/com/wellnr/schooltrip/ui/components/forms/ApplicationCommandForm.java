@@ -27,7 +27,7 @@ public class ApplicationCommandForm<RESULT extends CommandResult, CMD extends Ab
         super(binder, getInitialCommand, forms, true);
 
         this.getSaveButton().addClickListener(event -> {
-            var cmd = getInitialCommand.get();
+            var cmd = super.getGetInitialValue().get();
             Operators.suppressExceptions(() -> binder.writeBean(cmd));
 
             try {
