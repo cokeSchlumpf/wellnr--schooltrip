@@ -1,36 +1,14 @@
 package com.wellnr.schooltrip.ui.views.trips;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.Scroller;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.tabs.Tab;
-import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
-import com.wellnr.common.markup.Nothing;
-import com.wellnr.common.markup.Tuple2;
-import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.AddPaymentCommand;
-import com.wellnr.schooltrip.core.application.commands.ConfirmStudentRegistrationCommand;
-import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
-import com.wellnr.schooltrip.core.application.commands.UpdateStudentPropertiesCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolClass;
-import com.wellnr.schooltrip.core.model.student.RegistrationState;
-import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
 import com.wellnr.schooltrip.ui.components.ApplicationNotifications;
-import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
-import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 
@@ -100,7 +78,7 @@ public class SchoolTripClassesView extends AbstractSchoolTripView {
 
             var bttNew = this.getMenuBar().addItem("Add Class");
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
-                SchoolTripCreateClassView.class, SchoolTripCreateClassView.getRouteParameters(
+                SchoolTripAddClassView.class, SchoolTripAddClassView.getRouteParameters(
                     schoolTrip.schoolTrip().getName()
                 )
             ));

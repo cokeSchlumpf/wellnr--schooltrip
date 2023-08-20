@@ -83,12 +83,6 @@ public class SchoolTripView extends AbstractSchoolTripView {
         this.add(mainArea);
     }
 
-    private void importStudents(List<RegisterStudentCommand> commands) {
-
-
-        this.reload();
-    }
-
     private class StudentDetails extends Scroller {
 
         private final ApplicationCommandForm<MessageResult<Student>, UpdateStudentPropertiesCommand> basics;
@@ -318,7 +312,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
 
             var bttNew = this.getMenuBar().addItem("Add Student");
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
-                CreateSchoolTripView.class, SchoolTripRegisterStudentView.getRouteParameters(
+                SchoolTripAddStudentView.class, SchoolTripAddStudentView.getRouteParameters(
                     schoolTrip.schoolTrip().getName()
                 )
             ));
