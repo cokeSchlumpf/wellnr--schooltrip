@@ -45,6 +45,10 @@ public class Operators {
         return camelCaseToKebabCase(stringToCamelCase(s));
     }
 
+    public static boolean fuzzyEquals(String s1, String s2) {
+        return s1.strip().equalsIgnoreCase(s2.strip());
+    }
+
     @SuppressWarnings("unchecked")
     public static <T> Optional<T> getCauseByType(Throwable chain, Class<T> exType) {
         if (exType.isInstance(chain)) {

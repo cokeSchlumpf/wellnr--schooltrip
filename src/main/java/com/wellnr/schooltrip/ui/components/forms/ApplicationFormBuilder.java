@@ -1,13 +1,14 @@
-package com.wellnr.schooltrip.ui.components;
+package com.wellnr.schooltrip.ui.components.forms;
 
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ItemLabelGenerator;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.select.Select;
@@ -18,38 +19,48 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.wellnr.common.Operators;
 import com.wellnr.common.functions.Function0;
-import com.wellnr.ddd.commands.CommandResult;
-import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.common.functions.Function1;
+import com.wellnr.common.markup.Tuple2;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CommandFormBuilder<RESULT extends CommandResult, CMD extends AbstractSchoolTripCommand<RESULT>> {
+public class ApplicationFormBuilder<T> {
 
-    private final Class<CMD> commandType;
+    private final Class<T> valueType;
 
-    private final Function0<CMD> getInitialCommand;
-
-    private final SchoolTripCommandRunner commandRunner;
+    private final Function0<T> getInitialValue;
 
     private final Map<Field, Set<FormVariant>> variants;
 
-    public CommandFormBuilder(Class<CMD> commandType, SchoolTripCommandRunner commandRunner, Function0<CMD> getInitialCommand) {
-        this(commandType, getInitialCommand, commandRunner, new HashMap<>());
+    private final Map<Field, Function1<BeanValidationBinder<T>, Component>> customComponents;
+
+    private boolean withSaveButton;
+
+    private String title;
+
+    public ApplicationFormBuilder(
+        Class<T> valueType,
+        Function0<T> getInitialValue
+    ) {
+
+        this(valueType, getInitialValue, new HashMap<>(), new HashMap<>(), false, null);
     }
 
-    public CommandFormBuilder(Class<CMD> commandType, SchoolTripCommandRunner commandRunner) {
-        this(commandType, () -> null, commandRunner, new HashMap<>());
+    public ApplicationFormBuilder(Class<T> valueType) {
+        this(valueType, () -> null, new HashMap<>(), new HashMap<>(), false, null);
     }
 
-    public CommandFormBuilder<RESULT, CMD> addVariant(Field field, FormVariant... variants) {
+    public ApplicationFormBuilder<T> addVariant(Field field, FormVariant... variants) {
         var toBeAdded = Arrays.stream(variants).toList();
 
         if (this.variants.containsKey(field)) {
@@ -61,27 +72,112 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
         return this;
     }
 
-    public CommandFormBuilder<RESULT, CMD> addVariant(String field, FormVariant... variants) {
-        var declaredField = Operators.suppressExceptions(() -> this.commandType.getDeclaredField(field));
+    public ApplicationFormBuilder<T> addVariant(String field, FormVariant... variants) {
+        var declaredField = Operators.suppressExceptions(() -> this.valueType.getDeclaredField(field));
         return addVariant(declaredField, variants);
     }
 
-    public CommandForm<RESULT, CMD> build() {
-        var binder = new BeanValidationBinder<>(commandType);
+    public ApplicationFormBuilder<T> addCustomComponent(Field field,
+                                                        Function1<BeanValidationBinder<T>, Component> componentFactory) {
+        this.customComponents.put(field, Objects.requireNonNull(componentFactory));
+        return this;
+    }
+
+    public ApplicationFormBuilder<T> addCustomComponent(String field,
+                                                        Function1<BeanValidationBinder<T>, Component> componentFactory) {
+        var declaredField = Operators.suppressExceptions(() -> this.valueType.getDeclaredField(field));
+        return addCustomComponent(declaredField, componentFactory);
+    }
+
+    /**
+     * Spcifies possible values for a (text) field. The field will then be represented as a select box.
+     *
+     * @param field The field which the values should be constrained.
+     * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
+     * @return This application form builder.
+     */
+    public ApplicationFormBuilder<T> setFieldPossibleValues(
+        Field field, List<Tuple2<String, String>> possibleValues) {
+
+        return addCustomComponent(field, binder -> {
+            var valuesMap = possibleValues
+                .stream()
+                .collect(Collectors.toMap(Tuple2::get_1, Tuple2::get_2));
+
+            var input = new Select<String>();
+            input.setLabel(this.getLabel(field.getName()));
+            input.setItems(possibleValues.stream().map(Tuple2::get_2).toList());
+            input.setItemLabelGenerator(valuesMap::get);
+
+            binder.bind(input, field.getName());
+
+            return input;
+        });
+    }
+
+    /**
+     * Spcifies possible values for a (text) field. The field will then be represented as a select box.
+     *
+     * @param field The field which the values should be constrained.
+     * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
+     * @return This application form builder.
+     */
+    public ApplicationFormBuilder<T> setFieldPossibleValues(
+        String field, List<Tuple2<String, String>> possibleValues) {
+        return setFieldPossibleValues(
+            Operators.suppressExceptions(() -> valueType.getDeclaredField(field)), possibleValues
+        );
+    }
+
+    public ApplicationFormBuilder<T> withSaveButton(boolean withSaveButton) {
+        this.withSaveButton = withSaveButton;
+        return this;
+    }
+
+    public ApplicationFormBuilder<T> withSaveButton() {
+        return withSaveButton(true);
+    }
+
+    public ApplicationFormBuilder<T> withTitle(String title) {
+        this.title = title;
+        return this;
+    }
+
+    public ApplicationForm<T> build() {
+        var binder = new BeanValidationBinder<>(valueType);
         var forms = new ArrayList<FormLayout>();
+        var fullWidthColspan = 2;
 
         var form = createForm();
+
+        if (Objects.nonNull(this.title)) {
+            var title = new H4(this.title);
+            form.add(title);
+            form.setColspan(title, fullWidthColspan);
+        }
+
         forms.add(form);
 
-        for (var field : commandType.getDeclaredFields()) {
+        for (var field : valueType.getDeclaredFields()) {
             if (Modifier.isFinal(field.getModifiers())) {
                 continue;
             }
 
-            var label = getLabel(field.getName());
-            var fullWidthColspan = 2;
+            if (hasVariant(field, FormVariant.HIDDEN)) {
+                continue;
+            }
 
-            if (String.class.isAssignableFrom(field.getType())) {
+            var label = getLabel(field.getName());
+
+            if (customComponents.containsKey(field)) {
+                var component = customComponents.get(field).get(binder);
+
+                form.add(component);
+
+                if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                    form.setColspan(component, fullWidthColspan);
+                }
+            } else if (String.class.isAssignableFrom(field.getType())) {
                 var input = new TextField(field.getName());
                 input.setLabel(label);
                 input.setValueChangeMode(ValueChangeMode.LAZY);
@@ -156,12 +252,21 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
                     .map(obj -> (Object) obj)
                     .toList();
 
+                ItemLabelGenerator<Object> labels = obj -> Operators.ignoreExceptionsWithDefault(
+                    () -> {
+                        var f = obj.getClass().getDeclaredField("value");
+                        f.setAccessible(true);
+                        return f.get(obj).toString();
+                    },
+                    obj.toString()
+                );
+
                 if (hasVariant(field, FormVariant.RADIO_BUTTONS)) {
                     var input = new RadioButtonGroup<>();
                     input.setLabel(label);
                     input.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
                     input.setItems(values);
-                    input.setItemLabelGenerator(Object::toString);
+                    input.setItemLabelGenerator(labels);
 
                     binder.bind(input, field.getName());
                     form.add(input);
@@ -173,7 +278,7 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
                     var input = new Select<>();
                     input.setLabel(label);
                     input.setItems(values);
-                    input.setItemLabelGenerator(Object::toString);
+                    input.setItemLabelGenerator(labels);
 
                     binder.bind(input, field.getName());
                     form.add(input);
@@ -195,23 +300,11 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
             }
         }
 
-        var save = new Button("Save");
-        save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        save.addClickListener(event -> {
-            var cmd = this.getInitialCommand.get();
-            Operators.suppressExceptions(() -> binder.writeBean(cmd));
-
-            System.out.println(commandRunner.run(cmd));
-        });
-        binder.addStatusChangeListener(
-            status -> save.setEnabled(!status.hasValidationErrors())
-        );
-
-        return new CommandForm<>(
+        return new ApplicationForm<>(
             binder,
-            this.getInitialCommand,
-            commandRunner,
-            forms
+            getInitialValue,
+            forms,
+            withSaveButton
         );
     }
 
@@ -252,7 +345,12 @@ public class CommandFormBuilder<RESULT extends CommandResult, CMD extends Abstra
         /**
          * Use this to mark a field to have full width.
          */
-        FULL_WIDTH
+        FULL_WIDTH,
+
+        /**
+         * Use this to mark a field to be hidden.
+         */
+        HIDDEN
     }
 
 }

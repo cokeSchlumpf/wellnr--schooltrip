@@ -6,11 +6,14 @@ import com.wellnr.schooltrip.core.application.commands.RegisterAdminUserCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterSchoolClassCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
+import com.wellnr.schooltrip.core.model.student.Gender;
 import com.wellnr.schooltrip.core.model.user.AnonymousUser;
 import com.wellnr.schooltrip.util.MongoContainer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+
+import java.time.LocalDate;
 
 @SpringBootApplication
 @ComponentScan({
@@ -72,7 +75,9 @@ class SchooltripApplicationTests {
             "skikurs-2024",
             "8a",
             "Egon",
-            "Olsen"
+            "Olsen",
+            LocalDate.now(),
+            Gender.Male
         ).run(user, registry);
 
         var trip = registry

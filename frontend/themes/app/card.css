@@ -1,13 +1,13 @@
-.mq--stack-card {
+.app--card {
     max-width: 390px;
     border: 1px solid var(--lumo-contrast-20pct);
     margin: 0;
 }
 
-.mq--stack-card--selected {
+.app--card--selected {
     border: 1px solid var(--lumo-primary-color);
 }
 
-.mq--stack-card--icon {
+.app--card--icon {
     width: 48px;
 }

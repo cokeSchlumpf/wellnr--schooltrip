@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.ui.components;
+package com.wellnr.schooltrip.ui.components.grid;
 
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -64,8 +64,9 @@ public class ApplicationGridWithControls<T> extends VerticalLayout {
     }
 
     /**
+     * Access the underlying grid component.
      *
-     * @return
+     * @return the grid component.
      */
     public ApplicationGrid<T> getGrid() {
         return grid;

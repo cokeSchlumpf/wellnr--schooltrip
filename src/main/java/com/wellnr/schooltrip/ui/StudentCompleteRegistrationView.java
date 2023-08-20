@@ -28,7 +28,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.ui.components.Container;
+import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.List;
 
 @Route("/students/complete-registration/:token")
 @PageTitle("School Trip")
-public class StudentCompleteRegistrationView extends Container implements BeforeEnterObserver {
+public class StudentCompleteRegistrationView extends ApplicationContentContainer implements BeforeEnterObserver {
 
     private final SchoolTripCommandRunner commandRunner;
 

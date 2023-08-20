@@ -1,9 +1,8 @@
-package com.wellnr.schooltrip.ui;
+package com.wellnr.schooltrip.ui.views.trips;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
@@ -22,27 +21,28 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.common.markup.Nothing;
-import com.wellnr.ddd.DomainException;
+import com.wellnr.common.markup.Tuple2;
 import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.*;
+import com.wellnr.schooltrip.core.application.commands.AddPaymentCommand;
+import com.wellnr.schooltrip.core.application.commands.ConfirmStudentRegistrationCommand;
+import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
+import com.wellnr.schooltrip.core.application.commands.UpdateStudentPropertiesCommand;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.ui.components.CommandForm;
-import com.wellnr.schooltrip.ui.components.CommandFormBuilder;
-import com.wellnr.schooltrip.ui.components.ExcelImportDialog;
-import com.wellnr.schooltrip.ui.views.trips.AbstractSchoolTripView;
+import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
+import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
+import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Route(value = "trips/:name", layout = ApplicationAppLayout.class)
 public class SchoolTripView extends AbstractSchoolTripView {
 
-    private Grid<Student> students;
+    private ApplicationGridWithControls<Student> students;
 
     private StudentDetails studentDetails;
 
@@ -70,9 +70,11 @@ public class SchoolTripView extends AbstractSchoolTripView {
 
         var actions = new ActionsBar();
 
-        this.students = new StudentsGrid();
-        this.students.setItems(schoolTrip.students());
+        if (Objects.isNull(this.students)) {
+            this.students = new StudentsGrid();
+        }
 
+        this.students.getGrid().setItems(schoolTrip.students());
         this.studentDetails = new StudentDetails();
 
         var gridArea = new VerticalLayout();
@@ -92,7 +94,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
         mainArea.setWidthFull();
 
         mainArea.setMargin(false);
-        mainArea.setPadding(true);
+        mainArea.setPadding(false);
         mainArea.setSizeFull();
 
         this.removeAll();
@@ -100,38 +102,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
     }
 
     private void importStudents(List<RegisterStudentCommand> commands) {
-        /*
-         * Create classes.
-         */
-        commands
-            .stream()
-            .map(RegisterStudentCommand::getSchoolClass)
-            .collect(Collectors.toSet())
-            .stream()
-            .map(schoolClass -> RegisterSchoolClassCommand.apply(
-                schoolTrip.schoolTrip().getName(),
-                schoolClass
-            ))
-            .forEach(cmd -> {
-                try {
-                    var result = commandRunner.run(cmd);
-                    System.out.println(result.getMessage());
-                } catch (DomainException ex) {
-                    System.out.println(ex.getSummary());
-                }
-            });
 
-        /*
-         * Register students.
-         */
-        commands.forEach(cmd -> {
-            try {
-                var result = commandRunner.run(cmd);
-                System.out.println(result.getMessage());
-            } catch (DomainException ex) {
-                System.out.println(ex.getSummary());
-            }
-        });
 
         this.reload();
     }
@@ -145,14 +116,10 @@ public class SchoolTripView extends AbstractSchoolTripView {
             var actionsSubMenu = actions.getSubMenu();
 
             actionsSubMenu.addItem("Add Student");
-            var mnuUpload = actionsSubMenu.addItem("Upload Students");
-            actionsSubMenu.add(new Hr());
             actionsSubMenu.addItem("Assign Sequential Identifier");
             actionsSubMenu.addItem("Remove not registered Students");
             actionsSubMenu.add(new Hr());
             actionsSubMenu.addItem("Export Excel");
-
-            mnuUpload.addClickListener(event -> openImportFromExcelDialog());
 
             setWidthFull();
             setJustifyContentMode(FlexComponent.JustifyContentMode.END);
@@ -160,33 +127,13 @@ public class SchoolTripView extends AbstractSchoolTripView {
             add(actionsMenuBar);
         }
 
-        private void openImportFromExcelDialog() {
-            var dialog = new ExcelImportDialog<>(
-                List.of("Klasse", "Vorname", "Nachname"),
-                parameters -> {
-                    var schoolClass = parameters.get(0).toString();
-                    var firstName = parameters.get(1).toString();
-                    var lastName = parameters.get(2).toString();
-
-                    return RegisterStudentCommand.apply(
-                        schoolTrip.schoolTrip().getName(), schoolClass, firstName, lastName
-                    );
-                }
-            );
-
-            dialog.addDataImportedListener(imported -> importStudents(imported.getResult()));
-
-            this.add(dialog);
-            dialog.open();
-        }
-
     }
 
     private class StudentDetails extends Scroller {
 
-        private final CommandForm<MessageResult<Student>, UpdateStudentPropertiesCommand> basics;
+        private final ApplicationCommandForm<MessageResult<Student>, UpdateStudentPropertiesCommand> basics;
 
-        private final CommandForm<MessageResult<Nothing>, AddPaymentCommand> addPaymentForm;
+        private final ApplicationCommandForm<MessageResult<Nothing>, AddPaymentCommand> addPaymentForm;
 
         private final StudentRegistration registration;
 
@@ -195,30 +142,39 @@ public class SchoolTripView extends AbstractSchoolTripView {
             setMaxWidth("800");
             setVisible(false);
 
-            this.basics = new CommandFormBuilder<>(
+            this.basics = new ApplicationCommandFormBuilder<>(
                 UpdateStudentPropertiesCommand.class,
                 commandRunner
             )
-                .addVariant("schoolClass", CommandFormBuilder.FormVariant.LINE_BREAK_AFTER)
+                .addVariant("schoolClass", ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER)
+                .setFieldPossibleValues(
+                    "schoolClass",
+                    schoolTrip
+                        .schoolTrip()
+                        .getSchoolClasses()
+                        .stream()
+                        .map(cl -> Tuple2.apply(cl.getName(), cl.getName()))
+                        .toList()
+                )
                 .build();
 
-            this.addPaymentForm = new CommandFormBuilder<>(
+            this.addPaymentForm = new ApplicationCommandFormBuilder<>(
                 AddPaymentCommand.class,
                 commandRunner
             )
                 .addVariant(
                     "type",
-                    CommandFormBuilder.FormVariant.LINE_BREAK_AFTER,
-                    CommandFormBuilder.FormVariant.LINE_BREAK_AFTER
+                    ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER,
+                    ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
                 )
                 .addVariant(
                     "description",
-                    CommandFormBuilder.FormVariant.FULL_WIDTH,
-                    CommandFormBuilder.FormVariant.LINE_BREAK_AFTER
+                    ApplicationCommandFormBuilder.FormVariant.FULL_WIDTH,
+                    ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
                 )
                 .addVariant(
                     "amount",
-                    CommandFormBuilder.FormVariant.EURO_SUFFIX
+                    ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX
                 )
                 .build();
 
@@ -306,10 +262,11 @@ public class SchoolTripView extends AbstractSchoolTripView {
 
     }
 
-    private class StudentsGrid extends Grid<Student> {
+    private class StudentsGrid extends ApplicationGridWithControls<Student> {
 
         public StudentsGrid() {
             var classColumn = this
+                .getGrid()
                 .addColumn(Student::getSchoolClass)
                 .setHeader("Class")
                 .setSortable(true)
@@ -317,6 +274,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 .setAutoWidth(true);
 
             var lastNameColumn = this
+                .getGrid()
                 .addColumn(Student::getLastName)
                 .setHeader("Last Name")
                 .setSortable(true)
@@ -324,6 +282,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 .setAutoWidth(true);
 
             var firstNameColumn = this
+                .getGrid()
                 .addColumn(Student::getFirstName)
                 .setHeader("First Name")
                 .setSortable(true)
@@ -331,6 +290,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 .setAutoWidth(true);
 
             this
+                .getGrid()
                 .addComponentColumn(student -> {
                     var span = new Span();
                     span.setClassName("app--trip--registration-state--created");
@@ -339,6 +299,7 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 }).setHeader("Status");
 
             this
+                .getGrid()
                 .addColumn(student -> student
                     .getQuestionaire()
                     .map(q -> {
@@ -353,53 +314,40 @@ public class SchoolTripView extends AbstractSchoolTripView {
                 .setHeader("Disziplin");
 
             this
-                .addColumn(student -> student
-                    .getQuestionaire()
-                    .map(q -> q.getDisziplin().getRental().map(i -> "Yes").orElse("No"))
-                    .orElse("")
-                )
-                .setHeader("Ski/ Snowboard");
-
-            this
-                .addColumn(student -> student
-                    .getQuestionaire()
-                    .map(q -> q.getDisziplin().getBootRental().map(i -> "Yes").orElse("No"))
-                    .orElse("")
-                )
-                .setHeader("Schuhe");
-
-            this
-                .addComponentColumn(student -> {
+                .getGrid()
+                .addActionsColumn(student -> {
                     var bttEdit = new Button("Edit");
                     bttEdit.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SMALL);
                     bttEdit.addClickListener(event -> {
                         studentDetails.open(student);
-                        getSelectionModel().select(student);
+                        this.getGrid().getSelectionModel().select(student);
                     });
 
-                    var layout = new HorizontalLayout(bttEdit);
-                    layout.setAlignItems(FlexComponent.Alignment.CENTER);
-                    layout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-                    return layout;
-                })
-                .setHeader("")
-                .setTextAlign(ColumnTextAlign.END)
-                .setFrozenToEnd(true);
-            this.setMultiSort(true);
+                    return List.of(bttEdit);
+                });
 
-            this.sort(List.of(
+            this.getGrid().setMultiSort(true);
+
+            this.getGrid().sort(List.of(
                 new GridSortOrder<>(classColumn, SortDirection.ASCENDING),
                 new GridSortOrder<>(lastNameColumn, SortDirection.ASCENDING),
                 new GridSortOrder<>(firstNameColumn, SortDirection.ASCENDING)
             ));
 
-            this.addSelectionListener(event -> {
+            this.getGrid().addSelectionListener(event -> {
                 if (event.getFirstSelectedItem().isPresent()) {
                     studentDetails.open(event.getFirstSelectedItem().get());
                 } else {
                     studentDetails.close();
                 }
             });
+
+            var bttNew = this.getMenuBar().addItem("Register Student");
+            bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
+                CreateSchoolTripView.class, SchoolTripRegisterStudentView.getRouteParameters(
+                    schoolTrip.schoolTrip().getName()
+                )
+            ));
         }
 
     }

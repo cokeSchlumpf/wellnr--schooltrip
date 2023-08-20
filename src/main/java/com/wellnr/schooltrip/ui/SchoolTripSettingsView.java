@@ -5,8 +5,8 @@ import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.UpdateSchoolTripSettingsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.ui.components.CommandForm;
-import com.wellnr.schooltrip.ui.components.CommandFormBuilder;
+import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
+import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.views.trips.AbstractSchoolTripView;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 
@@ -14,25 +14,25 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 @Route(value = "trips/:name/settings", layout = ApplicationAppLayout.class)
 public class SchoolTripSettingsView extends AbstractSchoolTripView {
 
-    private final CommandForm<MessageResult<SchoolTrip>, UpdateSchoolTripSettingsCommand> form;
+    private final ApplicationCommandForm<MessageResult<SchoolTrip>, UpdateSchoolTripSettingsCommand> form;
 
 
     public SchoolTripSettingsView(SchoolTripCommandRunner commandRunner) {
         super(commandRunner);
 
-        this.form = new CommandFormBuilder<>(UpdateSchoolTripSettingsCommand.class, commandRunner)
+        this.form = new ApplicationCommandFormBuilder<>(UpdateSchoolTripSettingsCommand.class, commandRunner)
             .addVariant(
                 "basePrice",
-                CommandFormBuilder.FormVariant.EURO_SUFFIX,
-                CommandFormBuilder.FormVariant.LINE_BREAK_AFTER
+                ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX,
+                ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
             )
-            .addVariant("skiRentalPrice", CommandFormBuilder.FormVariant.EURO_SUFFIX)
-            .addVariant("skiBootsRentalPrice", CommandFormBuilder.FormVariant.EURO_SUFFIX)
-            .addVariant("snowboardRentalPrice", CommandFormBuilder.FormVariant.EURO_SUFFIX)
+            .addVariant("skiRentalPrice", ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX)
+            .addVariant("skiBootsRentalPrice", ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX)
+            .addVariant("snowboardRentalPrice", ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX)
             .addVariant(
                 "snowboardBootsRentalPrice",
-                CommandFormBuilder.FormVariant.EURO_SUFFIX,
-                CommandFormBuilder.FormVariant.LINE_BREAK_AFTER
+                ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX,
+                ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
             )
             .build();
 

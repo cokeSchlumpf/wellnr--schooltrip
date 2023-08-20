@@ -12,9 +12,14 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.shared.Registration;
+import com.wellnr.common.Operators;
 import com.wellnr.common.functions.Function1;
+import com.wellnr.common.functions.Function2;
+import com.wellnr.common.markup.Nothing;
 import com.wellnr.common.markup.Tuple;
 import com.wellnr.common.markup.Tuple2;
+import com.wellnr.schooltrip.ui.components.forms.ApplicationForm;
+import com.wellnr.schooltrip.ui.components.forms.ApplicationFormBuilder;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 import org.apache.commons.compress.utils.Lists;
@@ -30,26 +35,94 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ExcelImportDialog<RESULT_TYPE> extends Dialog {
+/**
+ * An utitlity UI workflow to import data from an Excel file.
+ *
+ * @param <RESULT_TYPE>   The return type of data to be extracted from the Excel. The Excel will contain
+ *                        a list (0..*) of this type.
+ * @param <SETTINGS_TYPE> The type of the settings which might be collected during the workflow (e.g. information to
+ *                        parse values from the Excel and transform to different data types (e.g. dates)).
+ */
+public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
 
+    /**
+     * A list of required fields (labels) which should be imported from the Excel.
+     * This fields must be mapped into the RESULT_TYPE.
+     */
     private final List<String> requiredFields;
 
+    /**
+     * The default settings of this import dialog.
+     */
+    private final SETTINGS_TYPE additionalSettingsDefaults;
+
+    /**
+     * Internal component to preview the imported data.
+     */
     private final Grid<Row> previewDataGrid;
 
+    /**
+     * A button to go to the mapping step.
+     */
     private final Button btnGotoMapping;
 
+    /**
+     * A back button to return to the upload step and restart the workflow.
+     */
     private final Button btnBackToUpload;
 
+    /**
+     * A button to go to the settings step.
+     */
+    private final Button btnGotoSettings;
+
+    /**
+     * A button to go back to the mapping step.
+     */
+    private final Button btnBackToMapping;
+
+    /**
+     * A button to finish the workflow and import the data.
+     */
     private final Button btnFinish;
 
+    /**
+     * A button to return to the mapping page of the dialog.
+     */
     private final Button btnBackToImportTable;
 
+    /**
+     * The imported (raw) data from the Excel, in an intermediate data structure.
+     */
     private Table importedData;
 
+    /**
+     * A set of columns to which the required fields are mapped.
+     * Each item in the list indicates which column index maps to the required field.
+     * E.g. mappedColumn[0] points to the column where requiredFields[0] is stored.
+     */
     private List<Integer> mappedColumns;
 
-    public ExcelImportDialog(List<String> requiredFields, Function1<List<Object>, RESULT_TYPE> createObject) {
+    private ApplicationForm<SETTINGS_TYPE> settingsForm;
+
+    /**
+     * Creates a new instance of the workflow dialog.
+     *
+     * @param requiredFields             A set of required fields (labels) to extract from each line in the Excel
+     *                                   file. Each field should be mapped to a column in the Excel during the worklfow.
+     * @param createObject               A function which gets the list of read information from a row (in the order
+     *                                   of the required fields) and should map the fields/ columns into the result
+     *                                   type.
+     * @param additionalSettingsDefaults A class providing additional settings (with default values)
+     */
+    @SuppressWarnings("unchecked")
+    private ExcelImportDialog(
+        List<String> requiredFields,
+        Function2<List<Object>, SETTINGS_TYPE, RESULT_TYPE> createObject,
+        SETTINGS_TYPE additionalSettingsDefaults
+    ) {
         this.requiredFields = requiredFields;
+        this.additionalSettingsDefaults = additionalSettingsDefaults;
         this.previewDataGrid = new Grid<>();
 
         this.btnGotoMapping = new Button("Next >");
@@ -57,6 +130,20 @@ public class ExcelImportDialog<RESULT_TYPE> extends Dialog {
 
         this.btnBackToUpload = new Button("< Back");
         this.btnBackToUpload.addClickListener(event -> showUploadPage());
+
+        this.btnGotoSettings = new Button("Next >");
+        this.btnGotoSettings.addClickListener(event -> showSettingsPage());
+
+        this.btnBackToMapping = new Button("< Back");
+        this.btnBackToMapping.addClickListener(event -> showMappingPage());
+
+        if (!(this.additionalSettingsDefaults instanceof Nothing)) {
+            this.settingsForm = new ApplicationFormBuilder<>(
+                (Class<SETTINGS_TYPE>) this.additionalSettingsDefaults.getClass(),
+                () -> this.additionalSettingsDefaults
+            )
+                .build();
+        }
 
         this.btnFinish = new Button("Import Data");
         this.btnFinish.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -71,7 +158,15 @@ public class ExcelImportDialog<RESULT_TYPE> extends Dialog {
                         .map(opt -> opt.orElse(null))
                         .toList();
 
-                    return createObject.get(values);
+                    if (Objects.isNull(this.settingsForm)) {
+                        return createObject.get(values, additionalSettingsDefaults);
+                    } else {
+                        Operators.suppressExceptions(
+                            () -> settingsForm.getBinder().writeBean(additionalSettingsDefaults)
+                        );
+
+                        return createObject.get(values, additionalSettingsDefaults);
+                    }
                 })
                 .toList();
 
@@ -102,12 +197,45 @@ public class ExcelImportDialog<RESULT_TYPE> extends Dialog {
 
     }
 
+    /**
+     * Creates a new instance of the workflow dialog.
+     *
+     * @param requiredFields             A set of required fields (labels) to extract from each line in the Excel
+     *                                   file. Each field should be mapped to a column in the Excel during the worklfow.
+     * @param createObject               A function which gets the list of read information from a row (in the order
+     *                                   of the required fields) and should map the fields/ columns into the result
+     *                                   type.
+     * @param additionalSettingsDefaults A class providing additional settings (with default values)
+     */
+    public static <R, S> ExcelImportDialog<R, S> apply(
+        List<String> requiredFields,
+        Function2<List<Object>, S, R> createObject,
+        S additionalSettingsDefaults
+    ) {
+        return new ExcelImportDialog<>(requiredFields, createObject, additionalSettingsDefaults);
+    }
+
+    /**
+     * Creates a new instance of the workflow dialog.
+     *
+     * @param requiredFields A set of required fields (labels) to extract from each line in the Excel file. Each field
+     *                       should be mapped to a column in the Excel during the worklfow.
+     * @param createObject   A function which gets the list of read information from a row (in the order of the
+     *                       required fields) and should map the fields/ columns into the result type.
+     */
+    public static <R> ExcelImportDialog<R, Nothing> apply(
+        List<String> requiredFields,
+        Function1<List<Object>, R> createObject
+    ) {
+        return new ExcelImportDialog<>(requiredFields, (p, nothing) -> createObject.apply(p), Nothing.getInstance());
+    }
+
     @SuppressWarnings({"unchecked", "UnusedReturnValue"})
     public Registration addDataImportedListener(
-        ComponentEventListener<DataImportedEvent<RESULT_TYPE>> listener
+        ComponentEventListener<DataImportedEvent<RESULT_TYPE, SETTINGS_TYPE>> listener
     ) {
         var event = new DataImportedEvent<>(this, true, List.of());
-        return addListener((Class<DataImportedEvent<RESULT_TYPE>>) event.getClass(), listener);
+        return addListener((Class<DataImportedEvent<RESULT_TYPE, SETTINGS_TYPE>>) event.getClass(), listener);
     }
 
     private Table readTableFromXlsx(InputStream is) {
@@ -230,7 +358,19 @@ public class ExcelImportDialog<RESULT_TYPE> extends Dialog {
         }
 
         this.add(form);
-        this.getFooter().add(btnBackToImportTable, btnFinish);
+
+        if (this.additionalSettingsDefaults instanceof Nothing) {
+            this.getFooter().add(btnBackToImportTable, btnFinish);
+        } else {
+            this.getFooter().add(btnBackToImportTable, btnGotoSettings);
+        }
+    }
+
+    private void showSettingsPage() {
+        this.clearComponents();
+
+        this.add(settingsForm);
+        this.getFooter().add(btnBackToMapping, btnFinish);
     }
 
     private void updateGrid() {
@@ -248,12 +388,12 @@ public class ExcelImportDialog<RESULT_TYPE> extends Dialog {
         previewDataGrid.setSizeFull();
     }
 
-    public static class DataImportedEvent<T> extends ComponentEvent<ExcelImportDialog<T>> {
+    public static class DataImportedEvent<T, S> extends ComponentEvent<ExcelImportDialog<T, S>> {
 
         private final List<T> result;
 
         public DataImportedEvent(
-            ExcelImportDialog<T> source, boolean fromClient, List<T> result
+            ExcelImportDialog<T, S> source, boolean fromClient, List<T> result
         ) {
             super(source, fromClient);
             this.result = List.copyOf(result);

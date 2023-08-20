@@ -27,6 +27,10 @@ public class RegisterStudentCommand implements AbstractSchoolTripCommand<Message
 
     String lastName;
 
+    LocalDate dateOfBirth;
+
+    Gender gender;
+
     @Override
     public MessageResult<Nothing> run(User user, SchoolTripDomainRegistry domainRegistry) {
         var schoolTrip = domainRegistry
@@ -37,7 +41,7 @@ public class RegisterStudentCommand implements AbstractSchoolTripCommand<Message
 
         var student = Student.createNew(
             schoolTripId, schoolClass, firstName, lastName,
-            LocalDate.now(), Gender.Male
+            dateOfBirth, gender
         );
 
         student.register(

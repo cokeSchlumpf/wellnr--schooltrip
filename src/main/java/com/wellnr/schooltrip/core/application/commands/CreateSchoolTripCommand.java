@@ -6,6 +6,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class CreateSchoolTripCommand implements AbstractSchoolTripCommand<Messag
     String title;
 
     @NotBlank
+    @Pattern(regexp = "[a-zA-Z0-9-]+")
     String name;
 
     public static CreateSchoolTripCommand apply(String title) {
