@@ -1,7 +1,6 @@
 package com.wellnr.schooltrip.ui.components.forms;
 
 import com.vaadin.flow.component.ComponentEvent;
-import com.wellnr.ddd.commands.Command;
 import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 

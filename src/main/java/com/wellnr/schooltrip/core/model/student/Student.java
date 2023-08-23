@@ -1,14 +1,19 @@
 package com.wellnr.schooltrip.core.model.student;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wellnr.common.markup.Either;
 import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
+import com.wellnr.schooltrip.core.model.student.payments.PriceLineItem;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
+import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
+import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
 import com.wellnr.schooltrip.core.model.user.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
 import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
@@ -87,7 +92,7 @@ public class Student extends AggregateRoot<String, Student> {
     /**
      * Registers a mad payment for the student.
      *
-     * @param payment The payment which has been made.
+     * @param payment  The payment which has been made.
      * @param students The repository to persist the changes.
      */
     public void addPayment(
@@ -119,6 +124,7 @@ public class Student extends AggregateRoot<String, Student> {
 
     /**
      * Remove an existing payment.
+     *
      * @param id The id of the payment.
      */
     public void removePayment(
@@ -145,7 +151,7 @@ public class Student extends AggregateRoot<String, Student> {
     /**
      * Initially creates (persists) this student class.
      *
-     * @param creator The user who wants to create the school trip.
+     * @param creator    The user who wants to create the school trip.
      * @param repository The repository to persist the information.
      */
     public void register(
@@ -202,6 +208,58 @@ public class Student extends AggregateRoot<String, Student> {
         return id;
     }
 
+    public static List<PriceLineItem> calculatePriceLineItems(SchoolTrip schoolTrip, Questionaire questionaire) {
+        var lineItems = new ArrayList<PriceLineItem>();
+
+        lineItems.add(new PriceLineItem(
+            "Grundpreis", schoolTrip.getSettings().getBasePrice()
+        ));
+
+        if (questionaire.getDisziplin() instanceof Ski ski) {
+            if (ski.getRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Ski-Ausleihe", schoolTrip.getSettings().getSkiRentalPrice()
+                ));
+            }
+
+            if (ski.getBootRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Ski-Schuh-Ausleihe", schoolTrip.getSettings().getSkiBootsRentalPrice()
+                ));
+            }
+        }
+
+        if (questionaire.getDisziplin() instanceof Snowboard sb) {
+            if (sb.getRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Snowboard-Ausleihe", schoolTrip.getSettings().getSnowboardRentalPrice()
+                ));
+            }
+
+            if (sb.getBootRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Snowboard-Boots-Ausleihe", schoolTrip.getSettings().getSnowboardBootsRentalPrice()
+                ));
+            }
+        }
+
+        // TODO: Helmet Rental!
+
+        return List.copyOf(lineItems);
+    }
+
+    public Optional<List<PriceLineItem>> getPriceLineItems(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips) {
+        return getQuestionaire().map(q -> {
+            var schoolTrip = schoolTrips
+                .map(
+                    l -> l.getSchoolTripById(this.schoolTrip.schoolTripId()),
+                    r -> r
+                );
+
+            return Student.calculatePriceLineItems(schoolTrip, q);
+        });
+    }
+
     public Optional<Questionaire> getQuestionaire() {
         return Optional.ofNullable(questionaire);
     }
@@ -225,6 +283,15 @@ public class Student extends AggregateRoot<String, Student> {
         message.setSubject("Prima Sache, dass du dabei bist.");
         message.setText(messages.registrationConfirmationEmailText(this));
         mailSender.send(message);
+    }
+
+    public void completeOrUpdateStudentRegistrationByOrganizer(
+        Questionaire questionaire,
+        StudentsRepository students
+    ) {
+        this.questionaire = questionaire;
+        this.registrationState = RegistrationState.REGISTERED;
+        students.insertOrUpdateStudent(this);
     }
 
     public void confirmStudentRegistration(StudentsRepository students) {

@@ -11,4 +11,7 @@ public class Nutrition {
 
     boolean halal;
 
+    public static Nutrition apply() {
+        return apply(false, false);
+    }
 }
