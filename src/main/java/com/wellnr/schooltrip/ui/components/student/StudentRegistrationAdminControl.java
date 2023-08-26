@@ -1,9 +1,12 @@
 package com.wellnr.schooltrip.ui.components.student;
 
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.shared.Registration;
 import com.wellnr.schooltrip.core.application.commands.CompleteOrUpdateStudentRegistrationByOrganizerCommand;
 import com.wellnr.schooltrip.core.application.commands.ConfirmStudentRegistrationCommand;
@@ -11,6 +14,8 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.ui.StudentCompleteRegistrationView;
+import com.wellnr.schooltrip.ui.components.ApplicationCopyTextField;
 
 import java.util.Objects;
 
@@ -69,6 +74,9 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
                 new StudentRegistrationUpdatedEvent(this, true, this.student)
             ));
         });
+
+        this.setMargin(false);
+        this.setPadding(false);
     }
 
     public void setStudent(Student student) {

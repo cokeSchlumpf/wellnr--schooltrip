@@ -38,6 +38,11 @@ public abstract class AbstractSchoolTripView extends VerticalLayout implements A
         );
         overview.setHighlightCondition(HighlightConditions.sameLocation());
 
+        var payments = new ApplicationRouterLinkWithIcon(
+            VaadinIcon.MONEY, "Payments", SchoolTripPaymentsView.class,
+            SchoolTripPaymentsView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
+        );
+
         var classes = new ApplicationRouterLinkWithIcon(
             VaadinIcon.LIST, "Classes", SchoolTripClassesView.class,
             SchoolTripClassesView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
@@ -51,6 +56,7 @@ public abstract class AbstractSchoolTripView extends VerticalLayout implements A
         return List.of(
             back,
             overview,
+            payments,
             classes,
             tasks
         );

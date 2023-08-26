@@ -391,7 +391,7 @@ public class StudentRegistrationQuestionnaireControl
         private final DecimalFormat format;
 
         public CostSection(SchoolTrip schoolTrip, Questionaire questionaire) {
-            format = new DecimalFormat("#.##");
+            format = new DecimalFormat("#.00");
             grid = new Grid<>(PriceLineItem.class, false);
             grid.addComponentColumn(item -> {
                 if (item.label().equals(SUM_LABEL)) {
@@ -433,16 +433,9 @@ public class StudentRegistrationQuestionnaireControl
 
         public void setValue(SchoolTrip schoolTrip, Questionaire questionaire) {
             var items = Student.calculatePriceLineItems(schoolTrip, questionaire);
-            var allItems = new ArrayList<>(items);
+            var allItems = new ArrayList<>(items.getItems());
 
-            var sum = allItems
-                .stream()
-                .map(PriceLineItem::amount)
-                .reduce(Double::sum)
-                .map(d -> Double.valueOf(format.format(d)))
-                .orElse(0d);
-
-            allItems.add(new PriceLineItem(SUM_LABEL, sum));
+            allItems.add(new PriceLineItem(SUM_LABEL, items.getSum()));
             grid.setItems(allItems);
         }
 

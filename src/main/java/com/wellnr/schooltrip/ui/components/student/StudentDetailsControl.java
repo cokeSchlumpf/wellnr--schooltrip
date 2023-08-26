@@ -6,28 +6,25 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.shared.Registration;
-import com.wellnr.common.markup.Nothing;
-import com.wellnr.common.markup.Tuple2;
-import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.AddPaymentCommand;
-import com.wellnr.schooltrip.core.application.commands.UpdateStudentPropertiesCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
-import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 
 public class StudentDetailsControl extends Scroller {
 
-    private ApplicationCommandForm<MessageResult<Student>, UpdateStudentPropertiesCommand> basics;
+    private final String appBaseUrl;
 
-    private ApplicationCommandForm<MessageResult<Nothing>, AddPaymentCommand> addPaymentForm;
+    private StudentBasicsControl basics;
+
+    private StudentPaymentAdminControl payments;
 
     private StudentRegistrationAdminControl registration;
 
     private Student student;
 
-    public StudentDetailsControl(SchoolTrip schoolTrip, SchoolTripCommandRunner commandRunner) {
+    public StudentDetailsControl(String appBaseUrl, SchoolTrip schoolTrip, SchoolTripCommandRunner commandRunner) {
+        this.appBaseUrl = appBaseUrl;
+
         setWidth("800px");
         setMaxWidth("800");
         setVisible(false);
@@ -41,7 +38,7 @@ public class StudentDetailsControl extends Scroller {
         var tabs = new TabSheet();
         tabs.add(new Tab("Student"), basics);
         tabs.add(new Tab("Registration"), this.registration);
-        tabs.add(new Tab("Payments"), this.addPaymentForm);
+        tabs.add(new Tab("Payments"), this.payments);
 
         var vl = new VerticalLayout(tabs);
         this.setContent(vl);
@@ -77,14 +74,8 @@ public class StudentDetailsControl extends Scroller {
         this.student = student;
         this.setVisible(true);
 
-        this.basics.setGetInitialCommand(
-            () -> UpdateStudentPropertiesCommand.apply(student)
-        );
-
-        this.addPaymentForm.setGetInitialCommand(
-            () -> AddPaymentCommand.apply(student)
-        );
-
+        this.basics.setStudent(student);
+        this.payments.setStudent(student);
         this.registration.setStudent(student);
     }
 
@@ -92,24 +83,11 @@ public class StudentDetailsControl extends Scroller {
      * Sets up the controls for editing basic student information.
      */
     private void setupBasics(SchoolTrip schoolTrip, SchoolTripCommandRunner commandRunner) {
-        this.basics = new ApplicationCommandFormBuilder<>(
-            UpdateStudentPropertiesCommand.class,
-            commandRunner
-        )
-            .addVariant("schoolClass", ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER)
-            .setFieldPossibleValues(
-                "schoolClass",
-                schoolTrip
-                    .getSchoolClasses()
-                    .stream()
-                    .map(cl -> Tuple2.apply(cl.getName(), cl.getName()))
-                    .toList()
-            )
-            .build();
+        this.basics = new StudentBasicsControl(appBaseUrl, schoolTrip, commandRunner);
 
-        this.basics.addCompletionListener(event -> {
-            fireEvent(new StudentDetailsUpdatedEvent(this.student, this, true));
-        });
+        this.basics.addBasicsUpdatedListener(event -> fireEvent(
+            new StudentDetailsUpdatedEvent(student, this, true)
+        ));
     }
 
     /**
@@ -118,25 +96,11 @@ public class StudentDetailsControl extends Scroller {
      * @param commandRunner The command runner to execute commands.
      */
     private void setupPayment(SchoolTripCommandRunner commandRunner) {
-        this.addPaymentForm = new ApplicationCommandFormBuilder<>(
-            AddPaymentCommand.class,
-            commandRunner
-        )
-            .addVariant(
-                "type",
-                ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER,
-                ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
-            )
-            .addVariant(
-                "description",
-                ApplicationCommandFormBuilder.FormVariant.FULL_WIDTH,
-                ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
-            )
-            .addVariant(
-                "amount",
-                ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX
-            )
-            .build();
+        this.payments = new StudentPaymentAdminControl(commandRunner);
+
+        this.payments.addPaymentUpdatedListener(
+            event -> fireEvent(new StudentDetailsUpdatedEvent(student, this, true))
+        );
     }
 
     /**

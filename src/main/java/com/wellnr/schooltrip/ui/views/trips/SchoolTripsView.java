@@ -17,7 +17,7 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppView;
 import java.util.List;
 
 @Route(value = "trips", layout = ApplicationAppLayout.class)
-public class SchoolTripsView extends AbstractApplicationAppView implements ApplicationAppView {
+public class SchoolTripsView extends AbstractApplicationAppView {
 
     private final SchoolTripsGrid schoolTripsGrid;
     private final SchoolTripCommandRunner commandRunner;

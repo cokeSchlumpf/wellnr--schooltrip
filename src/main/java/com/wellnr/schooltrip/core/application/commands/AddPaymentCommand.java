@@ -8,6 +8,7 @@ import com.wellnr.schooltrip.core.model.student.payments.Payment;
 import com.wellnr.schooltrip.core.model.student.payments.PaymentType;
 import com.wellnr.schooltrip.core.model.user.User;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -30,12 +31,12 @@ public class AddPaymentCommand implements AbstractSchoolTripCommand<MessageResul
     PaymentType type;
 
     @NotNull
+    @NotBlank
     String description;
 
-    @Min(0)
     double amount;
 
-    public static  AddPaymentCommand apply(Student student) {
+    public static AddPaymentCommand apply(Student student) {
         return apply(student.getId(), LocalDate.now(), PaymentType.TRANSACTION, null, 0);
     }
 

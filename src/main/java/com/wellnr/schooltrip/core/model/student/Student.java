@@ -10,7 +10,9 @@ import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRep
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
+import com.wellnr.schooltrip.core.model.student.payments.Payments;
 import com.wellnr.schooltrip.core.model.student.payments.PriceLineItem;
+import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
@@ -208,7 +210,7 @@ public class Student extends AggregateRoot<String, Student> {
         return id;
     }
 
-    public static List<PriceLineItem> calculatePriceLineItems(SchoolTrip schoolTrip, Questionaire questionaire) {
+    public static PriceLineItems calculatePriceLineItems(SchoolTrip schoolTrip, Questionaire questionaire) {
         var lineItems = new ArrayList<PriceLineItem>();
 
         lineItems.add(new PriceLineItem(
@@ -245,10 +247,14 @@ public class Student extends AggregateRoot<String, Student> {
 
         // TODO: Helmet Rental!
 
-        return List.copyOf(lineItems);
+        return PriceLineItems.apply(lineItems);
     }
 
-    public Optional<List<PriceLineItem>> getPriceLineItems(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips) {
+    public Payments getPayments() {
+        return Payments.apply(payments);
+    }
+
+    public Optional<PriceLineItems> getPriceLineItems(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips) {
         return getQuestionaire().map(q -> {
             var schoolTrip = schoolTrips
                 .map(
