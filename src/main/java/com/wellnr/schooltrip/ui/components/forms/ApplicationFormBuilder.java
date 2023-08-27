@@ -14,6 +14,7 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -44,6 +45,8 @@ public class ApplicationFormBuilder<T> {
 
     private final Map<Field, Function1<BeanValidationBinder<T>, Component>> customComponents;
 
+    private Function1<String, Optional<String>> labelProvider;
+
     private boolean withSaveButton;
 
     private String title;
@@ -53,11 +56,14 @@ public class ApplicationFormBuilder<T> {
         Function0<T> getInitialValue
     ) {
 
-        this(valueType, getInitialValue, new HashMap<>(), new HashMap<>(), false, null);
+        this(
+            valueType, getInitialValue, new HashMap<>(), new HashMap<>(),
+            s -> Optional.empty(), false, null
+        );
     }
 
     public ApplicationFormBuilder(Class<T> valueType) {
-        this(valueType, () -> null, new HashMap<>(), new HashMap<>(), false, null);
+        this(valueType, () -> null);
     }
 
     public ApplicationFormBuilder<T> addVariant(Field field, FormVariant... variants) {
@@ -129,6 +135,19 @@ public class ApplicationFormBuilder<T> {
         );
     }
 
+    /**
+     * Specifies the label provider for the controls. The function will be called with the field name
+     * of the class. It may return a label. If Optional.empty() is returned, the field name will
+     * be humanized.
+     *
+     * @param labelProvider A function to provide labels.
+     * @return The form builder.
+     */
+    public ApplicationFormBuilder<T> setLabelProvider(Function1<String, Optional<String>> labelProvider) {
+        this.labelProvider = labelProvider;
+        return this;
+    }
+
     public ApplicationFormBuilder<T> withSaveButton(boolean withSaveButton) {
         this.withSaveButton = withSaveButton;
         return this;
@@ -178,15 +197,28 @@ public class ApplicationFormBuilder<T> {
                     form.setColspan(component, fullWidthColspan);
                 }
             } else if (String.class.isAssignableFrom(field.getType())) {
-                var input = new TextField(field.getName());
-                input.setLabel(label);
-                input.setValueChangeMode(ValueChangeMode.LAZY);
+                if (field.getName().toLowerCase().contains("password") || field.getName().toLowerCase().contains("secret")) {
+                    var input = new PasswordField(field.getName());
+                    input.setLabel(label);
+                    input.setValueChangeMode(ValueChangeMode.LAZY);
 
-                binder.bind(input, field.getName());
-                form.add(input);
+                    binder.bind(input, field.getName());
+                    form.add(input);
 
-                if (hasVariant(field, FormVariant.FULL_WIDTH)) {
-                    form.setColspan(input, fullWidthColspan);
+                    if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                        form.setColspan(input, fullWidthColspan);
+                    }
+                } else {
+                    var input = new TextField(field.getName());
+                    input.setLabel(label);
+                    input.setValueChangeMode(ValueChangeMode.LAZY);
+
+                    binder.bind(input, field.getName());
+                    form.add(input);
+
+                    if (hasVariant(field, FormVariant.FULL_WIDTH)) {
+                        form.setColspan(input, fullWidthColspan);
+                    }
                 }
             } else if (Boolean.class.isAssignableFrom(field.getType())) {
                 var input = new Checkbox();
@@ -315,7 +347,7 @@ public class ApplicationFormBuilder<T> {
     }
 
     private String getLabel(String fieldName) {
-        return Operators.camelCaseToHumanReadable(fieldName);
+        return labelProvider.get(fieldName).orElse(Operators.camelCaseToHumanReadable(fieldName));
     }
 
     private boolean hasVariant(Field field, FormVariant variant) {

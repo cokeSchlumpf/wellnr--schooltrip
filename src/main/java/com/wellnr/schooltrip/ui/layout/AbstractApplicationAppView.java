@@ -3,7 +3,7 @@ package com.wellnr.schooltrip.ui.layout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.RouterLink;
-import com.wellnr.schooltrip.ui.SettingsView;
+import com.wellnr.schooltrip.ui.views.admin.SettingsView;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
 import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;
 

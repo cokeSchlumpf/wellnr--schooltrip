@@ -160,6 +160,66 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         }
     }
 
+    /**
+     * Resets the password of the user.
+     *
+     * @param executor            The user executing the action.
+     * @param newPassword         The new password.
+     * @param newPasswordRepeated The new password repeated to prevent typos.
+     * @param users               The repository to read/ write the entity.
+     * @param encryptionPort      The port which helps to encrypt the password.
+     */
+    public void resetPassword(
+        User executor, String newPassword, String newPasswordRepeated,
+        RegisteredUsersRepository users, PasswordEncryptionPort encryptionPort) {
+
+        /*
+         * Check Permission
+         */
+        // TODO
+
+        /*
+         * Validate input
+         */
+        if (!newPassword.equals(newPasswordRepeated)) {
+            throw PasswordsNotEqualException.apply();
+        }
+
+        this.password = encryptionPort.encode(newPassword);
+        users.insertOrUpdate(this);
+    }
+
+    /**
+     * Updates a user's properties.
+     *
+     * @param firstName The first name of the user
+     * @param lastName  The last name of the user
+     * @param email     The email of the user
+     * @param users     The repository to store entity data
+     */
+    public void updateProperties(User executor, String firstName, String lastName, String email,
+                                 RegisteredUsersRepository users) {
+        /*
+         * Check Permission
+         */
+        // TODO
+
+        /*
+         * Check if E-Mail Address already exists.
+         */
+        var existing = users.findOneByEmail(this.email);
+
+        if (existing.isPresent() && !existing.get().id.equals(this.id)) {
+            throw UserAlreadyExistsException.apply();
+        }
+
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+
+        users.insertOrUpdate(this);
+    }
+
     private List<DomainPermission> getPermissions() {
         return this
             .domainRoles

@@ -10,7 +10,6 @@ import com.vaadin.flow.data.provider.SortDirection;
 import com.wellnr.common.functions.Function1;
 import com.wellnr.common.functions.Function2;
 import com.wellnr.common.markup.Tuple2;
-import com.wellnr.common.markup.Tuple3;
 import com.wellnr.common.markup.Tuple4;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
@@ -56,7 +55,8 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         );
     }
 
-    public Tuple4<Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>> addDefaultColumnsWithSorting(
+    public Tuple4<Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>>
+    addDefaultColumnsWithSorting(
         SchoolTrip schoolTrip
     ) {
         var result = addDefaultColumns(schoolTrip);
@@ -133,9 +133,9 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         return this
             .getGrid()
             .addComponentColumn(student -> student
-                    .getSchoolTripStudentId()
-                    .map(i -> new Span(String.valueOf(i)))
-                    .orElse(new Span("-"))
+                .getSchoolTripStudentId()
+                .map(i -> new Span(String.valueOf(i)))
+                .orElse(new Span("-"))
             )
             .setWidth("25px")
             .setTextAlign(ColumnTextAlign.CENTER)

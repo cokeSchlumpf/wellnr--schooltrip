@@ -5,6 +5,7 @@ import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -12,6 +13,11 @@ import java.util.Optional;
 public class RegisteredUsersMongoRepository implements RegisteredUsersRepository {
 
     private final RegisteredUsersSpringDataMongoRepository spring;
+
+    @Override
+    public List<RegisteredUser> findAll() {
+        return spring.findAll();
+    }
 
     @Override
     public Optional<RegisteredUser> findOneByEmail(String email) {

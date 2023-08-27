@@ -1,0 +1,32 @@
+server:
+  port: ${PORT:8080}
+
+logging:
+  level:
+    root: INFO
+
+spring.mustache.check-template-location: false
+spring.jpa.defer-datasource-initialization: true
+
+#
+# UI
+#
+app:
+  default-admin-users:
+    - email: michael.wellner@gmail.com
+      password: secret
+      first-name: Michael
+      last-name: Wellner
+    - email: katharina.ewen.wellner@gmail.com
+      password: Hippo123!
+      first-name: Katharina
+      last-name: Wellner
+  ui:
+    base-url: http://localhost:8080/
+
+#
+# Vaadin
+#
+vaadin:
+  launch-browser: false
+  whitelisted-packages: com.vaadin,org.vaadin,dev.hilla,com.example.application

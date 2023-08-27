@@ -11,6 +11,7 @@ import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Optional;
 
 public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD extends AbstractSchoolTripCommand<RESULT>>
     extends ApplicationFormBuilder<CMD> {
@@ -92,4 +93,9 @@ public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD ext
         return this;
     }
 
+    @Override
+    public ApplicationCommandFormBuilder<RESULT, CMD> setLabelProvider(Function1<String, Optional<String>> labelProvider) {
+        super.setLabelProvider(labelProvider);
+        return this;
+    }
 }

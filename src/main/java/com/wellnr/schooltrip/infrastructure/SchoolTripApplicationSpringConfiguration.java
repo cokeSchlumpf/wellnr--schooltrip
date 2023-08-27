@@ -7,12 +7,13 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.wellnr.common.helper.FakeMailSender;
 import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
+import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.repositories.SchoolTripsMongoRepository;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -31,10 +32,12 @@ import java.lang.reflect.Method;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
+import java.util.HashSet;
+import java.util.List;
 import java.util.UUID;
 
 @Configuration
-public class SchoolTripApplicationConfiguration implements WebMvcConfigurer {
+public class SchoolTripApplicationSpringConfiguration implements WebMvcConfigurer {
 
     @Bean
     public SchoolTripDomainRegistry getSchoolTripDomainRegistry(

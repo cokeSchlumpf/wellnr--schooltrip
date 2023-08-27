@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip;
 
+import com.wellnr.common.Operators;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.CreateSchoolTripCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterAdminUserCommand;
@@ -35,17 +36,11 @@ class SchooltripApplicationTests {
         var app = SpringApplication.run(SchooltripApplication.class, args);
         var registry = app.getBean(SchoolTripDomainRegistry.class);
 
+        // Operators.suppressExceptions(() -> Thread.sleep(10000));
+
         /*
          * Register user for following actions.
          */
-        RegisterAdminUserCommand
-            .apply(
-                "michael.wellner@gmail.com", "secret", "Michael", "Wellner"
-            )
-            .run(
-                AnonymousUser.apply(), registry
-            );
-
         var user = app
             .getBean(SchoolTripDomainRegistry.class)
             .getUsers()
