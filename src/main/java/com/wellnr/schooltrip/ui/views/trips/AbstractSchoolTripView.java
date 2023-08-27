@@ -48,6 +48,11 @@ public abstract class AbstractSchoolTripView extends VerticalLayout implements A
             SchoolTripClassesView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
 
+        var disciplines = new ApplicationRouterLinkWithIcon(
+            VaadinIcon.RECORDS, "Disciplines", SchoolTripDisciplineView.class,
+            SchoolTripDisciplineView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
+        );
+
         var tasks = new ApplicationRouterLinkWithIcon(
             VaadinIcon.TASKS, "Tasks", SchoolTripTasksView.class,
             SchoolTripTasksView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
@@ -57,6 +62,7 @@ public abstract class AbstractSchoolTripView extends VerticalLayout implements A
             back,
             overview,
             payments,
+            disciplines,
             classes,
             tasks
         );

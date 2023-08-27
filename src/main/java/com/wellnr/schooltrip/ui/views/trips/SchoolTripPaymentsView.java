@@ -42,7 +42,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
     private class StudentsPaymentGrid extends StudentsGrid {
 
         public StudentsPaymentGrid() {
-            this.addDefaultColumnsWithSorting();
+            this.addDefaultColumnsWithSorting(schoolTrip.schoolTrip());
 
             this
                 .addComponentColumnForRegisteredStudent(student -> student

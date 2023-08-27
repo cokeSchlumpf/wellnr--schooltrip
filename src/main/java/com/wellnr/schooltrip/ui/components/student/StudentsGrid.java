@@ -1,16 +1,21 @@
 package com.wellnr.schooltrip.ui.components.student;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.wellnr.common.functions.Function1;
+import com.wellnr.common.functions.Function2;
 import com.wellnr.common.markup.Tuple2;
 import com.wellnr.common.markup.Tuple3;
+import com.wellnr.common.markup.Tuple4;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 
@@ -22,27 +27,39 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
 
     }
 
-    public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function1<Student, Component> createComponent) {
+    public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function2<Student, Questionaire, Component> createComponent) {
         return this.getGrid().addComponentColumn(student -> {
             if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
-                return createComponent.get(student);
+                return createComponent.get(student, student.getQuestionaire().orElse(Questionaire.empty()));
             } else {
                 return new Span("-");
             }
         });
     }
 
-    public Tuple3<Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>> addDefaultColumns() {
+    public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function1<Student, Component> createComponent) {
+        return addComponentColumnForRegisteredStudent((s, q) -> createComponent.get(s));
+    }
+
+    public Tuple4<Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>> addDefaultColumns(
+        SchoolTrip schoolTrip
+    ) {
+        Grid.Column<Student> schoolTripStudentIdColumn = null;
+        if (!schoolTrip.getStudentIdAssignments().isEmpty()) {
+            schoolTripStudentIdColumn = addSchoolTripIdColumn();
+        }
         var classColumn = addClassColumn();
         var nameColumns = addNameColumns();
 
-        return Tuple3.apply(
-            classColumn, nameColumns._1, nameColumns._2
+        return Tuple4.apply(
+            classColumn, nameColumns._1, nameColumns._2, schoolTripStudentIdColumn
         );
     }
 
-    public Tuple3<Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>> addDefaultColumnsWithSorting() {
-        var result = addDefaultColumns();
+    public Tuple4<Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>> addDefaultColumnsWithSorting(
+        SchoolTrip schoolTrip
+    ) {
+        var result = addDefaultColumns(schoolTrip);
 
         this.getGrid().setMultiSort(true);
         this.getGrid().sort(List.of(
@@ -110,6 +127,19 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
                 span.add(VaadinIcon.CHECK.create());
                 return span;
             }).setHeader("Status");
+    }
+
+    public Grid.Column<Student> addSchoolTripIdColumn() {
+        return this
+            .getGrid()
+            .addComponentColumn(student -> student
+                    .getSchoolTripStudentId()
+                    .map(i -> new Span(String.valueOf(i)))
+                    .orElse(new Span("-"))
+            )
+            .setWidth("25px")
+            .setTextAlign(ColumnTextAlign.CENTER)
+            .setHeader("#");
     }
 
 }

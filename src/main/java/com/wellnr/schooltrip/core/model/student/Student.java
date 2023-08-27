@@ -62,6 +62,8 @@ public class Student extends AggregateRoot<String, Student> {
 
     List<Payment> payments;
 
+    Integer tripStudentId;
+
     /**
      * Creates a new instance of this entity.
      *
@@ -87,7 +89,7 @@ public class Student extends AggregateRoot<String, Student> {
         return new Student(
             id, schoolTrip, schoolClass, firstName, lastName, birthday, gender,
             RegistrationState.CREATED, token, confirmationToken, null, null,
-            new ArrayList<>()
+            new ArrayList<>(), null
         );
     }
 
@@ -121,6 +123,17 @@ public class Student extends AggregateRoot<String, Student> {
          * Make changes.
          */
         this.payments.add(payment);
+        students.insertOrUpdateStudent(this);
+    }
+
+    /**
+     * Assigns a student id for a school trip.
+     *
+     * @param id The assigned id.
+     * @param students The repository to read/ write the information.
+     */
+    public void assignSchoolTripStudentId(Integer id, StudentsRepository students) {
+        this.tripStudentId = id;
         students.insertOrUpdateStudent(this);
     }
 
@@ -335,6 +348,26 @@ public class Student extends AggregateRoot<String, Student> {
         }
 
         students.insertOrUpdateStudent(this);
+    }
+
+    /**
+     * Should be called, when student has been removed from a school trip.
+     *
+     * @param students The repository to read/ write student information.
+     */
+    public void removeStudentFromSchoolTrip(StudentsRepository students) {
+        // As of now we delete students compeltely.
+        students.remove(this);
+    }
+
+    /**
+     * Returns the unique id of the student which have been assigned
+     * by the school trip tp the student.
+     *
+     * @return The id, if set.
+     */
+    public Optional<Integer> getSchoolTripStudentId() {
+        return Optional.ofNullable(tripStudentId);
     }
 
 }

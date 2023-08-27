@@ -13,12 +13,17 @@ public interface StudentsReadRepository extends DomainRepository {
 
     default Student getStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(
         SchoolTripId schoolTripId, String schoolClassName, String firstName, String lastName) {
-        return this.findStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(schoolTripId, schoolClassName, firstName, lastName)
-            .orElseThrow();
+        return this
+            .findStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(schoolTripId, schoolClassName, firstName, lastName)
+            .orElseThrow(); // TODO Better exception.
     }
 
     List<Student> findStudentsBySchoolTrip(
         SchoolTripId schoolTripId
+    );
+
+    List<Student> findStudentsBySchoolTripAndSchoolClassName(
+        SchoolTripId schoolTripId, String schoolClassName
     );
 
     Optional<Student> findStudentById(String id);

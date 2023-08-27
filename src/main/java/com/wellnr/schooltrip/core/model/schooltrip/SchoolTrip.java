@@ -7,8 +7,11 @@ import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolClassRegisteredEvent;
 import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolTripCreatedEvent;
+import com.wellnr.schooltrip.core.model.schooltrip.events.StudentIDAssigndEvent;
+import com.wellnr.schooltrip.core.model.schooltrip.events.StudentRemovedFromSchoolTripEvent;
 import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsRepository;
+import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.StudentId;
 import com.wellnr.schooltrip.core.model.student.StudentsReadRepository;
@@ -24,6 +27,7 @@ import lombok.EqualsAndHashCode;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Data
@@ -36,6 +40,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     private static final String TITLE = "title";
     private static final String SETTINGS = "settings";
     private static final String SCHOOL_CLASSES = "schoolClasses";
+    private static final String ID_ASSIGNMENTS = "idAssignments";
 
 
     @JsonProperty(ID)
@@ -53,6 +58,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     @JsonProperty(SCHOOL_CLASSES)
     private Set<SchoolClass> schoolClasses;
 
+    @JsonProperty(ID_ASSIGNMENTS)
+    private Map<Integer, StudentId> studentIdAssignments;
+
     /**
      * Creates an instance of this entity class.
      *
@@ -63,13 +71,16 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     public static SchoolTrip create(
         @NotNull @NotBlank String title,
         String name) {
+
         var id = UUID.randomUUID().toString();
 
         if (Objects.isNull(name)) {
             name = Operators.stringToTechFriendlyName(title);
         }
 
-        return new SchoolTrip(id, title, name, SchoolTripSettings.apply(), new HashSet<>());
+        return new SchoolTrip(
+            id, title, name, SchoolTripSettings.apply(), new HashSet<>(), new HashMap<>()
+        );
     }
 
     /**
@@ -84,6 +95,50 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         return create(title, null);
     }
 
+    /**
+     * (Re-)assigns student numbers/ IDs to students.
+     *
+     * @param executor The user executing the action.
+     * @param schoolTrips The repository to read/ write trip information.
+     * @param students The rpeository to read student information.
+     */
+    public void assignStudentIDs(User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students) {
+        var id = 1;
+        this.studentIdAssignments.clear();
+
+        var classesSorted = this
+            .schoolClasses
+            .stream()
+            .map(SchoolClass::getName)
+            .sorted()
+            .toList();
+
+        for (String sc : classesSorted) {
+            var scStudents = students
+                .findStudentsBySchoolTripAndSchoolClassName(new SchoolTripId(this.id), sc)
+                .stream()
+                .filter(s -> s.getRegistrationState().equals(RegistrationState.REGISTERED))
+                .sorted(Comparator.comparing(Student::getLastName).thenComparing(Student::getLastName))
+                .toList();
+
+            for (var student : scStudents) {
+                var studentId = new StudentId(student.getId());
+                this.studentIdAssignments.put(id, studentId);
+                registerEvent(StudentIDAssigndEvent.apply(new SchoolTripId(this.id), studentId, id));
+                id = id + 1;
+            }
+        }
+
+        schoolTrips.save(this);
+    }
+
+    /**
+     * Returns a list of all students which are assigned to this school trip.
+     *
+     * @param executor The user requesting the information.
+     * @param students The repository to read students from.
+     * @return A list of students.
+     */
     public List<Student> getRegisteredStudents(User executor, StudentsReadRepository students) {
         /*
          * Validate Permissions
@@ -97,6 +152,44 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
          * Return results.
          */
         return students.findStudentsBySchoolTrip(new SchoolTripId(this.getId()));
+    }
+
+    /**
+     * This operation closes the registration of the school trip. This includes the removal of
+     * all students who have not completed registration. And assignment of increasing order number
+     * of students.
+     *
+     * @param executor The user who is executing teh action.
+     * @param schoolTrips The repository to store trip information.
+     * @param students The repository to read student information.
+     */
+    public List<Student> closeRegistration(
+        User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students
+    ) {
+        /*
+         * Remove students who are not registered yet.
+         */
+        var allStudents = students.findStudentsBySchoolTrip(new SchoolTripId(this.id));
+
+        var notRegisteredStudents = allStudents
+            .stream()
+            .filter(s -> !s.getRegistrationState().equals(RegistrationState.REGISTERED))
+            .collect(Collectors.toList());
+
+        for (var s : notRegisteredStudents) {
+            Operators.ignoreExceptions(() -> {
+                var id = new StudentId(s.getId());
+
+                this.getSchoolClassByName(s.getSchoolClass()).getStudents().remove(id);
+
+                registerEvent(StudentRemovedFromSchoolTripEvent.apply(
+                    new SchoolTripId(this.id), id
+                ));
+            });
+        }
+
+        this.assignStudentIDs(executor, schoolTrips, students);
+        return notRegisteredStudents;
     }
 
     /**

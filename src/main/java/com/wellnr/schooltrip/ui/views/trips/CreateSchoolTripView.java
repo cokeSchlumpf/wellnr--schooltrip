@@ -14,8 +14,6 @@ import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppView;
-import com.wellnr.schooltrip.ui.views.trips.SchoolTripView;
-import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;
 
 @Route(value = "trips/create", layout = ApplicationAppLayout.class)
 public class CreateSchoolTripView extends AbstractApplicationAppView implements ApplicationAppView {

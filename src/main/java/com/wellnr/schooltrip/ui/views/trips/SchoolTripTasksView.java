@@ -8,8 +8,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.common.Operators;
 import com.wellnr.common.functions.Procedure0;
+import com.wellnr.schooltrip.core.application.commands.CloseSchoolTripRegistrationCommand;
+import com.wellnr.schooltrip.core.application.commands.ReassignSchoolTripStudentIdsCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.application.commands.RegisterStudentsCommand;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
 import com.wellnr.schooltrip.ui.components.ApplicationCard;
@@ -44,7 +47,21 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
     protected void updateView() {
         this.removeAll();
         this.add(new HorizontalLayout(
-            new TaskCard("Import Students", "Import students from an Excel file.", this::runExcelImport)
+            new TaskCard("Import Students", "Import students from an Excel file.", this::runExcelImport),
+            new TaskCard("Close Registration", "Close registration and remove studens who are not registered.", this::closeRegistration),
+            new TaskCard("(Re-)Assign IDs", "Re-assign increasing ID to registered students.", this::reassignStudentIDs)
+        ));
+    }
+
+    private void reassignStudentIDs() {
+        commandRunner.runAndNotify(ReassignSchoolTripStudentIdsCommand.apply(
+            new SchoolTripId(this.schoolTrip.schoolTrip().getId())
+        ));
+    }
+
+    private void closeRegistration() {
+        commandRunner.runAndNotify(CloseSchoolTripRegistrationCommand.apply(
+            new SchoolTripId(this.schoolTrip.schoolTrip().getId())
         ));
     }
 

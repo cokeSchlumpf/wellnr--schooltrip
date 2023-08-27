@@ -37,7 +37,7 @@ public class SchoolTripView extends AbstractSchoolTripGridView {
     private class StudentsOverviewGrid extends StudentsGrid {
 
         public StudentsOverviewGrid() {
-            this.addDefaultColumnsWithSorting();
+            this.addDefaultColumnsWithSorting(schoolTrip.schoolTrip());
             this.addRegistrationStatusColumn();
             this.addDisciplineColumns();
 

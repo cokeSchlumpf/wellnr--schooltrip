@@ -19,4 +19,6 @@ public interface StudentsSpringDataMongoRepository extends MongoRepository<Stude
 
     Optional<Student> findStudentById(String id);
 
+    List<Student> findStudentsBySchoolTripAndSchoolClass(SchoolTripId schoolTripId, String schoolClassName);
+
 }

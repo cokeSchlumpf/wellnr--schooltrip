@@ -26,6 +26,11 @@ public class StudentsMongoRepository implements StudentsRepository {
     }
 
     @Override
+    public List<Student> findStudentsBySchoolTripAndSchoolClassName(SchoolTripId schoolTripId, String schoolClassName) {
+        return spring.findStudentsBySchoolTripAndSchoolClass(schoolTripId, schoolClassName);
+    }
+
+    @Override
     public Optional<Student> findStudentById(String id) {
         return spring.findStudentById(id);
     }
@@ -43,6 +48,11 @@ public class StudentsMongoRepository implements StudentsRepository {
     @Override
     public void insertOrUpdateStudent(Student student) {
         spring.save(student);
+    }
+
+    @Override
+    public void remove(Student student) {
+        spring.delete(student);
     }
 
 }

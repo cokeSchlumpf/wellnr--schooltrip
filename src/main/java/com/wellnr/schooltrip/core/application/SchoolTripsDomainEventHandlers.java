@@ -3,6 +3,8 @@ package com.wellnr.schooltrip.core.application;
 import com.wellnr.ddd.events.DomainServices;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolTripCreatedEvent;
+import com.wellnr.schooltrip.core.model.schooltrip.events.StudentIDAssigndEvent;
+import com.wellnr.schooltrip.core.model.schooltrip.events.StudentRemovedFromSchoolTripEvent;
 import com.wellnr.schooltrip.core.model.student.StudentId;
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
@@ -47,6 +49,24 @@ public class SchoolTripsDomainEventHandlers {
                 new StudentId(event.getStudent().getId()),
                 domainRegistry.getSchoolTrips()
             );
+    }
+
+    @Async
+    @EventListener
+    public void onStudentIDAssigned(StudentIDAssigndEvent event) {
+        domainRegistry
+            .getStudents()
+            .getStudentById(event.getStudent().id())
+            .assignSchoolTripStudentId(event.getId(), domainRegistry.getStudents());
+    }
+
+    @Async
+    @EventListener
+    public void onStudentRemovedFromSchoolTripEvent(StudentRemovedFromSchoolTripEvent event) {
+        domainRegistry
+            .getStudents()
+            .getStudentById(event.getStudent().id())
+            .removeStudentFromSchoolTrip(domainRegistry.getStudents());
     }
 
 }
