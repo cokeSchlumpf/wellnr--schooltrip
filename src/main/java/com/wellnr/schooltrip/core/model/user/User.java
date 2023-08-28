@@ -4,6 +4,7 @@ import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 
 import java.util.Arrays;
+import java.util.List;
 
 public interface User {
 
@@ -15,8 +16,20 @@ public interface User {
             .anyMatch(this::hasSinglePermission);
     }
 
+    default boolean hasPermission(List<DomainPermission> permissions) {
+        return permissions
+            .stream()
+            .anyMatch(this::hasSinglePermission);
+    }
+
     default void checkPermission(DomainPermission ...permission) {
         if (!this.hasPermission(permission)) {
+            throw NotAuthorizedException.apply();
+        }
+    }
+
+    default void checkPermission(List<DomainPermission> permissions) {
+        if (!this.hasPermission(permissions)) {
             throw NotAuthorizedException.apply();
         }
     }

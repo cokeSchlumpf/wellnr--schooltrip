@@ -8,6 +8,7 @@ public class DomainPermissions {
 
     // Application wide permissions (whole Domain)
     public static final DomainPermission APPLICATION__MANAGE_TRIPS = new DomainPermission("/app/manage-trips");
+    public static final DomainPermission APPLICATION__MANAGE_USERS = new DomainPermission("/app/users");
 
     public static final DomainPermission TRIPS__MANAGE_TRIP = new DomainPermission("/app/trips/manage-trip");
     public static final DomainPermission TRIPS__VIEW_TRIP = new DomainPermission("/app/trips/view-trip");

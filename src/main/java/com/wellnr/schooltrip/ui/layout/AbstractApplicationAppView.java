@@ -1,15 +1,15 @@
 package com.wellnr.schooltrip.ui.layout;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.LoginView;
-import com.wellnr.schooltrip.ui.views.admin.SettingsView;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
+import com.wellnr.schooltrip.ui.views.admin.SettingsView;
 import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;
 
 import java.util.List;
@@ -19,8 +19,15 @@ public abstract class AbstractApplicationAppView extends VerticalLayout implemen
 
     private final UserSession userSession;
 
-    public AbstractApplicationAppView(UserSession userSession) {
+    private final List<DomainPermission> minimumPermissions;
+
+    public AbstractApplicationAppView(UserSession userSession, List<DomainPermission> minimumPermissions) {
         this.userSession = userSession;
+        this.minimumPermissions = minimumPermissions;
+    }
+
+    public AbstractApplicationAppView(UserSession userSession) {
+        this(userSession, List.of());
     }
 
     @Override
@@ -33,9 +40,13 @@ public abstract class AbstractApplicationAppView extends VerticalLayout implemen
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        // Don't allow access to pages if user is not
-        if (userSession.getRegisteredUser().isEmpty()) {
+        var maybeUser = userSession.getRegisteredUser();
+
+        if (maybeUser.isEmpty()) {
             event.forwardTo(LoginView.class);
+        } else if (!minimumPermissions.isEmpty()) {
+            var user = maybeUser.get();
+            user.checkPermission(minimumPermissions);
         }
     }
 

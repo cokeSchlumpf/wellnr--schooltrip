@@ -11,7 +11,8 @@ public final class DomainRoles {
     public static final DomainRole APP_ADMINISTRATOR = DomainRole.apply(
         "/app/admin",
         List.of(
-            DomainPermissions.APPLICATION__MANAGE_TRIPS
+            DomainPermissions.APPLICATION__MANAGE_TRIPS,
+            DomainPermissions.APPLICATION__MANAGE_USERS
         )
     );
 

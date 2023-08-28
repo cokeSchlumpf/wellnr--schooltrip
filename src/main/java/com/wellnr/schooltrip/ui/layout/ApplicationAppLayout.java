@@ -13,6 +13,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wellnr.schooltrip.core.model.user.RegisteredUser;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 
 import java.util.stream.Collectors;
 
@@ -20,7 +22,11 @@ public class ApplicationAppLayout extends AppLayout {
 
     private final VerticalLayout mainmenuContainer = new VerticalLayout();
 
-    public ApplicationAppLayout() {
+    private final UserSession userSession;
+
+    public ApplicationAppLayout(UserSession userSession) {
+        this.userSession = userSession;
+
         this.addNavBarContent();
         this.addDrawerContent();
 
@@ -45,7 +51,6 @@ public class ApplicationAppLayout extends AppLayout {
             );
 
             this.mainmenuContainer.add(li);
-            ;
         }
     }
 
@@ -86,9 +91,12 @@ public class ApplicationAppLayout extends AppLayout {
          * User Menu
          */
         var areaTitle = new Brand("GaS Merzig", "Ski-Lehrfahrt");
-        var userMenu = new UserMenu();
-        var components = new NavbarComponents(areaTitle, userMenu);
+        var components = new NavbarComponents(areaTitle);
 
+        userSession.getRegisteredUser().ifPresent(user -> {
+            var menu = new UserMenu(user);
+            components.add(menu);
+        });
 
         addToNavbar(true, toggle, components);
     }
@@ -112,15 +120,15 @@ public class ApplicationAppLayout extends AppLayout {
 
     }
 
-    private static class UserMenu extends HorizontalLayout {
+    private class UserMenu extends HorizontalLayout {
 
-        public UserMenu() {
+        public UserMenu(RegisteredUser user) {
             var menubar = new MenuBar();
 
             menubar.setOpenOnHover(true);
 
             var item = menubar.addItem(new Icon(VaadinIcon.USER));
-            item.add(new Text("Michael Wellner"));
+            item.add(new Text(user.getName()));
 
             item.getSubMenu().addItem("Settings");
             item.getSubMenu().add(new Hr());

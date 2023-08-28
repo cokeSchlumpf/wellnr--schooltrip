@@ -18,7 +18,7 @@ app:
       first-name: Michael
       last-name: Wellner
     - email: katharina.ewen.wellner@gmail.com
-      password: Hippo123!
+      password: secret
       first-name: Katharina
       last-name: Wellner
   ui:
