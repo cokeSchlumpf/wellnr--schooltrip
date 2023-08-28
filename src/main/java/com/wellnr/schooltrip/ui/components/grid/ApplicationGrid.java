@@ -39,9 +39,9 @@ public class ApplicationGrid<T> extends Grid<T> {
             .setFrozenToEnd(true);
     }
 
-    public Column<T> addRemoveColumn(Procedure2<T, ClickEvent<Button>> onRemove) {
+    public Column<T> addRemoveColumn(Procedure2<T, ClickEvent<Button>> onRemove, String label) {
         return addActionsColumn(item -> {
-            var bttRemove = new Button("Remove");
+            var bttRemove = new Button(label);
             bttRemove.addThemeVariants(ButtonVariant.LUMO_ERROR, ButtonVariant.LUMO_SMALL);
             bttRemove.addClickListener(event -> onRemove.run(item, event));
 
@@ -49,4 +49,7 @@ public class ApplicationGrid<T> extends Grid<T> {
         });
     }
 
+    public Column<T> addRemoveColumn(Procedure2<T, ClickEvent<Button>> onRemove) {
+        return addRemoveColumn(onRemove, "Remove");
+    }
 }

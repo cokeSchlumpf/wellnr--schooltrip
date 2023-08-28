@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip.core.model.user;
 
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor(staticName = "apply")

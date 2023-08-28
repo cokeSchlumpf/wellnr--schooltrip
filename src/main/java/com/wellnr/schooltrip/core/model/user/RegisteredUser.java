@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wellnr.common.markup.Done;
 import com.wellnr.common.markup.Result;
 import com.wellnr.ddd.AggregateRoot;
+import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
+import com.wellnr.schooltrip.core.model.user.exceptions.PasswordsNotEqualException;
+import com.wellnr.schooltrip.core.model.user.exceptions.UserAlreadyExistsException;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -110,6 +114,10 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
 
     public static RegisteredUser fake() {
         return RegisteredUser.apply("123", "info@bar.de", "blaböa", "Egon", "Olsen", Instant.now(), Set.of());
+    }
+
+    public String getName() {
+        return getFirstName() + " " + getLastName();
     }
 
     /**

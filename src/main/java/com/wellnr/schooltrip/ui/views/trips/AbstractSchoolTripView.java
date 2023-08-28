@@ -1,26 +1,29 @@
 package com.wellnr.schooltrip.ui.views.trips;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
-import com.wellnr.schooltrip.core.application.commands.GetSchoolTripDetailsCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.GetSchoolTripDetailsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripDetailsProjection;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
-import com.wellnr.schooltrip.ui.layout.ApplicationAppView;
+import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 
 import java.util.List;
 
-public abstract class AbstractSchoolTripView extends VerticalLayout implements ApplicationAppView, BeforeEnterObserver {
+public abstract class AbstractSchoolTripView extends AbstractApplicationAppView implements BeforeEnterObserver {
 
     protected final SchoolTripCommandRunner commandRunner;
 
     protected SchoolTripDetailsProjection schoolTrip;
 
-    protected AbstractSchoolTripView(SchoolTripCommandRunner commandRunner) {
+    protected AbstractSchoolTripView(
+        SchoolTripCommandRunner commandRunner, UserSession userSession
+    ) {
+        super(userSession);
         this.commandRunner = commandRunner;
     }
 
@@ -58,18 +61,26 @@ public abstract class AbstractSchoolTripView extends VerticalLayout implements A
             SchoolTripTasksView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
 
+        var settings = new ApplicationRouterLinkWithIcon(
+            VaadinIcon.OPTIONS, "Settings", SchoolTripSettingsView.class,
+            SchoolTripSettingsView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
+        );
+
         return List.of(
             back,
             overview,
             payments,
             disciplines,
             classes,
-            tasks
+            tasks,
+            settings
         );
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        super.beforeEnter(beforeEnterEvent);
+
         var name = beforeEnterEvent
             .getRouteParameters()
             .get("name")

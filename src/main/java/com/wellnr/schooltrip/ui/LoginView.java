@@ -7,7 +7,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
-import com.wellnr.schooltrip.core.application.commands.LoginCommand;
+import com.wellnr.schooltrip.core.application.commands.users.LoginCommand;
 import com.wellnr.schooltrip.core.model.user.AnonymousUser;
 import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;

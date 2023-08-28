@@ -9,7 +9,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
 import com.wellnr.common.markup.Nothing;
 import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.AddPaymentCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.AddPaymentCommand;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;

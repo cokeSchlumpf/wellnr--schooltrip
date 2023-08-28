@@ -2,7 +2,7 @@ package com.wellnr.schooltrip.infrastructure;
 
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.user.AssignedDomainRole;
-import com.wellnr.schooltrip.core.model.user.NotAuthorizedException;
+import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;

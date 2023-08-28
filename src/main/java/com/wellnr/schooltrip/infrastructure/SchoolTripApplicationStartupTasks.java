@@ -3,7 +3,7 @@ package com.wellnr.schooltrip.infrastructure;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.user.AssignedDomainRole;
-import com.wellnr.schooltrip.core.model.user.DomainRoles;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;

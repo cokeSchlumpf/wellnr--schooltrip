@@ -7,7 +7,7 @@ import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.shared.Registration;
 import com.wellnr.common.markup.Tuple2;
 import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.UpdateStudentPropertiesCommand;
+import com.wellnr.schooltrip.core.application.commands.students.UpdateStudentPropertiesCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;

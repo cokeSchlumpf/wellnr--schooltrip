@@ -8,6 +8,7 @@ import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.components.student.StudentsGrid;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
@@ -15,8 +16,10 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 @Route(value = "trips/:name/disciplines", layout = ApplicationAppLayout.class)
 public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
 
-    public SchoolTripDisciplineView(SchoolTripCommandRunner commandRunner) {
-        super(commandRunner);
+    public SchoolTripDisciplineView(
+        SchoolTripCommandRunner commandRunner, UserSession userSession
+    ) {
+        super(commandRunner, userSession);
     }
 
     @Override

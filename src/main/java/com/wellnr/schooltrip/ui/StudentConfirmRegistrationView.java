@@ -5,7 +5,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.wellnr.schooltrip.core.application.commands.ConfirmStudentRegistrationCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.ConfirmStudentRegistrationCommand;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
 import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
 

@@ -8,13 +8,14 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.common.Operators;
 import com.wellnr.common.functions.Procedure0;
-import com.wellnr.schooltrip.core.application.commands.CloseSchoolTripRegistrationCommand;
-import com.wellnr.schooltrip.core.application.commands.ReassignSchoolTripStudentIdsCommand;
-import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
-import com.wellnr.schooltrip.core.application.commands.RegisterStudentsCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.CloseSchoolTripRegistrationCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.ReassignSchoolTripStudentIdsCommand;
+import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentCommand;
+import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationCard;
 import com.wellnr.schooltrip.ui.components.ExcelImportDialog;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
@@ -29,8 +30,10 @@ import java.util.List;
 @Route(value = "trips/:name/tasks", layout = ApplicationAppLayout.class)
 public class SchoolTripTasksView extends AbstractSchoolTripView {
 
-    public SchoolTripTasksView(SchoolTripCommandRunner commandRunner) {
-        super(commandRunner);
+    public SchoolTripTasksView(
+        SchoolTripCommandRunner commandRunner, UserSession userSession
+    ) {
+        super(commandRunner, userSession);
     }
 
     /**

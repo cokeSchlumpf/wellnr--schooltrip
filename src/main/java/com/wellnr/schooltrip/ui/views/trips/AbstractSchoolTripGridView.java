@@ -3,6 +3,7 @@ package com.wellnr.schooltrip.ui.views.trips;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.components.student.StudentDetailsControl;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +19,10 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
 
     protected StudentDetailsControl studentDetails;
 
-    public AbstractSchoolTripGridView(SchoolTripCommandRunner commandRunner) {
-        super(commandRunner);
+    public AbstractSchoolTripGridView(
+        SchoolTripCommandRunner commandRunner, UserSession userSession
+    ) {
+        super(commandRunner, userSession);
     }
 
     @Override

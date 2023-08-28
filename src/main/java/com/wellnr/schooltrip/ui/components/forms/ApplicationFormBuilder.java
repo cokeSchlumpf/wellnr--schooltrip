@@ -112,8 +112,8 @@ public class ApplicationFormBuilder<T> {
 
             var input = new Select<String>();
             input.setLabel(this.getLabel(field.getName()));
-            input.setItems(possibleValues.stream().map(Tuple2::get_2).toList());
-            input.setItemLabelGenerator(valuesMap::get);
+            input.setItems(possibleValues.stream().map(Tuple2::get_1).toList());
+            input.setItemLabelGenerator(s -> valuesMap.getOrDefault(s, ""));
 
             binder.bind(input, field.getName());
 
@@ -220,7 +220,7 @@ public class ApplicationFormBuilder<T> {
                         form.setColspan(input, fullWidthColspan);
                     }
                 }
-            } else if (Boolean.class.isAssignableFrom(field.getType())) {
+            } else if (Boolean.class.isAssignableFrom(field.getType()) || boolean.class.isAssignableFrom(field.getType())) {
                 var input = new Checkbox();
                 input.setLabel(label);
 

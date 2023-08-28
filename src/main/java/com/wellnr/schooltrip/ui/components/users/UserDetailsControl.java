@@ -3,7 +3,7 @@ package com.wellnr.schooltrip.ui.components.users;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.ResetPasswordCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.ResetPasswordCommand;
 import com.wellnr.schooltrip.core.application.commands.UpdateRegisteredUserCommand;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;

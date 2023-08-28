@@ -6,13 +6,13 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.wellnr.schooltrip.core.application.commands.ListSchoolTripsCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.ListSchoolTripsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
-import com.wellnr.schooltrip.ui.layout.ApplicationAppView;
 
 import java.util.List;
 
@@ -22,7 +22,11 @@ public class SchoolTripsView extends AbstractApplicationAppView {
     private final SchoolTripsGrid schoolTripsGrid;
     private final SchoolTripCommandRunner commandRunner;
 
-    public SchoolTripsView(SchoolTripCommandRunner commandRunner) {
+    public SchoolTripsView(
+        SchoolTripCommandRunner commandRunner, UserSession userSession
+    ) {
+        super(userSession);
+
         this.commandRunner = commandRunner;
         this.schoolTripsGrid = new SchoolTripsGrid();
 

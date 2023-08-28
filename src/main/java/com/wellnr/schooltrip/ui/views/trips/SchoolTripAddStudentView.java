@@ -7,10 +7,11 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.common.markup.Tuple2;
-import com.wellnr.schooltrip.core.application.commands.RegisterStudentCommand;
+import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolClass;
 import com.wellnr.schooltrip.core.model.student.Gender;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationFormBuilder;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
@@ -20,8 +21,10 @@ import java.time.LocalDate;
 @Route(value = "trips/:name/register-student", layout = ApplicationAppLayout.class)
 public class SchoolTripAddStudentView extends AbstractSchoolTripView {
 
-    public SchoolTripAddStudentView(SchoolTripCommandRunner commandRunner) {
-        super(commandRunner);
+    public SchoolTripAddStudentView(
+        SchoolTripCommandRunner commandRunner, UserSession userSession
+    ) {
+        super(commandRunner, userSession);
     }
 
     /**

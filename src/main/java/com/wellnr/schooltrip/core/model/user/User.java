@@ -1,5 +1,8 @@
 package com.wellnr.schooltrip.core.model.user;
 
+import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
+
 import java.util.Arrays;
 
 public interface User {

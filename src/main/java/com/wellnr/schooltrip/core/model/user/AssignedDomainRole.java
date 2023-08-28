@@ -2,6 +2,8 @@ package com.wellnr.schooltrip.core.model.user;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;

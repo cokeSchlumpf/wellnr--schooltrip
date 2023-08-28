@@ -20,6 +20,11 @@ public class RegisteredUsersMongoRepository implements RegisteredUsersRepository
     }
 
     @Override
+    public Optional<RegisteredUser> findOneById(String id) {
+        return spring.findOneById(id);
+    }
+
+    @Override
     public Optional<RegisteredUser> findOneByEmail(String email) {
         return spring.findOneByEmail(email);
     }

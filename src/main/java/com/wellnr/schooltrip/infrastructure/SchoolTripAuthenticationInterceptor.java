@@ -2,6 +2,7 @@ package com.wellnr.schooltrip.infrastructure;
 
 import com.wellnr.schooltrip.SchooltripApplication;
 import com.wellnr.schooltrip.core.model.user.*;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;

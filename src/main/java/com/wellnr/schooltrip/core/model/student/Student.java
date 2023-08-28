@@ -16,7 +16,7 @@ import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
-import com.wellnr.schooltrip.core.model.user.DomainPermissions;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
 import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
 import lombok.*;

@@ -5,18 +5,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wellnr.common.Operators;
 import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
-import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolClassRegisteredEvent;
-import com.wellnr.schooltrip.core.model.schooltrip.events.SchoolTripCreatedEvent;
-import com.wellnr.schooltrip.core.model.schooltrip.events.StudentIDAssigndEvent;
-import com.wellnr.schooltrip.core.model.schooltrip.events.StudentRemovedFromSchoolTripEvent;
+import com.wellnr.schooltrip.core.model.schooltrip.events.*;
 import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsRepository;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.StudentId;
 import com.wellnr.schooltrip.core.model.student.StudentsReadRepository;
-import com.wellnr.schooltrip.core.model.user.DomainPermissions;
-import com.wellnr.schooltrip.core.model.user.User;
+import com.wellnr.schooltrip.core.model.user.*;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -41,7 +38,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     private static final String SETTINGS = "settings";
     private static final String SCHOOL_CLASSES = "schoolClasses";
     private static final String ID_ASSIGNMENTS = "idAssignments";
-
+    private static final String MANAGERS = "managers";
 
     @JsonProperty(ID)
     private final String id;
@@ -61,6 +58,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     @JsonProperty(ID_ASSIGNMENTS)
     private Map<Integer, StudentId> studentIdAssignments;
 
+    @JsonProperty(MANAGERS)
+    private Set<RegisteredUserId> managers;
+
     /**
      * Creates an instance of this entity class.
      *
@@ -79,7 +79,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         }
 
         return new SchoolTrip(
-            id, title, name, SchoolTripSettings.apply(), new HashSet<>(), new HashMap<>()
+            id, title, name, SchoolTripSettings.apply(), new HashSet<>(), new HashMap<>(), new HashSet<>()
         );
     }
 
@@ -93,6 +93,40 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         @NotNull @NotBlank String title
     ) {
         return create(title, null);
+    }
+
+    /**
+     * Adds a user who can manage this school trip.
+     *
+     * @param executor The user executing the action.
+     * @param email The email address of the user who should become a manager.
+     * @param schoolTrips The repository to read/write entity information.
+     * @param users The repository to read user information.
+     */
+    public RegisteredUser addManager(
+        User executor, String email, SchoolTripsRepository schoolTrips,
+        RegisteredUsersReadRepository users) {
+
+        // TODO: Verify permission
+
+        var user = users.getOneByEmail(email);
+        var userId = new RegisteredUserId(user.getId());
+        this.managers.add(userId);
+
+        this.registerEvent(SchoolTripManagerAddedEvent.apply(this, userId));
+        schoolTrips.save(this);
+
+        return user;
+    }
+
+    public void removeManagers(
+        User executor, RegisteredUserId userId, SchoolTripsRepository schoolTrips
+    ) {
+        // TODO: Verify permission
+
+        this.managers.remove(userId);
+        this.registerEvent(SchoolTripManagerRemovedEvent.apply(this, userId));
+        schoolTrips.save(this);
     }
 
     /**
@@ -221,6 +255,13 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             throw SchoolTripAlreadyExistsException.apply(this.name);
         } else if (existing.isEmpty()) {
             this.registerEvent(SchoolTripCreatedEvent.apply(this));
+
+            if (creator instanceof RegisteredUser user) {
+                var userId = new RegisteredUserId(user.getId());
+                this.registerEvent(SchoolTripManagerAddedEvent.apply(this, userId));
+                this.managers.add(userId);
+            }
+
             repository.save(this);
         }
     }
@@ -312,7 +353,16 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             .findFirst();
     }
 
-    /**
+    public List<RegisteredUser> getManagers(RegisteredUsersRepository users) {
+        return this
+            .getManagers()
+            .stream()
+            .map(id -> users.findOneById(id.id()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .toList();
+    }
+                                            /**
      * Get a school class by its name, throw if class not found.
      *
      * @param name The name of the class.

@@ -6,7 +6,7 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.wellnr.schooltrip.core.application.commands.CreateSchoolTripCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.CreateSchoolTripCommand;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
 import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
@@ -19,6 +19,8 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppView;
 public class CreateSchoolTripView extends AbstractApplicationAppView implements ApplicationAppView {
 
     public CreateSchoolTripView(SchoolTripCommandRunner commandRunner, UserSession userSession) {
+        super(userSession);
+
         var form = new ApplicationCommandFormBuilder<>(
             CreateSchoolTripCommand.class,
             commandRunner,

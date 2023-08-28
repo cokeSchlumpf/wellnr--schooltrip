@@ -6,8 +6,9 @@ import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
-import com.wellnr.schooltrip.core.application.commands.RegisterSchoolClassCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.RegisterSchoolClassCommand;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationFormBuilder;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
@@ -15,8 +16,8 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 @Route(value = "trips/:name/create-class", layout = ApplicationAppLayout.class)
 public class SchoolTripAddClassView extends AbstractSchoolTripView {
 
-    public SchoolTripAddClassView(SchoolTripCommandRunner commandRunner) {
-        super(commandRunner);
+    public SchoolTripAddClassView(SchoolTripCommandRunner commandRunner, UserSession userSession) {
+        super(commandRunner, userSession);
     }
 
     /**

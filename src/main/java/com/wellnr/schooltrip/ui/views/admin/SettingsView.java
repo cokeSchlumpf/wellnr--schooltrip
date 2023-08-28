@@ -3,10 +3,11 @@ package com.wellnr.schooltrip.ui.views.admin;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.router.Route;
-import com.wellnr.schooltrip.core.application.commands.ListUsersCommand;
+import com.wellnr.schooltrip.core.application.commands.users.ListUsersCommand;
 import com.wellnr.schooltrip.core.model.user.AssignedDomainRole;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.UserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridAndDetails;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.components.users.UserDetailsControl;
@@ -24,7 +25,8 @@ public class SettingsView extends AbstractApplicationAppView {
 
     private final ApplicationGridAndDetails<RegisteredUser> gridAndDetails;
 
-    public SettingsView(SchoolTripCommandRunner commandRunner) {
+    public SettingsView(SchoolTripCommandRunner commandRunner, UserSession userSession) {
+        super(userSession);
         this.commandRunner = commandRunner;
 
         this.gridAndDetails = new ApplicationGridAndDetails<>(new UsersGrid(), new UserDetailsControl(commandRunner));
@@ -70,7 +72,7 @@ public class SettingsView extends AbstractApplicationAppView {
                 .setHeader("Roles");
 
             var bttNew = this.getMenuBar().addItem("New user");
-            bttNew.addClickListener(ignore -> UI.getCurrent().navigate(CreateSchoolTripView.class));
+            bttNew.addClickListener(ignore -> UI.getCurrent().navigate(CreateUserView.class));
         }
 
     }

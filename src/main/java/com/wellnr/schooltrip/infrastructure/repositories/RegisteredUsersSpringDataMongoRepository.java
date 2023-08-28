@@ -9,4 +9,6 @@ public interface RegisteredUsersSpringDataMongoRepository extends MongoRepositor
 
     Optional<RegisteredUser> findOneByEmail(String email);
 
+    Optional<RegisteredUser> findOneById(String id);
+
 }
