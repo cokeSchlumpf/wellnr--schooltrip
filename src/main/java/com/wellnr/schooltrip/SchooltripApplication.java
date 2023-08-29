@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
 })
 public class SchooltripApplication {
 
-	public static String USER_CONTEXT_ATTRIBUTE = "APP__USER";
+	public static String SECURITY_COOKIE_NAME = "access_token";
 
 	public static void main(String[] args) {
 		SpringApplication.run(SchooltripApplication.class, args);

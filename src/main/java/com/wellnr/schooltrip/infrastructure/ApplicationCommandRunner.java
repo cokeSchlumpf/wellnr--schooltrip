@@ -15,12 +15,12 @@ import java.util.Optional;
  * A simple class to hide command execution from UI components. UI components should never use
  * or see a domain registry directly. They must always communicate via commands with the
  * application.
- *
+ * <p>
  * The usage of this class ensures this.
  */
 @Component
 @AllArgsConstructor
-public class SchoolTripCommandRunner {
+public class ApplicationCommandRunner {
 
     private final SchoolTripDomainRegistry domainRegistry;
 

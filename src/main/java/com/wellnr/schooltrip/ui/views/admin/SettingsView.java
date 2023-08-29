@@ -7,14 +7,13 @@ import com.wellnr.schooltrip.core.application.commands.users.ListUsersCommand;
 import com.wellnr.schooltrip.core.model.user.AssignedDomainRole;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridAndDetails;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.components.users.UserDetailsControl;
 import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
-import com.wellnr.schooltrip.ui.views.trips.CreateSchoolTripView;
 
 import java.net.URI;
 import java.util.List;
@@ -23,11 +22,11 @@ import java.util.stream.Collectors;
 @Route(value = "settings", layout = ApplicationAppLayout.class)
 public class SettingsView extends AbstractApplicationAppView {
 
-    private final SchoolTripCommandRunner commandRunner;
+    private final ApplicationCommandRunner commandRunner;
 
     private final ApplicationGridAndDetails<RegisteredUser> gridAndDetails;
 
-    public SettingsView(SchoolTripCommandRunner commandRunner, UserSession userSession) {
+    public SettingsView(ApplicationCommandRunner commandRunner, ApplicationUserSession userSession) {
         super(userSession, List.of(
             DomainPermissions.APPLICATION__MANAGE_USERS
         ));

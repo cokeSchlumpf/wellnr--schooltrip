@@ -12,7 +12,7 @@ import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.AddPaymentCommand;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 
@@ -25,7 +25,7 @@ public class StudentPaymentAdminControl extends VerticalLayout {
 
     private final Grid<Payment> payments;
 
-    public StudentPaymentAdminControl(SchoolTripCommandRunner commandRunner) {
+    public StudentPaymentAdminControl(ApplicationCommandRunner commandRunner) {
         this.setPadding(false);
         this.setMargin(false);
 

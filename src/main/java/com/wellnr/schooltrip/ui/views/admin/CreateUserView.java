@@ -7,8 +7,8 @@ import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.application.commands.users.RegisterUserCommand;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
@@ -20,7 +20,7 @@ import java.util.Optional;
 @Route(value = "admin/add-user", layout = ApplicationAppLayout.class)
 public class CreateUserView extends AbstractApplicationAppView implements ApplicationAppView {
 
-    public CreateUserView(SchoolTripCommandRunner commandRunner, UserSession userSession) {
+    public CreateUserView(ApplicationCommandRunner commandRunner, ApplicationUserSession userSession) {
         super(userSession);
 
         //noinspection SwitchStatementWithTooFewBranches

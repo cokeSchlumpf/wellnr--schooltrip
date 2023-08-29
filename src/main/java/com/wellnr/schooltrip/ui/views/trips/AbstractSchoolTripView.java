@@ -7,8 +7,8 @@ import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.GetSchoolTripDetailsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripDetailsProjection;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
 import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 
@@ -16,12 +16,12 @@ import java.util.List;
 
 public abstract class AbstractSchoolTripView extends AbstractApplicationAppView implements BeforeEnterObserver {
 
-    protected final SchoolTripCommandRunner commandRunner;
+    protected final ApplicationCommandRunner commandRunner;
 
     protected SchoolTripDetailsProjection schoolTrip;
 
     protected AbstractSchoolTripView(
-        SchoolTripCommandRunner commandRunner, UserSession userSession
+        ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(userSession);
         this.commandRunner = commandRunner;

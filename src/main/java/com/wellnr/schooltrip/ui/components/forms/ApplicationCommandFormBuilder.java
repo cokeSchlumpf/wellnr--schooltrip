@@ -7,7 +7,7 @@ import com.wellnr.common.functions.Function1;
 import com.wellnr.common.markup.Tuple2;
 import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -17,11 +17,11 @@ public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD ext
     extends ApplicationFormBuilder<CMD> {
 
 
-    private final SchoolTripCommandRunner commandRunner;
+    private final ApplicationCommandRunner commandRunner;
 
     public ApplicationCommandFormBuilder(
         Class<CMD> commandType,
-        SchoolTripCommandRunner commandRunner,
+        ApplicationCommandRunner commandRunner,
         Function0<CMD> getInitialCommand
     ) {
 
@@ -30,7 +30,7 @@ public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD ext
         this.withSaveButton(true);
     }
 
-    public ApplicationCommandFormBuilder(Class<CMD> commandType, SchoolTripCommandRunner commandRunner) {
+    public ApplicationCommandFormBuilder(Class<CMD> commandType, ApplicationCommandRunner commandRunner) {
         this(commandType, commandRunner, () -> null);
     }
 

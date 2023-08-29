@@ -18,10 +18,9 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.RegisteredUserId;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationCard;
-import com.wellnr.schooltrip.ui.components.ApplicationNotifications;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationFormBuilder;
@@ -41,7 +40,7 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
     private final ManagersGrid managers;
 
     public SchoolTripSettingsView(
-        SchoolTripCommandRunner commandRunner, UserSession userSession
+        ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
 

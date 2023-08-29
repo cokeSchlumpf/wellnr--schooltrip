@@ -8,7 +8,7 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.shared.Registration;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 
 public class StudentDetailsControl extends Scroller {
 
@@ -22,7 +22,7 @@ public class StudentDetailsControl extends Scroller {
 
     private Student student;
 
-    public StudentDetailsControl(String appBaseUrl, SchoolTrip schoolTrip, SchoolTripCommandRunner commandRunner) {
+    public StudentDetailsControl(String appBaseUrl, SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
         this.appBaseUrl = appBaseUrl;
 
         setWidth("800px");
@@ -82,7 +82,7 @@ public class StudentDetailsControl extends Scroller {
     /**
      * Sets up the controls for editing basic student information.
      */
-    private void setupBasics(SchoolTrip schoolTrip, SchoolTripCommandRunner commandRunner) {
+    private void setupBasics(SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
         this.basics = new StudentBasicsControl(appBaseUrl, schoolTrip, commandRunner);
 
         this.basics.addBasicsUpdatedListener(event -> fireEvent(
@@ -95,7 +95,7 @@ public class StudentDetailsControl extends Scroller {
      *
      * @param commandRunner The command runner to execute commands.
      */
-    private void setupPayment(SchoolTripCommandRunner commandRunner) {
+    private void setupPayment(ApplicationCommandRunner commandRunner) {
         this.payments = new StudentPaymentAdminControl(commandRunner);
 
         this.payments.addPaymentUpdatedListener(
@@ -109,7 +109,7 @@ public class StudentDetailsControl extends Scroller {
      * @param schoolTrip The current school trip.
      * @param commandRunner The runner to execute the command.
      */
-    private void setupRegistration(SchoolTrip schoolTrip, SchoolTripCommandRunner commandRunner) {
+    private void setupRegistration(SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
         this.registration = new StudentRegistrationAdminControl(
             schoolTrip, commandRunner
         );

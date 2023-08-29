@@ -5,10 +5,13 @@ import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public interface User {
 
     boolean hasSinglePermission(DomainPermission permission);
+
+    Optional<RegisteredUser> getRegisteredUser();
 
     default boolean hasPermission(DomainPermission ...permission) {
         return Arrays

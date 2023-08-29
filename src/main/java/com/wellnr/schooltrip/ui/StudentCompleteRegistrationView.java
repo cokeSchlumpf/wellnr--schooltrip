@@ -13,7 +13,7 @@ import com.vaadin.flow.router.*;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteStudentRegistrationViewCommand;
 import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
 import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionnaireControl;
 
@@ -21,13 +21,13 @@ import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionna
 @PageTitle("School Trip")
 public class StudentCompleteRegistrationView extends ApplicationContentContainer implements BeforeEnterObserver {
 
-    private final SchoolTripCommandRunner commandRunner;
+    private final ApplicationCommandRunner commandRunner;
 
     private StudentRegistrationQuestionnaireControl questionnaire;
 
     private Student student;
 
-    public StudentCompleteRegistrationView(SchoolTripCommandRunner commandRunner) {
+    public StudentCompleteRegistrationView(ApplicationCommandRunner commandRunner) {
         this.commandRunner = commandRunner;
     }
 

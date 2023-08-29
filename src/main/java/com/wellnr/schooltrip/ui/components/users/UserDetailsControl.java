@@ -6,7 +6,7 @@ import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ResetPasswordCommand;
 import com.wellnr.schooltrip.core.application.commands.UpdateRegisteredUserCommand;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationFormBuilder;
@@ -19,7 +19,7 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
     ApplicationCommandForm<MessageResult<RegisteredUser>, UpdateRegisteredUserCommand> updatePropertiesForm;
     ApplicationCommandForm<MessageResult<RegisteredUser>, ResetPasswordCommand> resetPasswordForm;
 
-    public UserDetailsControl(SchoolTripCommandRunner commandRunner) {
+    public UserDetailsControl(ApplicationCommandRunner commandRunner) {
         super(commandRunner);
 
         //noinspection SwitchStatementWithTooFewBranches

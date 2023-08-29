@@ -6,16 +6,16 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ConfirmStudentRegistrationCommand;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
 
 @Route("/students/confirm-registration/:token")
 @PageTitle("School Trip")
 public class StudentConfirmRegistrationView extends ApplicationContentContainer implements BeforeEnterObserver {
 
-    private final SchoolTripCommandRunner commandRunner;
+    private final ApplicationCommandRunner commandRunner;
 
-    public StudentConfirmRegistrationView(SchoolTripCommandRunner commandRunner) {
+    public StudentConfirmRegistrationView(ApplicationCommandRunner commandRunner) {
         this.commandRunner = commandRunner;
     }
 

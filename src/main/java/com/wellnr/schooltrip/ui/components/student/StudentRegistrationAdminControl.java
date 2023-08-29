@@ -10,7 +10,7 @@ import com.wellnr.schooltrip.core.application.commands.schooltrip.ConfirmStudent
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 
 import java.util.Objects;
 
@@ -18,7 +18,7 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
 
     private final SchoolTrip schoolTrip;
 
-    private final SchoolTripCommandRunner commandRunner;
+    private final ApplicationCommandRunner commandRunner;
 
     private final Paragraph infoText;
 
@@ -34,7 +34,7 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
 
     private StudentRegistrationQuestionnaireControl existingRegistration;
 
-    public StudentRegistrationAdminControl(SchoolTrip schoolTrip, SchoolTripCommandRunner commandRunner) {
+    public StudentRegistrationAdminControl(SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
         this.schoolTrip = schoolTrip;
         this.commandRunner = commandRunner;
 

@@ -6,7 +6,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.LoginView;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
 import com.wellnr.schooltrip.ui.views.admin.SettingsView;
@@ -17,16 +17,16 @@ import java.util.List;
 // @JsModule("./copy-to-clipboard.js")
 public abstract class AbstractApplicationAppView extends VerticalLayout implements ApplicationAppView, BeforeEnterObserver {
 
-    private final UserSession userSession;
+    private final ApplicationUserSession userSession;
 
     private final List<DomainPermission> minimumPermissions;
 
-    public AbstractApplicationAppView(UserSession userSession, List<DomainPermission> minimumPermissions) {
+    public AbstractApplicationAppView(ApplicationUserSession userSession, List<DomainPermission> minimumPermissions) {
         this.userSession = userSession;
         this.minimumPermissions = minimumPermissions;
     }
 
-    public AbstractApplicationAppView(UserSession userSession) {
+    public AbstractApplicationAppView(ApplicationUserSession userSession) {
         this(userSession, List.of());
     }
 

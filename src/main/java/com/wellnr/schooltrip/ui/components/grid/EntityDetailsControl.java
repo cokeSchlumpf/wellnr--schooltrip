@@ -3,15 +3,15 @@ package com.wellnr.schooltrip.ui.components.grid;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 
 public class EntityDetailsControl<T> extends VerticalLayout {
 
-    protected final SchoolTripCommandRunner commandRunner;
+    protected final ApplicationCommandRunner commandRunner;
 
     protected T entity;
 
-    protected EntityDetailsControl(SchoolTripCommandRunner commandRunner) {
+    protected EntityDetailsControl(ApplicationCommandRunner commandRunner) {
         this.commandRunner = commandRunner;
 
         setWidth("800px");

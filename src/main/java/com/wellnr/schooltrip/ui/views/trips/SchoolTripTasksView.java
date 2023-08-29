@@ -14,8 +14,8 @@ import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentC
 import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationCard;
 import com.wellnr.schooltrip.ui.components.ExcelImportDialog;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
@@ -31,7 +31,7 @@ import java.util.List;
 public class SchoolTripTasksView extends AbstractSchoolTripView {
 
     public SchoolTripTasksView(
-        SchoolTripCommandRunner commandRunner, UserSession userSession
+        ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
     }

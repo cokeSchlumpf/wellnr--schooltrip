@@ -9,7 +9,7 @@ import com.wellnr.common.functions.Function0;
 import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.components.ApplicationNotifications;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +21,7 @@ public class ApplicationCommandForm<RESULT extends CommandResult, CMD extends Ab
     public ApplicationCommandForm(
         BeanValidationBinder<CMD> binder,
         Function0<CMD> getInitialCommand,
-        SchoolTripCommandRunner commandRunner,
+        ApplicationCommandRunner commandRunner,
         List<FormLayout> forms) {
 
         super(binder, getInitialCommand, forms, true);

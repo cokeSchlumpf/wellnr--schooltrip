@@ -256,7 +256,8 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         } else if (existing.isEmpty()) {
             this.registerEvent(SchoolTripCreatedEvent.apply(this));
 
-            if (creator instanceof RegisteredUser user) {
+            if (creator.getRegisteredUser().isPresent()) {
+                var user = creator.getRegisteredUser().get();
                 var userId = new RegisteredUserId(user.getId());
                 this.registerEvent(SchoolTripManagerAddedEvent.apply(this, userId));
                 this.managers.add(userId);

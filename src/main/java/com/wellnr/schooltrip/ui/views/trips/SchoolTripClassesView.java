@@ -7,8 +7,8 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolClass;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationNotifications;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
@@ -20,7 +20,7 @@ import java.util.Objects;
 public class SchoolTripClassesView extends AbstractSchoolTripView {
 
     public SchoolTripClassesView(
-        SchoolTripCommandRunner commandRunner, UserSession userSession
+        ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
     }

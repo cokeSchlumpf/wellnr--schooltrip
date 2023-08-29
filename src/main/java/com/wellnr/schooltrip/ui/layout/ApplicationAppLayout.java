@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 
 import java.util.stream.Collectors;
 
@@ -22,9 +22,9 @@ public class ApplicationAppLayout extends AppLayout {
 
     private final VerticalLayout mainmenuContainer = new VerticalLayout();
 
-    private final UserSession userSession;
+    private final ApplicationUserSession userSession;
 
-    public ApplicationAppLayout(UserSession userSession) {
+    public ApplicationAppLayout(ApplicationUserSession userSession) {
         this.userSession = userSession;
 
         this.addNavBarContent();

@@ -9,8 +9,8 @@ import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.common.markup.Either;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.payments.AbstractLineItems;
-import com.wellnr.schooltrip.infrastructure.SchoolTripCommandRunner;
-import com.wellnr.schooltrip.infrastructure.UserSession;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationAmountLabelBuilder;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.components.student.StudentsGrid;
@@ -20,7 +20,7 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
 
     public SchoolTripPaymentsView(
-        SchoolTripCommandRunner commandRunner, UserSession userSession
+        ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
     }

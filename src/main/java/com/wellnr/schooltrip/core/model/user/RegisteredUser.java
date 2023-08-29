@@ -151,6 +151,11 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
             .anyMatch(p -> p.equals(permission));
     }
 
+    @Override
+    public Optional<RegisteredUser> getRegisteredUser() {
+        return Optional.of(this);
+    }
+
     public Result<Done> login(
         String password, RegisteredUsersRepository users, PasswordEncryptionPort encryptionPort
     ) {
