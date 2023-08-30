@@ -1,12 +1,12 @@
 package com.wellnr.schooltrip.core.model.user.rbac;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.Value;
 
-import java.util.List;
 import java.util.Set;
 
 public final class DomainRoles {
@@ -41,13 +41,22 @@ public final class DomainRoles {
     }
 
     @Value
-    @AllArgsConstructor(staticName = "apply")
-    @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class SchoolTripManager implements DomainRole {
+
+        private static final String SCHOOL_TRIP_ID = "school-trip-id";
 
         public static final String NAME = "/app/schooltrips/manager";
 
+        @JsonProperty(SCHOOL_TRIP_ID)
         String schoolTripId;
+
+        @JsonCreator
+        public static SchoolTripManager apply(
+            @JsonProperty(SCHOOL_TRIP_ID) String schoolTripId
+        ) {
+            return new SchoolTripManager(schoolTripId);
+        }
 
 
         @Override

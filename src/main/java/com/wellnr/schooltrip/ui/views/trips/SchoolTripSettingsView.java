@@ -87,10 +87,13 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
 
         this.add(new H3("Trip Settings"));
         this.add(settingsForm);
-        this.add(new Hr());
-        this.add(new H3("Trip Managers"));
-        this.add(managers);
-        this.add(addManagerCard);
+
+        if (userSession.getPermissions().isCanManageSchoolTrips()) {
+            this.add(new Hr());
+            this.add(new H3("Trip Managers"));
+            this.add(managers);
+            this.add(addManagerCard);
+        }
     }
 
     public static RouteParameters getRouteParameters(String name) {

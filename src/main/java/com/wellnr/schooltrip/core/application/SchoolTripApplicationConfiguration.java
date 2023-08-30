@@ -14,4 +14,6 @@ public class SchoolTripApplicationConfiguration {
 
     List<DefaultConfiguredUser> defaultAdminUsers;
 
+    List<DefaultConfiguredUser> defaultTeachers;
+
 }

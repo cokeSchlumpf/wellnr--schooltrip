@@ -2,7 +2,9 @@ package com.wellnr.schooltrip.infrastructure;
 
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
+import com.wellnr.schooltrip.core.application.configuration.DefaultConfiguredUser;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
@@ -22,26 +24,34 @@ public class ApplicationStartupTasks {
 
     @PostConstruct
     public void initializeDefaultAdminUsers() {
-        config.getDefaultAdminUsers().forEach(defaultUser -> {
-            log.info("Checking default user `{}`", defaultUser.getEmail());
+        config.getDefaultAdminUsers().forEach(
+            defaultUser -> registerUser(defaultUser, Set.of(DomainRoles.ApplicationAdministrator.apply()))
+        );
 
-            var maybeUser = registry.getUsers().findOneByEmail(defaultUser.getEmail());
+        config.getDefaultTeachers().forEach(
+            defaultUser -> registerUser(defaultUser, Set.of())
+        );
+    }
 
-            if (maybeUser.isEmpty()) {
-                log.info("Register default user `{}`.", defaultUser.getEmail());
+    private void registerUser(DefaultConfiguredUser defaultUser, Set<DomainRole> standardRoles) {
+        log.info("Checking default user `{}`", defaultUser.getEmail());
 
-                RegisteredUser
-                    .createNew(
-                        defaultUser.getEmail(),
-                        defaultUser.getPassword(),
-                        defaultUser.getFirstName(),
-                        defaultUser.getLastName(),
-                        Set.of(DomainRoles.ApplicationAdministrator.apply()),
-                        registry.getPasswordEncryptionPort()
-                    )
-                    .register(registry.getUsers());
-            }
-        });
+        var maybeUser = registry.getUsers().findOneByEmail(defaultUser.getEmail());
+
+        if (maybeUser.isEmpty()) {
+            log.info("Register default user `{}`.", defaultUser.getEmail());
+
+            RegisteredUser
+                .createNew(
+                    defaultUser.getEmail(),
+                    defaultUser.getPassword(),
+                    defaultUser.getFirstName(),
+                    defaultUser.getLastName(),
+                    standardRoles,
+                    registry.getPasswordEncryptionPort()
+                )
+                .register(registry.getUsers());
+        }
     }
 
 }

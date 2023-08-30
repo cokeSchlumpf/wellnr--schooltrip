@@ -17,8 +17,10 @@ import com.vaadin.flow.server.VaadinResponse;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wellnr.schooltrip.SchooltripApplication;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.LoginView;
+import com.wellnr.schooltrip.ui.views.admin.ProfileView;
 import jakarta.servlet.http.Cookie;
 
 import java.util.stream.Collectors;
@@ -26,10 +28,11 @@ import java.util.stream.Collectors;
 public class ApplicationAppLayout extends AppLayout {
 
     private final VerticalLayout mainmenuContainer = new VerticalLayout();
-
     private final ApplicationUserSession userSession;
 
-    public ApplicationAppLayout(ApplicationUserSession userSession) {
+    public ApplicationAppLayout(
+        ApplicationUserSession userSession
+    ) {
         this.userSession = userSession;
 
         this.addNavBarContent();
@@ -135,7 +138,11 @@ public class ApplicationAppLayout extends AppLayout {
             var item = menubar.addItem(new Icon(VaadinIcon.USER));
             item.add(new Text(user.getName()));
 
-            item.getSubMenu().addItem("Settings");
+            var profile = item.getSubMenu().addItem("Profile");
+            profile.addClickListener(event -> {
+                UI.getCurrent().navigate(ProfileView.class);
+            });
+
             item.getSubMenu().add(new Hr());
             var logout = item.getSubMenu().addItem("Logout");
             logout.addClickListener(event -> {

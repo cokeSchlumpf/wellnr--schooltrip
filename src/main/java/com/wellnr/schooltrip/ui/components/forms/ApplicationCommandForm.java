@@ -57,4 +57,9 @@ public class ApplicationCommandForm<RESULT extends CommandResult, CMD extends Ab
         return addListener((Class<ApplicationCommandFormCompletedEvent<RESULT, CMD>>) dummy.getClass(), listener);
     }
 
+    public ApplicationCommandForm<RESULT, CMD> withCompletionListener(ComponentEventListener<ApplicationCommandFormCompletedEvent<RESULT, CMD>> listener) {
+        this.addCompletionListener(listener);
+        return this;
+    }
+
 }

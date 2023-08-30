@@ -14,9 +14,14 @@ public class ListSchoolTripsCommand implements AbstractSchoolTripCommand<DataRes
 
     @Override
     public DataResult<List<SchoolTrip>> run(User user, SchoolTripDomainRegistry domainRegistry) {
-        return DataResult.apply(
-            domainRegistry.getSchoolTrips().findAllSchoolTrips().stream().toList()
-        );
+        var trips = domainRegistry
+            .getSchoolTrips()
+            .findAllSchoolTrips()
+            .stream()
+            .filter(trip -> trip.canBeAccessedByUser(user))
+            .toList();
+
+        return DataResult.apply(trips);
     }
 
 }

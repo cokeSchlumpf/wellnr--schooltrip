@@ -10,6 +10,7 @@ import com.wellnr.schooltrip.core.model.user.exceptions.PasswordsNotEqualExcepti
 import com.wellnr.schooltrip.core.model.user.exceptions.UserAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -89,7 +90,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         }
 
         return new RegisteredUser(
-            id, email, password, firstName, lastName, lastLogin, Set.copyOf(domainRoles)
+            id, email, password, firstName, lastName, lastLogin, new HashSet<>(domainRoles)
         );
     }
 
@@ -109,7 +110,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         var passwordEncrypted = passwordEncryptionPort.encode(password);
 
         return new RegisteredUser(
-            id, email, passwordEncrypted, firstName, lastName, Instant.now(), Set.copyOf(domainRoles)
+            id, email, passwordEncrypted, firstName, lastName, Instant.now(), new HashSet<>(domainRoles)
         );
     }
 
@@ -117,8 +118,23 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         return RegisteredUser.apply("123", "info@bar.de", "blaböa", "Egon", "Olsen", Instant.now(), Set.of());
     }
 
+    public Set<DomainRole> getDomainRoles() {
+        return Set.copyOf(this.domainRoles);
+    }
+
     public String getName() {
         return getFirstName() + " " + getLastName();
+    }
+
+    /**
+     * Grants a domain role to this user.
+     *
+     * @param role The role to be granted.
+     * @param users The repository to persist the information.
+     */
+    public void grantDomainRole(DomainRole role, RegisteredUsersRepository users) {
+        this.domainRoles.add(role);
+        users.insertOrUpdate(this);
     }
 
     /**
@@ -200,6 +216,17 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         }
 
         this.password = encryptionPort.encode(newPassword);
+        users.insertOrUpdate(this);
+    }
+
+    /**
+     * Revokes a domain role from a user.
+     *
+     * @param role The role to be revoked.
+     * @param users The repository to persist the information.
+     */
+    public void revokeDomainRole(DomainRole role, RegisteredUsersRepository users) {
+        this.domainRoles.remove(role);
         users.insertOrUpdate(this);
     }
 

@@ -24,6 +24,8 @@ public class ApplicationCommandRunner {
 
     private final SchoolTripDomainRegistry domainRegistry;
 
+    private final ApplicationUserSession userSession;
+
     /**
      * Executes a command by injecting required resources to the commands run command.
      *
@@ -33,7 +35,7 @@ public class ApplicationCommandRunner {
      */
     public <T extends CommandResult> T run(AbstractSchoolTripCommand<T> command) {
         return command.run(
-            domainRegistry.getUsers().getOneByEmail("michael.wellner@gmail.com"),
+            userSession.getUser(),
             domainRegistry
         );
     }

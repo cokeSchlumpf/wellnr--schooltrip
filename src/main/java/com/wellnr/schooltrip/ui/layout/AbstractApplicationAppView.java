@@ -5,37 +5,53 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
+import com.wellnr.schooltrip.core.application.commands.users.GetUserApplicationPermissionsCommand;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
+import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.LoginView;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
 import com.wellnr.schooltrip.ui.views.admin.SettingsView;
 import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // @JsModule("./copy-to-clipboard.js")
 public abstract class AbstractApplicationAppView extends VerticalLayout implements ApplicationAppView, BeforeEnterObserver {
 
-    private final ApplicationUserSession userSession;
+    protected final ApplicationUserSession userSession;
 
-    private final List<DomainPermission> minimumPermissions;
+    protected final List<DomainPermission> minimumPermissions;
 
-    public AbstractApplicationAppView(ApplicationUserSession userSession, List<DomainPermission> minimumPermissions) {
+    public AbstractApplicationAppView(
+        ApplicationUserSession userSession, List<DomainPermission> minimumPermissions
+    ) {
+
         this.userSession = userSession;
         this.minimumPermissions = minimumPermissions;
     }
 
-    public AbstractApplicationAppView(ApplicationUserSession userSession) {
+    public AbstractApplicationAppView(
+        ApplicationUserSession userSession
+    ) {
         this(userSession, List.of());
     }
 
     @Override
     public List<RouterLink> getMainMenuComponents() {
-        return List.of(
-            new ApplicationRouterLinkWithIcon(VaadinIcon.LIST, "Trips", SchoolTripsView.class),
-            new ApplicationRouterLinkWithIcon(VaadinIcon.OPTIONS, "Settings", SettingsView.class)
+        var menuItems = new ArrayList<RouterLink>();
+        menuItems.add(
+            new ApplicationRouterLinkWithIcon(VaadinIcon.LIST, "Trips", SchoolTripsView.class)
         );
+
+        if (userSession.getPermissions().isCanManageApplication()) {
+            menuItems.add(
+                new ApplicationRouterLinkWithIcon(VaadinIcon.OPTIONS, "Settings", SettingsView.class)
+            );
+        }
+
+        return menuItems;
     }
 
     @Override

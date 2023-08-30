@@ -119,10 +119,28 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         return user;
     }
 
+    /**
+     * Checks whether a user can see the school trip.
+     *
+     * @param user The user for which access should be checked.
+     * @return True if user can see the school trip, false otherwise.
+     */
+    public boolean canBeAccessedByUser(User user) {
+        return user.hasPermission(
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(this.id)
+        );
+    }
+
     public void removeManagers(
         User executor, RegisteredUserId userId, SchoolTripsRepository schoolTrips
     ) {
-        // TODO: Verify permission
+        /*
+         * Only administratirs can remove managers for school trips.
+         */
+        executor.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply()
+        );
 
         this.managers.remove(userId);
         this.registerEvent(SchoolTripManagerRemovedEvent.apply(this, userId));

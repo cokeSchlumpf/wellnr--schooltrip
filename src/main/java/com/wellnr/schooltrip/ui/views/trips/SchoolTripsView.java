@@ -2,7 +2,6 @@ package com.wellnr.schooltrip.ui.views.trips;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.GridSortOrder;
-import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
@@ -31,19 +30,18 @@ public class SchoolTripsView extends AbstractApplicationAppView {
         this.schoolTripsGrid = new SchoolTripsGrid();
 
         this.add(
-            new H3("School Trips"),
             schoolTripsGrid
         );
 
-        refreshWorkspaces();
+        refreshTrips();
     }
 
-    private void refreshWorkspaces() {
+    private void refreshTrips() {
         var result = commandRunner.run(ListSchoolTripsCommand.apply());
         this.schoolTripsGrid.getGrid().setItems(result.getData());
     }
 
-    private static class SchoolTripsGrid extends ApplicationGridWithControls<SchoolTrip> {
+    private class SchoolTripsGrid extends ApplicationGridWithControls<SchoolTrip> {
 
         public SchoolTripsGrid() {
             var schoolTripColumn = this
@@ -58,8 +56,11 @@ public class SchoolTripsView extends AbstractApplicationAppView {
                 new GridSortOrder<>(schoolTripColumn, SortDirection.ASCENDING)
             ));
 
-            var bttNew = this.getMenuBar().addItem("Create Trip");
-            bttNew.addClickListener(ignore -> UI.getCurrent().navigate(CreateSchoolTripView.class));
+            if (userSession.getPermissions().isCanManageSchoolTrips()) {
+                var bttNew = this.getMenuBar().addItem("Create Trip");
+                bttNew.addClickListener(ignore -> UI.getCurrent().navigate(CreateSchoolTripView.class));
+            }
+
         }
 
     }

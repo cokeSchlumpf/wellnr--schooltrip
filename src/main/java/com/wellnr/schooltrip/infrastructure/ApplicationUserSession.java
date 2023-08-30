@@ -3,6 +3,7 @@ package com.wellnr.schooltrip.infrastructure;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wellnr.common.Operators;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
+import com.wellnr.schooltrip.core.application.commands.users.GetUserApplicationPermissionsCommand;
 import com.wellnr.schooltrip.core.model.user.*;
 import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
@@ -29,6 +30,8 @@ import java.util.stream.Collectors;
 @RequestScope
 public class ApplicationUserSession {
 
+    private final SchoolTripDomainRegistry domainRegistry;
+
     private final RegisteredUsersRepository users;
 
     private final PasswordEncryptionPort passwordEncryption;
@@ -39,7 +42,10 @@ public class ApplicationUserSession {
 
     User user;
 
+    GetUserApplicationPermissionsCommand.ApplicationPermissions permissions;
+
     public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om) {
+        this.domainRegistry = domainRegistry;
         this.users = domainRegistry.getUsers();
         this.passwordEncryption = domainRegistry.getPasswordEncryptionPort();
         this.jwtEncoder = jwtEncoder;
@@ -126,6 +132,17 @@ public class ApplicationUserSession {
         } else {
             throw NotAuthorizedException.apply();
         }
+    }
+
+    public GetUserApplicationPermissionsCommand.ApplicationPermissions getPermissions() {
+        if (Objects.isNull(permissions)) {
+            this.permissions = GetUserApplicationPermissionsCommand
+                .apply()
+                .run(this.getUser(), domainRegistry)
+                .getData();
+        }
+
+        return permissions;
     }
 
     public void logout() {

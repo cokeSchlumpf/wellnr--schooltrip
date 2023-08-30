@@ -5,9 +5,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.ErrorParameter;
 import com.vaadin.flow.router.HasErrorParameter;
-import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripNotFoundException;
+import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 
-public class DomainExceptionView extends VerticalLayout implements HasErrorParameter<SchoolTripNotFoundException> {
+public class DomainExceptionView extends VerticalLayout implements HasErrorParameter<NotAuthorizedException> {
 
     private final Paragraph errorMessage;
 
@@ -17,7 +17,7 @@ public class DomainExceptionView extends VerticalLayout implements HasErrorParam
     }
 
     @Override
-    public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<SchoolTripNotFoundException> parameter) {
+    public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<NotAuthorizedException> parameter) {
         this.errorMessage.setText(parameter.getException().getMessage());
         return parameter.getException().getStatus();
     }

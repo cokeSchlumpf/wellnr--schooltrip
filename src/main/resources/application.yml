@@ -21,6 +21,11 @@ app:
       password: secret
       first-name: Katharina
       last-name: Wellner
+  default-teachers:
+    - email: marcus.ortenau@gas.de
+      password: secret
+      first-name: Marcus
+      last-name: Ortenau
   ui:
     base-url: http://localhost:8080/
 
