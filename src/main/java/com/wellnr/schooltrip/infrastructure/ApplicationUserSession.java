@@ -103,7 +103,7 @@ public class ApplicationUserSession {
                 var claims = JwtClaimsSet
                     .builder()
                     .issuedAt(now)
-                    .expiresAt(now.plus(1, ChronoUnit.HOURS))
+                    .expiresAt(now.plus(6, ChronoUnit.HOURS))
                     .subject(user.getId())
                     .claim("firstName", user.getFirstName())
                     .claim("lastName", user.getLastName())

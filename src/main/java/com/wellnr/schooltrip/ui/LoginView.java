@@ -11,7 +11,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinResponse;
 import com.wellnr.schooltrip.SchooltripApplication;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
-import com.wellnr.schooltrip.infrastructure.ApplicationAuthenticationController;
+import com.wellnr.schooltrip.infrastructure.ApplicationRESTAPIController;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;
 import jakarta.servlet.http.Cookie;
@@ -24,7 +24,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final ApplicationUserSession userSession;
 
-    public LoginView(ApplicationAuthenticationController authController, SchoolTripDomainRegistry domainRegistry, ApplicationUserSession session) {
+    public LoginView(ApplicationRESTAPIController authController, SchoolTripDomainRegistry domainRegistry, ApplicationUserSession session) {
         this.userSession = session;
 
         var i18n = LoginI18n.createDefault();
@@ -43,7 +43,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                 );
 
                 var cookie = new Cookie(SchooltripApplication.SECURITY_COOKIE_NAME, jwtToken);
-                cookie.setMaxAge(24 * 60 * 60);
+                cookie.setMaxAge(5 * 60 * 60); // This is one hour less than the jwt token.
                 cookie.setSecure(true);
                 VaadinResponse.getCurrent().addCookie(cookie);
 

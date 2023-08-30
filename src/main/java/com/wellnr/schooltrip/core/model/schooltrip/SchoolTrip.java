@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wellnr.common.Operators;
 import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
+import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.schooltrip.events.*;
 import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsRepository;
@@ -14,14 +15,22 @@ import com.wellnr.schooltrip.core.model.student.StudentId;
 import com.wellnr.schooltrip.core.model.student.StudentsReadRepository;
 import com.wellnr.schooltrip.core.model.user.*;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
+import com.wellnr.schooltrip.core.utils.FileZipper;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import net.glxn.qrgen.core.image.ImageType;
+import net.glxn.qrgen.javase.QRCode;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -98,10 +107,10 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     /**
      * Adds a user who can manage this school trip.
      *
-     * @param executor The user executing the action.
-     * @param email The email address of the user who should become a manager.
+     * @param executor    The user executing the action.
+     * @param email       The email address of the user who should become a manager.
      * @param schoolTrips The repository to read/write entity information.
-     * @param users The repository to read user information.
+     * @param users       The repository to read user information.
      */
     public RegisteredUser addManager(
         User executor, String email, SchoolTripsRepository schoolTrips,
@@ -132,7 +141,102 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         );
     }
 
-    public void removeManagers(
+    /**
+     * This operation creates an Excel file containing the student data for the invitation
+     * mailing. The file returned will be a ZIP-file the Excel file and QR-code images.
+     *
+     * @return The exported data.
+     */
+    public Path exportInviteLetterMailingData(
+        StudentsReadRepository students, SchoolTripApplicationConfiguration config) {
+
+        var tmpOutputFile = Operators.suppressExceptions(
+            () -> Files.createTempFile("schooltrips", ".zip")
+        );
+
+        var tmpDirectory = Operators.suppressExceptions(
+            () -> Files.createTempDirectory("schooltrips")
+        );
+
+        var qrCodesDir = Operators.suppressExceptions(
+            () -> Files.createDirectory(tmpDirectory.resolve("QRCodes"))
+        );
+
+        /*
+         * Create Excel file and QR Code images.
+         */
+        var excelFile = tmpDirectory.resolve("students.xlsx");
+        var workbook = Operators.suppressExceptions(() -> new XSSFWorkbook());
+        var sheet = workbook.createSheet("Schüler");
+
+        var row = sheet.createRow(0);
+        row.createCell(0).setCellValue("School Class");
+        row.createCell(1).setCellValue("Last Name");
+        row.createCell(2).setCellValue("First Name");
+        row.createCell(3).setCellValue("Token");
+        row.createCell(4).setCellValue("Registration Link");
+        row.createCell(5).setCellValue("Registration QR-Code");
+
+        var allStudents = students
+            .findStudentsBySchoolTrip(new SchoolTripId(this.id))
+            .stream()
+            .sorted(
+                Comparator
+                    .comparing(Student::getSchoolClass)
+                    .thenComparing(Student::getLastName)
+                    .thenComparing(Student::getFirstName)
+            )
+            .toList();
+
+        for (var i = 0; i < allStudents.size(); i++) {
+            var student = allStudents.get(i);
+
+            // Create QR-Code
+            var qrCodeFileName =
+                student.getSchoolClass() + "--" + Operators.stringToKebabCase(student.getLastName()) + "--" + Operators.stringToKebabCase(student.getFirstName()) + ".png";
+
+            var qrCodeLink = config.getUi().getBaseUrl() + "students/complete-registration/" + student.getToken();
+
+            var qrCodeFile = QRCode
+                .from(qrCodeLink)
+                .withSize(500, 500)
+                .to(ImageType.PNG)
+                .file();
+
+            Operators.suppressExceptions(
+                () -> Files.move(qrCodeFile.toPath(), qrCodesDir.resolve(qrCodeFileName))
+            );
+
+            // Create row in Excel
+            row = sheet.createRow(i + 1);
+            row.createCell(0).setCellValue(student.getSchoolClass());
+            row.createCell(1).setCellValue(student.getLastName());
+            row.createCell(2).setCellValue(student.getFirstName());
+            row.createCell(3).setCellValue(student.getToken());
+            row.createCell(4).setCellValue(qrCodeLink);
+            row.createCell(5).setCellValue(qrCodeFileName);
+        }
+
+        // Save Excel Workbook
+        try (var fos = new FileOutputStream(excelFile.toFile())) {
+            workbook.write(fos);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        // ZIP directory and save as temporary file
+        FileZipper.zip(tmpDirectory, tmpOutputFile, "invitation-mailing");
+        return tmpOutputFile;
+    }
+
+    /**
+     * Removes a manager from the school trip.
+     *
+     * @param executor    The user executing the operation.
+     * @param userId      The user who should be removed as manager.
+     * @param schoolTrips The repository to read/ write entity information.
+     */
+    public void removeManager(
         User executor, RegisteredUserId userId, SchoolTripsRepository schoolTrips
     ) {
         /*
@@ -150,9 +254,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     /**
      * (Re-)assigns student numbers/ IDs to students.
      *
-     * @param executor The user executing the action.
+     * @param executor    The user executing the action.
      * @param schoolTrips The repository to read/ write trip information.
-     * @param students The rpeository to read student information.
+     * @param students    The rpeository to read student information.
      */
     public void assignStudentIDs(User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students) {
         var id = 1;
@@ -211,9 +315,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
      * all students who have not completed registration. And assignment of increasing order number
      * of students.
      *
-     * @param executor The user who is executing teh action.
+     * @param executor    The user who is executing teh action.
      * @param schoolTrips The repository to store trip information.
-     * @param students The repository to read student information.
+     * @param students    The repository to read student information.
      */
     public List<Student> closeRegistration(
         User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students
@@ -381,7 +485,8 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             .map(Optional::get)
             .toList();
     }
-                                            /**
+
+    /**
      * Get a school class by its name, throw if class not found.
      *
      * @param name The name of the class.

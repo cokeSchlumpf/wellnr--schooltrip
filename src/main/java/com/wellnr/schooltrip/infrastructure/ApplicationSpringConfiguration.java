@@ -9,6 +9,7 @@ import com.wellnr.common.helper.FakeMailSender;
 import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.SchooltripApplication;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
+import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
@@ -37,6 +38,7 @@ import java.nio.file.Paths;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
+import java.time.Instant;
 import java.util.Objects;
 
 @Slf4j
@@ -45,6 +47,7 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
 
     @Bean
     public SchoolTripDomainRegistry getSchoolTripDomainRegistry(
+        SchoolTripApplicationConfiguration config,
         BeanValidation beanValidation,
         SchoolTripsMongoRepository schoolTrips,
         StudentsRepository students,
@@ -53,6 +56,7 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
         JavaMailSender mailSender
     ) {
         return SchoolTripDomainRegistry.apply(
+            config,
             beanValidation,
             schoolTrips,
             students,
@@ -123,7 +127,7 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(JwtDecoder jwtDecoder, HttpSecurity http) throws Exception {
         return http
             .csrf(AbstractHttpConfigurer::disable)
             .oauth2ResourceServer(c -> c.jwt().and().bearerTokenResolver(request -> {
@@ -138,7 +142,14 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
                 var cookie = WebUtils.getCookie(request, SchooltripApplication.SECURITY_COOKIE_NAME);
 
                 if (Objects.nonNull(cookie) && Objects.nonNull(cookie.getValue()) && cookie.getValue().length() > 0) {
-                    return cookie.getValue();
+                    var token = cookie.getValue();
+
+                    try {
+                        jwtDecoder.decode(token);
+                        return token;
+                    } catch (Exception e) {
+                        return null;
+                    }
                 } else {
                     return null;
                 }

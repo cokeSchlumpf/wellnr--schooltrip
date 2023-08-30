@@ -41,6 +41,10 @@ public class Operators {
         return CaseUtils.toCamelCase(s, false);
     }
 
+    public static String stringToKebabCase(String s) {
+        return camelCaseToKebabCase(CaseUtils.toCamelCase(s, false));
+    }
+
     public static String stringToTechFriendlyName(String s) {
         return camelCaseToKebabCase(stringToCamelCase(s));
     }
