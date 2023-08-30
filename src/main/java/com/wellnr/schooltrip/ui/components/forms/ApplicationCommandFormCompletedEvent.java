@@ -14,7 +14,7 @@ public class ApplicationCommandFormCompletedEvent<RESULT extends CommandResult, 
      *
      * @param source     the source component
      */
-    public ApplicationCommandFormCompletedEvent(ApplicationCommandForm source, RESULT result) {
+    public ApplicationCommandFormCompletedEvent(ApplicationCommandForm<RESULT, CMD> source, RESULT result) {
         super(source, false);
         this.result = result;
     }

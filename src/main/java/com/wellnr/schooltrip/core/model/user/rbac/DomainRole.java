@@ -1,32 +1,35 @@
 package com.wellnr.schooltrip.core.model.user.rbac;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 
-import java.util.List;
+import java.util.Set;
 
-@Value
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class DomainRole {
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "type"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(
+        value = DomainRoles.ApplicationAdministrator.class,
+        name = DomainRoles.ApplicationAdministrator.NAME
+    ),
+    @JsonSubTypes.Type(
+        value = DomainRoles.SchoolTripManager.class,
+        name = DomainRoles.SchoolTripManager.NAME
+    )
+})
+public interface DomainRole {
 
-    private static final String NAME = "name";
-    private static final String PERMISSIONS = "permissions";
+    @JsonIgnore
+    String getName();
 
-    @JsonProperty(NAME)
-    String name;
+    @JsonIgnore
+    String getDisplayName(SchoolTripDomainRegistry domainRegistry);
 
-    @JsonProperty(PERMISSIONS)
-    List<DomainPermission> permissions;
-
-    @JsonCreator
-    public static DomainRole apply(
-        @JsonProperty(NAME) String name,
-        @JsonProperty(PERMISSIONS) List<DomainPermission> permissions) {
-
-        return new DomainRole(name, permissions);
-    }
+    @JsonIgnore
+    Set<DomainPermission> getPermissions();
 
 }

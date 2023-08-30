@@ -1,59 +1,78 @@
 package com.wellnr.schooltrip.core.model.user.rbac;
 
-import java.text.MessageFormat;
+import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Value;
+
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Set;
 
 public final class DomainRoles {
-
-    public static final DomainRole APP_ADMINISTRATOR = DomainRole.apply(
-        "/app/admin",
-        List.of(
-            DomainPermissions.APPLICATION__MANAGE_TRIPS,
-            DomainPermissions.APPLICATION__MANAGE_USERS
-        )
-    );
-
-    public static final DomainRole TEACHER = DomainRole.apply(
-        "/app/trips/teacher",
-        List.of(
-            DomainPermissions.TRIPS__MANAGE_TRIP
-        )
-    );
-
-    public static final DomainRole STUDENT = DomainRole.apply(
-        "/app/trips/student",
-        List.of(
-            DomainPermissions.STUDENTS__EDIT_STUDENT
-        )
-    );
-
-    private static final Map<String, DomainRole> domainRoles;
-
-    static {
-        domainRoles = Stream
-            .of(APP_ADMINISTRATOR, TEACHER, STUDENT)
-            .collect(Collectors.toMap(
-                DomainRole::getName,
-                r -> r
-            ));
-    }
 
     private DomainRoles() {
 
     }
 
-    public static DomainRole getByName(String name) {
-        if (!domainRoles.containsKey(name)) {
-            throw new RuntimeException(MessageFormat.format(
-                "Role `{0}` does not exist.",
-                name
-            ));
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static class ApplicationAdministrator implements DomainRole {
+
+        public static final String NAME = "/app/admin";
+
+        @Override
+        public String getName() {
+            return NAME;
         }
 
-        return domainRoles.get(name);
+        @Override
+        public String getDisplayName(SchoolTripDomainRegistry domainRegistry) {
+            return NAME;
+        }
+
+        @Override
+        public Set<DomainPermission> getPermissions() {
+            return Set.of(
+                DomainPermissions.ManageApplication.apply(),
+                DomainPermissions.ManageSchoolTrips.apply()
+            );
+        }
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+    public static class SchoolTripManager implements DomainRole {
+
+        public static final String NAME = "/app/schooltrips/manager";
+
+        String schoolTripId;
+
+
+        @Override
+        public String getName() {
+            return NAME;
+        }
+
+        @Override
+        public String getDisplayName(SchoolTripDomainRegistry domainRegistry) {
+            return domainRegistry
+                .getSchoolTrips()
+                .findSchoolTripById(schoolTripId)
+                .map(trip -> {
+                   return "/app/schooltrips/" + trip.getName() + "/manager";
+                })
+                .orElse("/app/schooltrips/" + schoolTripId + "/manager");
+        }
+
+        @Override
+        public Set<DomainPermission> getPermissions() {
+            return Set.of(
+                DomainPermissions.ManageSchoolTrip.apply(this.schoolTripId)
+            );
+        }
+
     }
 
 }

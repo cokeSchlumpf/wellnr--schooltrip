@@ -9,6 +9,7 @@ import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 import com.wellnr.schooltrip.core.model.user.exceptions.PasswordsNotEqualException;
 import com.wellnr.schooltrip.core.model.user.exceptions.UserAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -71,7 +72,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
      * The roles assigned to the user.
      */
     @JsonProperty(DOMAIN_ROLES)
-    Set<AssignedDomainRole> domainRoles;
+    Set<DomainRole> domainRoles;
 
     @JsonCreator
     public static RegisteredUser apply(
@@ -81,7 +82,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         @JsonProperty(FIRST_NAME) String firstName,
         @JsonProperty(LAST_NAME) String lastName,
         @JsonProperty(LAST_LOGIN) Instant lastLogin,
-        @JsonProperty(DOMAIN_ROLES) Set<AssignedDomainRole> domainRoles
+        @JsonProperty(DOMAIN_ROLES) Set<DomainRole> domainRoles
     ) {
         if (Objects.isNull(domainRoles)) {
             domainRoles = Set.of();
@@ -97,7 +98,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         String password,
         String firstName,
         String lastName,
-        Set<AssignedDomainRole> domainRoles,
+        Set<DomainRole> domainRoles,
         PasswordEncryptionPort passwordEncryptionPort
     ) {
         if (Objects.isNull(domainRoles)) {

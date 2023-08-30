@@ -2,15 +2,13 @@ package com.wellnr.schooltrip.infrastructure;
 
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
-import com.wellnr.schooltrip.core.model.user.AssignedDomainRole;
-import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.net.URI;
 import java.util.Set;
 
 @Slf4j
@@ -38,10 +36,7 @@ public class ApplicationStartupTasks {
                         defaultUser.getPassword(),
                         defaultUser.getFirstName(),
                         defaultUser.getLastName(),
-                        Set.of(AssignedDomainRole.apply(
-                            DomainRoles.APP_ADMINISTRATOR.getName(),
-                            URI.create("urn:app")
-                        )),
+                        Set.of(DomainRoles.ApplicationAdministrator.apply()),
                         registry.getPasswordEncryptionPort()
                     )
                     .register(registry.getUsers());

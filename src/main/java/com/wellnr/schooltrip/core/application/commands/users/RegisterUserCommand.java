@@ -3,13 +3,15 @@ package com.wellnr.schooltrip.core.application.commands.users;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
-import com.wellnr.schooltrip.core.model.user.AssignedDomainRole;
-import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.User;
-import lombok.*;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.net.URI;
 import java.util.HashSet;
 
 @Data
@@ -29,13 +31,10 @@ public class RegisterUserCommand implements AbstractSchoolTripCommand<MessageRes
 
     @Override
     public MessageResult<RegisteredUser> run(User user, SchoolTripDomainRegistry domainRegistry) {
-        var roles = new HashSet<AssignedDomainRole>();
+        var roles = new HashSet<DomainRole>();
 
         if (this.isAdmin()) {
-            roles.add(AssignedDomainRole.apply(
-                DomainRoles.APP_ADMINISTRATOR.getName(),
-                URI.create("urn:app")
-            ));
+            roles.add(DomainRoles.ApplicationAdministrator.apply());
         }
 
         var newUser = RegisteredUser.createNew(

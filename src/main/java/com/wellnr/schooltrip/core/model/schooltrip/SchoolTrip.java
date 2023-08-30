@@ -178,8 +178,8 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
          * Validate Permissions
          */
         executor.hasPermission(
-            DomainPermissions.APPLICATION__MANAGE_TRIPS,
-            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(this.getUri())
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(this.id)
         );
 
         /*
@@ -238,7 +238,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         /*
          * Validate if creator is allowed.
          */
-        creator.checkPermission(DomainPermissions.APPLICATION__MANAGE_TRIPS);
+        creator.checkPermission(DomainPermissions.ManageSchoolTrips.apply());
 
         /*
          * Validate Properties. TODO: Execute by Proxy (on every void method?)
@@ -332,8 +332,8 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
          * Validate Permissions
          */
         executor.hasPermission(
-            DomainPermissions.APPLICATION__MANAGE_TRIPS,
-            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(this.getUri())
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(id)
         );
 
         this.title = newTitle;

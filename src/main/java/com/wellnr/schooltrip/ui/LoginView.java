@@ -15,7 +15,9 @@ import com.wellnr.schooltrip.infrastructure.ApplicationAuthenticationController;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.views.trips.SchoolTripsView;
 import jakarta.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Route("")
 @PageTitle("Login | Vaadin CRM")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
@@ -47,6 +49,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
                 UI.getCurrent().navigate(SchoolTripsView.class);
             } catch (Exception ex) {
+                log.warn("Exception during login.", ex);
                 loginForm.setEnabled(true);
                 loginForm.setError(true);
             }

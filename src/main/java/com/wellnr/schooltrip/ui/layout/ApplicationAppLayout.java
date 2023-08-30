@@ -2,6 +2,7 @@ package com.wellnr.schooltrip.ui.layout;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -12,9 +13,13 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.VaadinResponse;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.wellnr.schooltrip.SchooltripApplication;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
+import com.wellnr.schooltrip.ui.LoginView;
+import jakarta.servlet.http.Cookie;
 
 import java.util.stream.Collectors;
 
@@ -66,9 +71,9 @@ public class ApplicationAppLayout extends AppLayout {
         releaseInfo.getElement().setProperty(
             "innerHTML",
             """
-            Release 1.2.3<br />
-            &copy; Michael Wellner 2023
-            """);
+                Release 1.2.3<br />
+                &copy; Michael Wellner 2023
+                """);
         releaseInfo.addClassNames(
             LumoUtility.Margin.Left.MEDIUM,
             LumoUtility.Margin.Right.MEDIUM,
@@ -132,7 +137,16 @@ public class ApplicationAppLayout extends AppLayout {
 
             item.getSubMenu().addItem("Settings");
             item.getSubMenu().add(new Hr());
-            item.getSubMenu().addItem("Logout");
+            var logout = item.getSubMenu().addItem("Logout");
+            logout.addClickListener(event -> {
+                userSession.logout();
+
+                var cookie = new Cookie(SchooltripApplication.SECURITY_COOKIE_NAME, null);
+                cookie.setSecure(true);
+                VaadinResponse.getCurrent().addCookie(cookie);
+
+                UI.getCurrent().navigate(LoginView.class);
+            });
             this.add(menubar);
         }
 

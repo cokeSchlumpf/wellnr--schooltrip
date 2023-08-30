@@ -108,8 +108,8 @@ public class Student extends AggregateRoot<String, Student> {
         var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
 
         executor.checkPermission(
-            DomainPermissions.APPLICATION__MANAGE_TRIPS,
-            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(schoolTrip.getUri())
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(schoolTrip.getId())
         );
 
         /*
@@ -151,8 +151,8 @@ public class Student extends AggregateRoot<String, Student> {
         var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
 
         executor.checkPermission(
-            DomainPermissions.APPLICATION__MANAGE_TRIPS,
-            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(schoolTrip.getUri())
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(schoolTrip.getId())
         );
 
         /*
@@ -190,8 +190,8 @@ public class Student extends AggregateRoot<String, Student> {
          * Validate if creator is allowed.
          */
         creator.checkPermission(
-            DomainPermissions.APPLICATION__MANAGE_TRIPS,
-            DomainPermissions.TRIPS__MANAGE_TRIP.onSubject(schoolTrip.getUri())
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(schoolTrip.getId())
         );
 
         /*

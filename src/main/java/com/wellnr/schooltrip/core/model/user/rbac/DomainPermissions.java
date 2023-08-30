@@ -1,18 +1,40 @@
 package com.wellnr.schooltrip.core.model.user.rbac;
 
+import lombok.AllArgsConstructor;
+import lombok.Value;
+
 public class DomainPermissions {
 
     private DomainPermissions() {
 
     }
 
-    // Application wide permissions (whole Domain)
-    public static final DomainPermission APPLICATION__MANAGE_TRIPS = new DomainPermission("/app/manage-trips");
-    public static final DomainPermission APPLICATION__MANAGE_USERS = new DomainPermission("/app/users");
+    public interface SchoolTripPermission extends DomainPermission {
 
-    public static final DomainPermission TRIPS__MANAGE_TRIP = new DomainPermission("/app/trips/manage-trip");
-    public static final DomainPermission TRIPS__VIEW_TRIP = new DomainPermission("/app/trips/view-trip");
+        String getSchooltripId();
 
-    public static final DomainPermission STUDENTS__EDIT_STUDENT = new DomainPermission("/app/students/edit");
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static class ManageSchoolTrips implements DomainPermission {
+        public static final String NAME = "/app/schooltrips/manage";
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static class ManageApplication implements DomainPermission {
+        public static final String NAME = "/app/admin/manage";
+    }
+
+    @Value
+    @AllArgsConstructor(staticName = "apply")
+    public static class ManageSchoolTrip implements SchoolTripPermission {
+
+        public static final String NAME = "/app/schooltrips/manage-trip";
+
+        String schooltripId;
+
+    }
 
 }

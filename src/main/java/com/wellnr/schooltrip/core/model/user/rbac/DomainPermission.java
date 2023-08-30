@@ -1,24 +1,25 @@
 package com.wellnr.schooltrip.core.model.user.rbac;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import java.net.URI;
-
-public record DomainPermission(@JsonProperty(NAME) String domainPermission, @JsonIgnore URI subject) {
-
-    private static final String NAME = "name";
-
-    @JsonCreator
-    public DomainPermission(
-        @JsonProperty(NAME) String domainPermission) {
-
-        this(domainPermission, URI.create("urn:app"));
-    }
-
-    public DomainPermission onSubject(URI subject) {
-        return new DomainPermission(domainPermission, subject);
-    }
-
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "type"
+)
+@JsonSubTypes({
+    @JsonSubTypes.Type(
+        value = DomainPermissions.ManageApplication.class,
+        name = DomainPermissions.ManageApplication.NAME
+    ),
+    @JsonSubTypes.Type(
+        value = DomainPermissions.ManageSchoolTrips.class,
+        name = DomainPermissions.ManageSchoolTrips.NAME
+    ),
+    @JsonSubTypes.Type(
+        value = DomainPermissions.ManageSchoolTrip.class,
+        name = DomainPermissions.ManageSchoolTrip.NAME
+    )
+})
+public interface DomainPermission {
 }

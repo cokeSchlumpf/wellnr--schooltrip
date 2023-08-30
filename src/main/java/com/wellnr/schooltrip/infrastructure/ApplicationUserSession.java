@@ -1,10 +1,12 @@
 package com.wellnr.schooltrip.infrastructure;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wellnr.common.Operators;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.user.*;
 import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import lombok.AllArgsConstructor;
 import lombok.Value;
@@ -33,12 +35,15 @@ public class ApplicationUserSession {
 
     private final JwtEncoder jwtEncoder;
 
+    private final ObjectMapper objectMapper;
+
     User user;
 
-    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder) {
+    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om) {
         this.users = domainRegistry.getUsers();
         this.passwordEncryption = domainRegistry.getPasswordEncryptionPort();
         this.jwtEncoder = jwtEncoder;
+        this.objectMapper = om;
     }
 
     public User getUser() {
@@ -53,7 +58,7 @@ public class ApplicationUserSession {
                     var permissions = rolesList
                         .stream()
                         .map(Object::toString)
-                        .map(AssignedDomainRole::fromStringProjection)
+                        .map(s -> Operators.suppressExceptions(() -> objectMapper.readValue(s, DomainRole.class)))
                         .flatMap(role -> role.getPermissions().stream())
                         .toList();
 
@@ -97,7 +102,15 @@ public class ApplicationUserSession {
                     .claim("firstName", user.getFirstName())
                     .claim("lastName", user.getLastName())
                     .claim("email", user.getEmail())
-                    .claim("roles", user.getDomainRoles().stream().map(AssignedDomainRole::toStringProjection).collect(Collectors.toSet()))
+                    .claim(
+                        "roles",
+                        user
+                            .getDomainRoles()
+                            .stream()
+                            .map(
+                                role -> Operators.suppressExceptions(() -> objectMapper.writeValueAsString(role))
+                            )
+                            .collect(Collectors.toSet()))
                     .build();
 
                 this.user = user;
@@ -113,6 +126,10 @@ public class ApplicationUserSession {
         } else {
             throw NotAuthorizedException.apply();
         }
+    }
+
+    public void logout() {
+        this.user = AnonymousUser.apply();
     }
 
     @Value

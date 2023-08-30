@@ -14,7 +14,6 @@ import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.repositories.SchoolTripsMongoRepository;
-import com.wellnr.schooltrip.ui.LoginView;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -138,7 +137,7 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
                 // If not check for cookie.
                 var cookie = WebUtils.getCookie(request, SchooltripApplication.SECURITY_COOKIE_NAME);
 
-                if (Objects.nonNull(cookie)) {
+                if (Objects.nonNull(cookie) && Objects.nonNull(cookie.getValue()) && cookie.getValue().length() > 0) {
                     return cookie.getValue();
                 } else {
                     return null;
