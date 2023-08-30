@@ -7,6 +7,7 @@ import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.schooltrip.events.*;
+import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolClassNotFoundException;
 import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsRepository;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
@@ -116,7 +117,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         User executor, String email, SchoolTripsRepository schoolTrips,
         RegisteredUsersReadRepository users) {
 
-        // TODO: Verify permission
+        executor.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply()
+        );
 
         var user = users.getOneByEmail(email);
         var userId = new RegisteredUserId(user.getId());
@@ -493,7 +496,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
      * @return The class.
      */
     public SchoolClass getSchoolClassByName(String name) {
-        return this.findSchoolClassByName(name).orElseThrow(); // TODO mw: Nice exception.
+        return this.findSchoolClassByName(name).orElseThrow(
+            () -> SchoolClassNotFoundException.apply(name)
+        );
     }
 
     /**
