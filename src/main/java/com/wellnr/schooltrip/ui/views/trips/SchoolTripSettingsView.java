@@ -18,6 +18,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.RegisteredUserId;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationCard;
@@ -28,10 +29,13 @@ import com.wellnr.schooltrip.ui.components.grid.ApplicationGrid;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 
 import java.util.List;
+import java.util.Optional;
 
 @SuppressWarnings("FieldCanBeLocal")
 @Route(value = "trips/:name/settings", layout = ApplicationAppLayout.class)
 public class SchoolTripSettingsView extends AbstractSchoolTripView {
+
+    private final SchoolTripMessages i18n;
 
     private final ApplicationCommandForm<MessageResult<SchoolTrip>, UpdateSchoolTripSettingsCommand> settingsForm;
 
@@ -43,6 +47,7 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
 
         this.settingsForm = new ApplicationCommandFormBuilder<>(UpdateSchoolTripSettingsCommand.class, commandRunner)
             .addVariant(
@@ -58,6 +63,15 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
                 ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX,
                 ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
             )
+            .setLabelProvider(field -> switch(field) {
+                case "basePrice" -> Optional.of(i18n.basePrice());
+                case "skiRentalPrice" -> Optional.of(i18n.skiRentalPrice());
+                case "skiBootsRentalPrice" -> Optional.of(i18n.skiBootsRentalPrice());
+                case "snowboardRentalPrice" -> Optional.of(i18n.snowboardRentalPrice());
+                case "snowboardBootsRentalPrice" -> Optional.of(i18n.snowboardBootsRentalPrice());
+                case "registrationOpenUntil" -> Optional.of(i18n.registrationOpenUntil());
+                default -> Optional.empty();
+            })
             .build();
 
         this.settingsForm.setMaxWidth("640px");
@@ -77,7 +91,7 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
                 .map(user -> Tuple2.apply(user.getEmail(), user.getName()))
                 .toList()
             )
-            .withTitle("Add Manager")
+            .withTitle(i18n.addManager())
             .build();
         this.addManagerForm.setMaxWidth("480px");
         this.addManagerForm.addCompletionListener(event -> this.reload());
@@ -85,12 +99,12 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
         var addManagerCard = new ApplicationCard();
         addManagerCard.add(this.addManagerForm);
 
-        this.add(new H3("Trip Settings"));
+        this.add(new H3(i18n.schoolTripSettings()));
         this.add(settingsForm);
 
         if (userSession.getPermissions().isCanManageSchoolTrips()) {
             this.add(new Hr());
-            this.add(new H3("Trip Managers"));
+            this.add(new H3(i18n.schoolTripManagers()));
             this.add(managers);
             this.add(addManagerCard);
         }
@@ -123,11 +137,11 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
         public ManagersGrid() {
             var lastNameColumn = this
                 .addColumn(RegisteredUser::getLastName)
-                .setHeader("Last Name");
+                .setHeader(i18n.lastName());
 
             var firstNameColumn = this
                 .addColumn(RegisteredUser::getFirstName)
-                .setHeader("First Name");
+                .setHeader(i18n.firstName());
 
             this
                 .addRemoveColumn((user, event) -> {

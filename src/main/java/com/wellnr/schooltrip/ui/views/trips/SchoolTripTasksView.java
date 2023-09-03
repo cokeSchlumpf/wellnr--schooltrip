@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip.ui.views.trips;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Paragraph;
@@ -14,12 +15,13 @@ import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentC
 import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationCard;
 import com.wellnr.schooltrip.ui.components.ExcelImportDialog;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.time.LocalDate;
@@ -30,10 +32,13 @@ import java.util.List;
 @Route(value = "trips/:name/tasks", layout = ApplicationAppLayout.class)
 public class SchoolTripTasksView extends AbstractSchoolTripView {
 
+    SchoolTripMessages i18n;
+
     public SchoolTripTasksView(
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
     }
 
     /**
@@ -50,10 +55,17 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
     protected void updateView() {
         this.removeAll();
         this.add(new HorizontalLayout(
-            new TaskCard("Import Students", "Import students from an Excel file.", this::runExcelImport),
-            new TaskCard("Close Registration", "Close registration and remove studens who are not registered.", this::closeRegistration),
-            new TaskCard("(Re-)Assign IDs", "Re-assign increasing ID to registered students.", this::reassignStudentIDs)
+            new TaskCard(i18n.importStudents(), i18n.importStudentsDescription(), this::runExcelImport),
+            new TaskCard(i18n.invitationMailing(), i18n.invitationMailingDescription(), this::exportInvitationMailingData),
+            new TaskCard(i18n.closeRegistration(), i18n.closeRegistrationDescription(), this::closeRegistration),
+            new TaskCard(i18n.reassignIDs(), i18n.reassignIDsDescription(), this::reassignStudentIDs)
         ));
+    }
+
+    private void exportInvitationMailingData() {
+        UI.getCurrent().navigate(
+            "/api/trips/" + schoolTrip.schoolTrip().getName() + "/exports/invitation-mailing"
+        );
     }
 
     private void reassignStudentIDs() {
@@ -70,7 +82,13 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
 
     private void runExcelImport() {
         var dialog = ExcelImportDialog.apply(
-            List.of("Klasse", "Vorname", "Nachname", "Date of Birth", "Gender"),
+            List.of(
+                i18n.schoolClass(),
+                i18n.firstName(),
+                i18n.lastName(),
+                i18n.dateOfBirth(),
+                i18n.gender()
+            ),
             (parameters, settings) -> {
                 var schoolClass = parameters.get(0).toString();
                 var firstName = parameters.get(1).toString();
@@ -85,9 +103,9 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
                     dateOfBirth = LocalDate.ofInstant(instant, ZoneId.systemDefault());
                 }
 
-                if (Operators.fuzzyEquals(genderStr, settings.genderFemalesPattern)) {
+                if (Operators.fuzzyEquals(genderStr, settings.getGenderFemalesPattern())) {
                     gender = Gender.Female;
-                } else if (Operators.fuzzyEquals(genderStr, settings.genderMalePattern)) {
+                } else if (Operators.fuzzyEquals(genderStr, settings.getGenderMalePattern())) {
                     gender = Gender.Male;
                 }
 
@@ -96,7 +114,11 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
                     dateOfBirth, gender
                 );
             },
-            new ExcelImportSettings()
+            ExcelImportSettings.apply(
+                i18n.genderMaleAbbreviation(),
+                i18n.genderFemaleAbbreviation()
+            ),
+            i18n
         );
 
         dialog.addDataImportedListener(imported -> {
@@ -122,12 +144,20 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
 
     }
 
-    @Data
+    @AllArgsConstructor(staticName = "apply")
     public static class ExcelImportSettings {
 
-        String genderMalePattern = "m";
+        String genderMalePattern;
 
-        String genderFemalesPattern = "w";
+        String genderFemalesPattern;
+
+        public String getGenderFemalesPattern() {
+            return genderFemalesPattern;
+        }
+
+        public String getGenderMalePattern() {
+            return genderMalePattern;
+        }
 
     }
 

@@ -5,6 +5,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
@@ -14,10 +15,13 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 @Route(value = "trips/:name", layout = ApplicationAppLayout.class)
 public class SchoolTripView extends AbstractSchoolTripGridView {
 
+    private final SchoolTripMessages i18n;
+
     public SchoolTripView(
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        i18n = userSession.getMessages();
     }
 
     @Override
@@ -44,7 +48,7 @@ public class SchoolTripView extends AbstractSchoolTripGridView {
             this.addRegistrationStatusColumn();
             this.addDisciplineColumns();
 
-            var bttNew = this.getMenuBar().addItem("Add Student");
+            var bttNew = this.getMenuBar().addItem(i18n.addStudent());
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
                 SchoolTripAddStudentView.class, SchoolTripAddStudentView.getRouteParameters(
                     schoolTrip.schoolTrip().getName()

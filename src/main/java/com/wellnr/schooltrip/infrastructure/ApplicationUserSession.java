@@ -9,6 +9,7 @@ import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -50,6 +51,12 @@ public class ApplicationUserSession {
         this.passwordEncryption = domainRegistry.getPasswordEncryptionPort();
         this.jwtEncoder = jwtEncoder;
         this.objectMapper = om;
+    }
+
+    public SchoolTripMessages getMessages() {
+        return new SchoolTripMessages() {
+
+        };
     }
 
     public User getUser() {

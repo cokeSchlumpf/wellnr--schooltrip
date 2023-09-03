@@ -12,6 +12,7 @@ import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.AddPaymentCommand;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
@@ -21,26 +22,30 @@ import java.time.format.DateTimeFormatter;
 
 public class StudentPaymentAdminControl extends VerticalLayout {
 
+    private final SchoolTripMessages i18n;
+
     private final ApplicationCommandForm<MessageResult<Nothing>, AddPaymentCommand> addPaymentForm;
 
     private final Grid<Payment> payments;
 
-    public StudentPaymentAdminControl(ApplicationCommandRunner commandRunner) {
+    public StudentPaymentAdminControl(ApplicationCommandRunner commandRunner, SchoolTripMessages i18n) {
+        this.i18n = i18n;
+
         this.setPadding(false);
         this.setMargin(false);
 
-        var format = new DecimalFormat("#.00");
+        var format = new DecimalFormat(i18n.currencyNumberFormat());
 
         this.payments = new Grid<>(Payment.class, false);
         this.payments
             .addComponentColumn(payment -> new Text(payment.getDate().format(DateTimeFormatter.ISO_LOCAL_DATE)))
-            .setHeader("Date");
+            .setHeader(i18n.date());
         this.payments
             .addComponentColumn(payment -> new Text(payment.getDescription()))
-            .setHeader("Description");
+            .setHeader(i18n.description());
         this.payments
             .addComponentColumn(payment -> new Text(format.format(payment.getAmount())))
-            .setHeader("Amount")
+            .setHeader(i18n.currencyAmount())
             .setTextAlign(ColumnTextAlign.END);
 
         this.payments.setAllRowsVisible(true);
@@ -64,6 +69,7 @@ public class StudentPaymentAdminControl extends VerticalLayout {
                 "amount",
                 ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX
             )
+            .setI18nMessages(i18n)
             .build();
 
         this.addPaymentForm.addCompletionListener(
@@ -86,11 +92,11 @@ public class StudentPaymentAdminControl extends VerticalLayout {
 
         this.removeAll();
         if (!student.getPayments().getItems().isEmpty()) {
-            this.add(new H4("Payments made"));
+            this.add(new H4(i18n.paymentsMade()));
             this.add(this.payments);
         }
 
-        this.add(new H4("Record payment"));
+        this.add(new H4(i18n.recordPayment()));
         this.add(this.addPaymentForm);
     }
 

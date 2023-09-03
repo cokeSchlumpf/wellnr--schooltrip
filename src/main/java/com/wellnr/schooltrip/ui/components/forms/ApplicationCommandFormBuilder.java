@@ -8,6 +8,7 @@ import com.wellnr.common.markup.Tuple2;
 import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import org.apache.regexp.RE;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -60,6 +61,12 @@ public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD ext
     @Override
     public ApplicationCommandFormBuilder<RESULT, CMD> addVariant(String field, FormVariant... variants) {
         super.addVariant(field, variants);
+        return this;
+    }
+
+    @Override
+    public ApplicationCommandFormBuilder<RESULT, CMD> setI18nMessages(Object i18nMessages) {
+        super.setI18nMessages(i18nMessages);
         return this;
     }
 

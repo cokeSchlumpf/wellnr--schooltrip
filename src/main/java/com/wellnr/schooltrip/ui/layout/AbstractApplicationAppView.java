@@ -5,9 +5,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLink;
-import com.wellnr.schooltrip.core.application.commands.users.GetUserApplicationPermissionsCommand;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
-import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.LoginView;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
@@ -20,6 +19,8 @@ import java.util.List;
 // @JsModule("./copy-to-clipboard.js")
 public abstract class AbstractApplicationAppView extends VerticalLayout implements ApplicationAppView, BeforeEnterObserver {
 
+    private final SchoolTripMessages i18n;
+
     protected final ApplicationUserSession userSession;
 
     protected final List<DomainPermission> minimumPermissions;
@@ -28,6 +29,7 @@ public abstract class AbstractApplicationAppView extends VerticalLayout implemen
         ApplicationUserSession userSession, List<DomainPermission> minimumPermissions
     ) {
 
+        this.i18n = userSession.getMessages();
         this.userSession = userSession;
         this.minimumPermissions = minimumPermissions;
     }
@@ -42,12 +44,12 @@ public abstract class AbstractApplicationAppView extends VerticalLayout implemen
     public List<RouterLink> getMainMenuComponents() {
         var menuItems = new ArrayList<RouterLink>();
         menuItems.add(
-            new ApplicationRouterLinkWithIcon(VaadinIcon.LIST, "Trips", SchoolTripsView.class)
+            new ApplicationRouterLinkWithIcon(VaadinIcon.LIST, i18n.schoolTrips(), SchoolTripsView.class)
         );
 
         if (userSession.getPermissions().isCanManageApplication()) {
             menuItems.add(
-                new ApplicationRouterLinkWithIcon(VaadinIcon.OPTIONS, "Settings", SettingsView.class)
+                new ApplicationRouterLinkWithIcon(VaadinIcon.OPTIONS, i18n.settings(), SettingsView.class)
             );
         }
 

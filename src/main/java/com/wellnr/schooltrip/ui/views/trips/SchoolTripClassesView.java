@@ -7,6 +7,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolClass;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationNotifications;
@@ -19,10 +20,13 @@ import java.util.Objects;
 @Route(value = "trips/:name/classes", layout = ApplicationAppLayout.class)
 public class SchoolTripClassesView extends AbstractSchoolTripView {
 
+    private final SchoolTripMessages i18n;
+
     public SchoolTripClassesView(
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
     }
 
     /**
@@ -54,7 +58,7 @@ public class SchoolTripClassesView extends AbstractSchoolTripView {
             var classColumn = this
                 .getGrid()
                 .addColumn(SchoolClass::getName)
-                .setHeader("Class")
+                .setHeader(i18n.schoolClass())
                 .setSortable(true)
                 .setFrozen(true)
                 .setAutoWidth(true);
@@ -62,7 +66,7 @@ public class SchoolTripClassesView extends AbstractSchoolTripView {
             this
                 .getGrid()
                 .addColumn(s -> s.getStudents().size())
-                .setHeader("Students")
+                .setHeader(i18n.students())
                 .setSortable(true)
                 .setFrozen(true)
                 .setAutoWidth(true);
@@ -79,7 +83,7 @@ public class SchoolTripClassesView extends AbstractSchoolTripView {
                 new GridSortOrder<>(classColumn, SortDirection.ASCENDING)
             ));
 
-            var bttNew = this.getMenuBar().addItem("Add Class");
+            var bttNew = this.getMenuBar().addItem(i18n.addSchoolClass());
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
                 SchoolTripAddClassView.class, SchoolTripAddClassView.getRouteParameters(
                     schoolTrip.schoolTrip().getName()

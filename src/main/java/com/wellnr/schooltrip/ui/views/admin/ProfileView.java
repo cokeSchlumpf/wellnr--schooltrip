@@ -7,6 +7,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
 import com.wellnr.schooltrip.core.application.commands.UpdateRegisteredUserCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ResetPasswordCommand;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.LoginView;
@@ -21,6 +22,8 @@ import java.util.Optional;
 @Route(value = "profile", layout = ApplicationAppLayout.class)
 public class ProfileView extends AbstractApplicationAppView implements ApplicationAppView {
 
+    private final SchoolTripMessages i18n;
+
     private final ApplicationCommandRunner commandRunner;
 
     public ProfileView(
@@ -28,6 +31,7 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
     ) {
         super(userSession);
 
+        this.i18n = userSession.getMessages();
         this.commandRunner = commandRunner;
     }
 
@@ -52,7 +56,7 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
             .addVariant("oldEmail", ApplicationFormBuilder.FormVariant.HIDDEN)
             .addVariant("newEmail", ApplicationFormBuilder.FormVariant.LINE_BREAK_AFTER)
             .setLabelProvider(field -> switch (field) {
-                case "newEmail" -> Optional.of("E-Mail");
+                case "newEmail" -> Optional.of(i18n.email());
                 default -> Optional.empty();
             })
             .build()
@@ -71,14 +75,14 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
                 "email", ApplicationFormBuilder.FormVariant.HIDDEN
             )
             .setLabelProvider(field -> switch (field) {
-                case "newPassword" -> Optional.of("New Password");
-                case "passwordRepeated" -> Optional.of("Repeat New Password");
+                case "newPassword" -> Optional.of(i18n.newPassword());
+                case "passwordRepeated" -> Optional.of(i18n.repeatNewPassword());
                 default -> Optional.empty();
             })
             .build();
 
         this.removeAll();
-        this.add(new H4("Profile Settings"));
+        this.add(new H4(i18n.profileSettings()));
         this.add(updatePropertiesForm);
 
         this.add(new Hr());

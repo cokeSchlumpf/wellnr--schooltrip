@@ -51,6 +51,8 @@ public class ApplicationFormBuilder<T> {
 
     private String title;
 
+    private Object i18nMessages;
+
     public ApplicationFormBuilder(
         Class<T> valueType,
         Function0<T> getInitialValue
@@ -58,7 +60,7 @@ public class ApplicationFormBuilder<T> {
 
         this(
             valueType, getInitialValue, new HashMap<>(), new HashMap<>(),
-            s -> Optional.empty(), false, null
+            s -> Optional.empty(), false, null, null
         );
     }
 
@@ -98,7 +100,7 @@ public class ApplicationFormBuilder<T> {
     /**
      * Spcifies possible values for a (text) field. The field will then be represented as a select box.
      *
-     * @param field The field which the values should be constrained.
+     * @param field          The field which the values should be constrained.
      * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
      * @return This application form builder.
      */
@@ -124,7 +126,7 @@ public class ApplicationFormBuilder<T> {
     /**
      * Spcifies possible values for a (text) field. The field will then be represented as a select box.
      *
-     * @param field The field which the values should be constrained.
+     * @param field          The field which the values should be constrained.
      * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
      * @return This application form builder.
      */
@@ -145,6 +147,21 @@ public class ApplicationFormBuilder<T> {
      */
     public ApplicationFormBuilder<T> setLabelProvider(Function1<String, Optional<String>> labelProvider) {
         this.labelProvider = labelProvider;
+        return this;
+    }
+
+    /**
+     * Set an object which provides i18n message translations for field names of the form.
+     * <p>
+     * If an object is set, the builder will lookup the object whether it provides a function
+     * returning a string which has similar name as the field. If no method is found, it will
+     * fall back to the default behaviour (de-camel-cased form name).
+     *
+     * @param i18nMessages An object providing i18n message translations.
+     * @return The form builder.
+     */
+    public ApplicationFormBuilder<T> setI18nMessages(Object i18nMessages) {
+        this.i18nMessages = i18nMessages;
         return this;
     }
 
@@ -197,7 +214,9 @@ public class ApplicationFormBuilder<T> {
                     form.setColspan(component, fullWidthColspan);
                 }
             } else if (String.class.isAssignableFrom(field.getType())) {
-                if (field.getName().toLowerCase().contains("password") || field.getName().toLowerCase().contains("secret")) {
+                if (field.getName().toLowerCase().contains("password") || field.getName()
+                    .toLowerCase()
+                    .contains("secret")) {
                     var input = new PasswordField(field.getName());
                     input.setLabel(label);
                     input.setValueChangeMode(ValueChangeMode.LAZY);
@@ -347,7 +366,38 @@ public class ApplicationFormBuilder<T> {
     }
 
     private String getLabel(String fieldName) {
-        return labelProvider.get(fieldName).orElse(Operators.camelCaseToHumanReadable(fieldName));
+        return labelProvider.get(fieldName).orElseGet(() -> {
+            if (Objects.nonNull(this.i18nMessages)) {
+                return Arrays.stream(this
+                        .i18nMessages
+                        .getClass()
+                        .getMethods())
+                    .filter(method -> {
+                        var nameEq = method.getName().equalsIgnoreCase(fieldName);
+                        var returnType = method.getReturnType().isAssignableFrom(String.class);
+                        var parameterCountIs0 = method.getParameterCount() == 0;
+
+                        return nameEq && returnType && parameterCountIs0;
+                    })
+                    .findFirst()
+                    .map(method -> Operators
+                        .suppressExceptions(() -> method.invoke(this.i18nMessages))
+                        .toString()
+                    )
+                    .orElseGet(() -> {
+                        log.warn(
+                            "No translation found in `{}` for field `{}` of `{}`",
+                            this.i18nMessages.getClass().getName(),
+                            fieldName,
+                            this.valueType.getName()
+                        );
+
+                        return Operators.camelCaseToHumanReadable(fieldName);
+                    });
+            } else {
+                return Operators.camelCaseToHumanReadable(fieldName);
+            }
+        });
     }
 
     private boolean hasVariant(Field field, FormVariant variant) {

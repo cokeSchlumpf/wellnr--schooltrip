@@ -8,9 +8,12 @@ import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.shared.Registration;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 
 public class StudentDetailsControl extends Scroller {
+
+    private final SchoolTripMessages i18n;
 
     private final String appBaseUrl;
 
@@ -22,7 +25,11 @@ public class StudentDetailsControl extends Scroller {
 
     private Student student;
 
-    public StudentDetailsControl(String appBaseUrl, SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
+    public StudentDetailsControl(
+        String appBaseUrl, SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner,
+        SchoolTripMessages i18n
+    ) {
+        this.i18n = i18n;
         this.appBaseUrl = appBaseUrl;
 
         setWidth("800px");
@@ -36,9 +43,9 @@ public class StudentDetailsControl extends Scroller {
 
         // Setup layout
         var tabs = new TabSheet();
-        tabs.add(new Tab("Student"), basics);
-        tabs.add(new Tab("Registration"), this.registration);
-        tabs.add(new Tab("Payments"), this.payments);
+        tabs.add(new Tab(i18n.student()), basics);
+        tabs.add(new Tab(i18n.registration()), this.registration);
+        tabs.add(new Tab(i18n.payments()), this.payments);
 
         var vl = new VerticalLayout(tabs);
         this.setContent(vl);
@@ -83,7 +90,7 @@ public class StudentDetailsControl extends Scroller {
      * Sets up the controls for editing basic student information.
      */
     private void setupBasics(SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
-        this.basics = new StudentBasicsControl(appBaseUrl, schoolTrip, commandRunner);
+        this.basics = new StudentBasicsControl(appBaseUrl, schoolTrip, commandRunner, i18n);
 
         this.basics.addBasicsUpdatedListener(event -> fireEvent(
             new StudentDetailsUpdatedEvent(student, this, true)
@@ -96,7 +103,7 @@ public class StudentDetailsControl extends Scroller {
      * @param commandRunner The command runner to execute commands.
      */
     private void setupPayment(ApplicationCommandRunner commandRunner) {
-        this.payments = new StudentPaymentAdminControl(commandRunner);
+        this.payments = new StudentPaymentAdminControl(commandRunner, i18n);
 
         this.payments.addPaymentUpdatedListener(
             event -> fireEvent(new StudentDetailsUpdatedEvent(student, this, true))

@@ -3,7 +3,6 @@ package com.wellnr.schooltrip.ui.views.trips;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CreateSchoolTripCommand;
@@ -21,17 +20,23 @@ public class CreateSchoolTripView extends AbstractApplicationAppView implements 
     public CreateSchoolTripView(ApplicationCommandRunner commandRunner, ApplicationUserSession userSession) {
         super(userSession);
 
+        var i18n = userSession.getMessages();
+
         var form = new ApplicationCommandFormBuilder<>(
             CreateSchoolTripCommand.class,
             commandRunner,
             () -> CreateSchoolTripCommand.apply("", "")
-        ).addVariant(
-            "title",
-            ApplicationCommandFormBuilder.FormVariant.FULL_WIDTH
-        ).addVariant(
-            "name",
-            ApplicationCommandFormBuilder.FormVariant.FULL_WIDTH
-        ).build();
+        )
+            .addVariant(
+                "title",
+                ApplicationCommandFormBuilder.FormVariant.FULL_WIDTH
+            )
+            .addVariant(
+                "name",
+                ApplicationCommandFormBuilder.FormVariant.FULL_WIDTH
+            )
+            .setI18nMessages(i18n)
+            .build();
 
         form.addCompletionListener(event -> UI.getCurrent().navigate(
             SchoolTripView.class,
@@ -40,12 +45,11 @@ public class CreateSchoolTripView extends AbstractApplicationAppView implements 
 
         this.add(
             new H3(
-                new RouterLink("School Trips", SchoolTripsView.class),
-                new Text(" » Create new school trip")
+                new RouterLink(i18n.schoolTrips(), SchoolTripsView.class),
+                new Text(" » " + i18n.addSchoolTrip())
             ),
 
             new ApplicationContentContainer(
-                new Paragraph("Create new school trip."),
                 form
             )
         );

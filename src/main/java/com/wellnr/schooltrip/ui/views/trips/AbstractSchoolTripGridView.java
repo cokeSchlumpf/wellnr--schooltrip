@@ -2,6 +2,7 @@ package com.wellnr.schooltrip.ui.views.trips;
 
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
@@ -15,6 +16,8 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
     @Value("${app.ui.base-url}")
     String appBaseUrl;
 
+    private final SchoolTripMessages i18n;
+
     protected ApplicationGridWithControls<Student> students;
 
     protected StudentDetailsControl studentDetails;
@@ -23,6 +26,7 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
     }
 
     @Override
@@ -44,7 +48,7 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
 
         if (Objects.isNull(studentDetails)) {
             this.studentDetails = new StudentDetailsControl(
-                appBaseUrl, schoolTrip.schoolTrip(), commandRunner
+                appBaseUrl, schoolTrip.schoolTrip(), commandRunner, i18n
             );
 
             this.studentDetails.addStudentDetailsUpdatedListener(event -> this.reload());

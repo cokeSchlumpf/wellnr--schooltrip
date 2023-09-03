@@ -7,6 +7,7 @@ import com.wellnr.schooltrip.core.application.commands.users.ListUsersCommand;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridAndDetails;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 @Route(value = "settings", layout = ApplicationAppLayout.class)
 public class SettingsView extends AbstractApplicationAppView {
 
+    private final SchoolTripMessages i18n;
+
     private final ApplicationCommandRunner commandRunner;
 
     private final ApplicationGridAndDetails<RegisteredUser> gridAndDetails;
@@ -30,13 +33,14 @@ public class SettingsView extends AbstractApplicationAppView {
             DomainPermissions.ManageApplication.apply()
         ));
 
+        this.i18n = userSession.getMessages();
         this.commandRunner = commandRunner;
 
         this.gridAndDetails = new ApplicationGridAndDetails<>(new UsersGrid(), new UserDetailsControl(commandRunner));
         this.gridAndDetails.getDetails().addUpdatedListener(event -> refreshData());
 
         this.add(
-            new H3("Application Settings"),
+            new H3(i18n.applicationSettings()),
             gridAndDetails
         );
 
@@ -49,20 +53,20 @@ public class SettingsView extends AbstractApplicationAppView {
         );
     }
 
-    private static class UsersGrid extends ApplicationGridWithControls<RegisteredUser> {
+    private class UsersGrid extends ApplicationGridWithControls<RegisteredUser> {
 
         public UsersGrid() {
             this.getGrid()
                 .addColumn(RegisteredUser::getEmail)
-                .setHeader("E-Mail");
+                .setHeader(i18n.email());
 
             this.getGrid()
                 .addColumn(RegisteredUser::getLastName)
-                .setHeader("Last Name");
+                .setHeader(i18n.lastName());
 
             this.getGrid()
                 .addColumn(RegisteredUser::getFirstName)
-                .setHeader("First Name");
+                .setHeader(i18n.firstName());
 
             this.getGrid()
                 .addColumn(user -> user
@@ -71,9 +75,9 @@ public class SettingsView extends AbstractApplicationAppView {
                     .map(DomainRole::getName)
                     .collect(Collectors.joining(",\n"))
                 )
-                .setHeader("Roles");
+                .setHeader(i18n.userRoles());
 
-            var bttNew = this.getMenuBar().addItem("New user");
+            var bttNew = this.getMenuBar().addItem(i18n.addRegisteredUser());
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(CreateUserView.class));
         }
 

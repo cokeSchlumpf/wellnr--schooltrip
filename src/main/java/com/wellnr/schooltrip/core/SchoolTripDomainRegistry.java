@@ -7,7 +7,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReposit
 import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
-import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.mail.javamail.JavaMailSender;

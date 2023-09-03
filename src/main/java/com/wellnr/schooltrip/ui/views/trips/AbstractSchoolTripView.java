@@ -7,6 +7,7 @@ import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.GetSchoolTripDetailsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripDetailsProjection;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
@@ -15,6 +16,8 @@ import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 import java.util.List;
 
 public abstract class AbstractSchoolTripView extends AbstractApplicationAppView implements BeforeEnterObserver {
+
+    private final SchoolTripMessages i18n;
 
     protected final ApplicationCommandRunner commandRunner;
 
@@ -25,44 +28,45 @@ public abstract class AbstractSchoolTripView extends AbstractApplicationAppView 
     ) {
         super(userSession);
         this.commandRunner = commandRunner;
+        this.i18n = userSession.getMessages();
     }
 
     @Override
     public List<RouterLink> getMainMenuComponents() {
         var back = new ApplicationRouterLinkWithIcon(
-            VaadinIcon.ARROW_LEFT, "All Workspaces", SchoolTripsView.class
+            VaadinIcon.ARROW_LEFT, i18n.allSchoolTrips(), SchoolTripsView.class
         );
         back.setHighlightCondition(HighlightConditions.never());
         back.setDivider(true);
 
         var overview = new ApplicationRouterLinkWithIcon(
-            VaadinIcon.DASHBOARD, "Overview", SchoolTripView.class,
+            VaadinIcon.DASHBOARD, i18n.overview(), SchoolTripView.class,
             SchoolTripView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
         overview.setHighlightCondition(HighlightConditions.sameLocation());
 
         var payments = new ApplicationRouterLinkWithIcon(
-            VaadinIcon.MONEY, "Payments", SchoolTripPaymentsView.class,
+            VaadinIcon.MONEY, i18n.payments(), SchoolTripPaymentsView.class,
             SchoolTripPaymentsView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
 
         var classes = new ApplicationRouterLinkWithIcon(
-            VaadinIcon.LIST, "Classes", SchoolTripClassesView.class,
+            VaadinIcon.LIST, i18n.schoolClasses(), SchoolTripClassesView.class,
             SchoolTripClassesView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
 
         var disciplines = new ApplicationRouterLinkWithIcon(
-            VaadinIcon.RECORDS, "Disciplines", SchoolTripDisciplineView.class,
+            VaadinIcon.RECORDS, i18n.disciplines(), SchoolTripDisciplineView.class,
             SchoolTripDisciplineView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
 
         var tasks = new ApplicationRouterLinkWithIcon(
-            VaadinIcon.TASKS, "Tasks", SchoolTripTasksView.class,
+            VaadinIcon.TASKS, i18n.tasks(), SchoolTripTasksView.class,
             SchoolTripTasksView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
 
         var settings = new ApplicationRouterLinkWithIcon(
-            VaadinIcon.OPTIONS, "Settings", SchoolTripSettingsView.class,
+            VaadinIcon.OPTIONS, i18n.settings(), SchoolTripSettingsView.class,
             SchoolTripSettingsView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
         );
 

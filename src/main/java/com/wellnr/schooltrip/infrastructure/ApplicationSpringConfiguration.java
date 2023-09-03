@@ -13,7 +13,7 @@ import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration
 import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
-import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.repositories.SchoolTripsMongoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +38,6 @@ import java.nio.file.Paths;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
-import java.time.Instant;
 import java.util.Objects;
 
 @Slf4j

@@ -10,6 +10,7 @@ import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.students.UpdateStudentPropertiesCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.StudentCompleteRegistrationView;
 import com.wellnr.schooltrip.ui.components.ApplicationCopyTextField;
@@ -26,7 +27,12 @@ public class StudentBasicsControl extends VerticalLayout {
 
     private ApplicationCopyTextField registrationLink;
 
-    public StudentBasicsControl(String appBaseUrl, SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
+    public StudentBasicsControl(
+        String appBaseUrl,
+        SchoolTrip schoolTrip,
+        ApplicationCommandRunner commandRunner,
+        SchoolTripMessages i18n) {
+
         this.appBaseUrl = appBaseUrl;
 
         form = new ApplicationCommandFormBuilder<>(
@@ -42,6 +48,7 @@ public class StudentBasicsControl extends VerticalLayout {
                     .map(cl -> Tuple2.apply(cl.getName(), cl.getName()))
                     .toList()
             )
+            .setI18nMessages(i18n)
             .build();
 
         form.addCompletionListener(event -> {
@@ -49,7 +56,7 @@ public class StudentBasicsControl extends VerticalLayout {
         });
 
         registrationLink = new ApplicationCopyTextField();
-        registrationLink.textField.setLabel("Student Registration Link");
+        registrationLink.textField.setLabel(i18n.studentRegistrationLink());
 
         this.add(form);
         this.add(new Hr());

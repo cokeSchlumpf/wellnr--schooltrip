@@ -18,7 +18,7 @@ import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
-import com.wellnr.schooltrip.core.ports.SchoolTripMessages;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.mail.SimpleMailMessage;

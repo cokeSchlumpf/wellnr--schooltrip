@@ -7,6 +7,7 @@ import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
@@ -16,10 +17,13 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 @Route(value = "trips/:name/disciplines", layout = ApplicationAppLayout.class)
 public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
 
+    private final SchoolTripMessages i18n;
+
     public SchoolTripDisciplineView(
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
     }
 
     @Override
@@ -48,17 +52,17 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
                 .addComponentColumnForRegisteredStudent(
                     (student, questionnaire) -> new Span(questionnaire.getDisziplin().getExperience().getValue())
                 )
-                .setHeader("Experience");
+                .setHeader(i18n.experience());
 
             this
                 .addComponentColumnForRegisteredStudent((student, questionnaire) -> {
                     if (questionnaire.getDisziplin() instanceof Ski) {
-                        return new Span("Ski");
+                        return new Span(i18n.ski());
                     } else {
-                        return new Span("Snowboard");
+                        return new Span(i18n.snowboardRentalPrice());
                     }
                 })
-                .setHeader("Disziplin");
+                .setHeader(i18n.discipline());
 
             this
                 .addComponentColumnForRegisteredStudent((student, questionnaire) -> {
@@ -70,7 +74,7 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
                     }
                 })
                 .setTextAlign(ColumnTextAlign.CENTER)
-                .setHeader("Ausleihe Ski/ Board");
+                .setHeader(i18n.rental());
 
             this
                 .addComponentColumnForRegisteredStudent((student, questionnaire) -> {
@@ -83,14 +87,14 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
                     }
                 })
                 .setTextAlign(ColumnTextAlign.CENTER)
-                .setHeader("Ausleihe Schuhe");
+                .setHeader(i18n.bootRental());
 
             this
                 .addComponentColumnForRegisteredStudent((student, questionnaire) -> {
                     // TODO: Add field as soon as present.
                     return new Span("-");
                 })
-                .setHeader("Ausleihe Helm");
+                .setHeader(i18n.helmetRental());
         }
 
     }

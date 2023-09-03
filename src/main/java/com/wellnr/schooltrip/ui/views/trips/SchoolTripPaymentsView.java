@@ -9,6 +9,7 @@ import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.common.markup.Either;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.payments.AbstractLineItems;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationAmountLabelBuilder;
@@ -19,10 +20,13 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 @Route(value = "trips/:name/payments", layout = ApplicationAppLayout.class)
 public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
 
+    private final SchoolTripMessages i18n;
+
     public SchoolTripPaymentsView(
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
     }
 
     @Override
@@ -54,14 +58,14 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
                     .orElse(new Span("-"))
                 )
                 .setTextAlign(ColumnTextAlign.END)
-                .setHeader("Expected");
+                .setHeader(i18n.expectedAmount());
 
             this
                 .addComponentColumnForRegisteredStudent(
                     student -> new Span(student.getPayments().getSumFormatted())
                 )
                 .setTextAlign(ColumnTextAlign.END)
-                .setHeader("Paid");
+                .setHeader(i18n.paidAmount());
 
             this
                 .addComponentColumnForRegisteredStudent(student -> {
@@ -82,9 +86,9 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
                         .build();
                 })
                 .setTextAlign(ColumnTextAlign.END)
-                .setHeader("Diff");
+                .setHeader(i18n.diffAmount());
 
-            var bttNew = this.getMenuBar().addItem("Enter payments");
+            var bttNew = this.getMenuBar().addItem(i18n.enterPayments());
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
                 SchoolTripAddStudentView.class, SchoolTripAddStudentView.getRouteParameters(
                     schoolTrip.schoolTrip().getName()

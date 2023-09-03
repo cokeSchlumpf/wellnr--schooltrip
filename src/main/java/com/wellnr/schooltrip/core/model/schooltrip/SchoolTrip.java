@@ -25,6 +25,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import net.glxn.qrgen.core.image.ImageType;
 import net.glxn.qrgen.javase.QRCode;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
@@ -148,11 +149,22 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
      * This operation creates an Excel file containing the student data for the invitation
      * mailing. The file returned will be a ZIP-file the Excel file and QR-code images.
      *
+     * @param executor The user executing the operation.
+     * @param students The repository to read/write student information.
+     * @param config   The configuration of the application.
      * @return The exported data.
      */
     public Path exportInviteLetterMailingData(
-        StudentsReadRepository students, SchoolTripApplicationConfiguration config) {
+        User executor, StudentsReadRepository students, SchoolTripApplicationConfiguration config
+    ) {
 
+        // Check permissions
+        executor.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(id)
+        );
+
+        // Create data.
         var tmpOutputFile = Operators.suppressExceptions(
             () -> Files.createTempFile("schooltrips", ".zip")
         );
@@ -229,6 +241,8 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
 
         // ZIP directory and save as temporary file
         FileZipper.zip(tmpDirectory, tmpOutputFile, "invitation-mailing");
+        Operators.ignoreExceptions(() -> FileUtils.deleteDirectory(tmpDirectory.toFile()));
+
         return tmpOutputFile;
     }
 

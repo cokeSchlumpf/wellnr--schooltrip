@@ -7,6 +7,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParameters;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.RegisterSchoolClassCommand;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
@@ -16,8 +17,11 @@ import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 @Route(value = "trips/:name/create-class", layout = ApplicationAppLayout.class)
 public class SchoolTripAddClassView extends AbstractSchoolTripView {
 
+    private final SchoolTripMessages i18n;
+
     public SchoolTripAddClassView(ApplicationCommandRunner commandRunner, ApplicationUserSession userSession) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
     }
 
     /**
@@ -40,6 +44,7 @@ public class SchoolTripAddClassView extends AbstractSchoolTripView {
         )
             .addVariant("schoolTrip", ApplicationFormBuilder.FormVariant.HIDDEN)
             .addVariant("name", ApplicationFormBuilder.FormVariant.FULL_WIDTH)
+            .setI18nMessages(i18n)
             .build();
 
         form.addCompletionListener(e -> UI.getCurrent().navigate(
@@ -49,14 +54,14 @@ public class SchoolTripAddClassView extends AbstractSchoolTripView {
 
         this.add(
             new H3(
-                new RouterLink("School Trips", SchoolTripsView.class),
+                new RouterLink(i18n.schoolTrips(), SchoolTripsView.class),
                 new Text(" » "),
                 new RouterLink(
                     this.schoolTrip.schoolTrip().getTitle(),
                     SchoolTripView.class,
                     SchoolTripView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
                 ),
-                new Text(" » Add class")
+                new Text(" » " + i18n.addSchoolClass())
             ),
             form
         );

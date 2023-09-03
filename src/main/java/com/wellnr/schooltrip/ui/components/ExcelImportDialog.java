@@ -18,6 +18,7 @@ import com.wellnr.common.functions.Function2;
 import com.wellnr.common.markup.Nothing;
 import com.wellnr.common.markup.Tuple;
 import com.wellnr.common.markup.Tuple2;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationFormBuilder;
 import lombok.AllArgsConstructor;
@@ -44,6 +45,8 @@ import java.util.stream.IntStream;
  *                        parse values from the Excel and transform to different data types (e.g. dates)).
  */
 public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
+
+    private final SchoolTripMessages i18n;
 
     /**
      * A list of required fields (labels) which should be imported from the Excel.
@@ -119,22 +122,25 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
     private ExcelImportDialog(
         List<String> requiredFields,
         Function2<List<Object>, SETTINGS_TYPE, RESULT_TYPE> createObject,
-        SETTINGS_TYPE additionalSettingsDefaults
+        SETTINGS_TYPE additionalSettingsDefaults,
+        SchoolTripMessages i18n
     ) {
+        this.i18n = i18n;
+
         this.requiredFields = requiredFields;
         this.additionalSettingsDefaults = additionalSettingsDefaults;
         this.previewDataGrid = new Grid<>();
 
-        this.btnGotoMapping = new Button("Next >");
+        this.btnGotoMapping = new Button(i18n.nextButton());
         this.btnGotoMapping.addClickListener(event -> showMappingPage());
 
-        this.btnBackToUpload = new Button("< Back");
+        this.btnBackToUpload = new Button(i18n.backButton());
         this.btnBackToUpload.addClickListener(event -> showUploadPage());
 
-        this.btnGotoSettings = new Button("Next >");
+        this.btnGotoSettings = new Button(i18n.nextButton());
         this.btnGotoSettings.addClickListener(event -> showSettingsPage());
 
-        this.btnBackToMapping = new Button("< Back");
+        this.btnBackToMapping = new Button(i18n.backButton());
         this.btnBackToMapping.addClickListener(event -> showMappingPage());
 
         if (!(this.additionalSettingsDefaults instanceof Nothing)) {
@@ -145,7 +151,7 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
                 .build();
         }
 
-        this.btnFinish = new Button("Import Data");
+        this.btnFinish = new Button(i18n.importData());
         this.btnFinish.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         this.btnFinish.addClickListener(event -> {
             var result = this.importedData
@@ -178,19 +184,19 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
             );
         });
 
-        this.btnBackToImportTable = new Button("< Back");
+        this.btnBackToImportTable = new Button(i18n.backButton());
         this.btnBackToImportTable.addClickListener(event -> showImportTablePage());
 
-        this.setHeaderTitle("Import Excel File");
+        this.setHeaderTitle(i18n.importExcelFile());
         this.setMinWidth("60%");
         this.setMinHeight("400px");
 
         this.getFooter().add(
-            new Button("Previous")
+            new Button(i18n.backButton())
         );
 
         this.getFooter().add(
-            new Button("Next")
+            new Button(i18n.nextButton())
         );
 
         this.showUploadPage();
@@ -210,9 +216,10 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
     public static <R, S> ExcelImportDialog<R, S> apply(
         List<String> requiredFields,
         Function2<List<Object>, S, R> createObject,
-        S additionalSettingsDefaults
+        S additionalSettingsDefaults,
+        SchoolTripMessages i18n
     ) {
-        return new ExcelImportDialog<>(requiredFields, createObject, additionalSettingsDefaults);
+        return new ExcelImportDialog<>(requiredFields, createObject, additionalSettingsDefaults, i18n);
     }
 
     /**
@@ -225,9 +232,10 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
      */
     public static <R> ExcelImportDialog<R, Nothing> apply(
         List<String> requiredFields,
-        Function1<List<Object>, R> createObject
+        Function1<List<Object>, R> createObject,
+        SchoolTripMessages i18n
     ) {
-        return new ExcelImportDialog<>(requiredFields, (p, nothing) -> createObject.apply(p), Nothing.getInstance());
+        return new ExcelImportDialog<>(requiredFields, (p, nothing) -> createObject.apply(p), Nothing.getInstance(), i18n);
     }
 
     @SuppressWarnings({"unchecked", "UnusedReturnValue"})
@@ -314,7 +322,7 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
     private void showImportTablePage() {
         this.clearComponents();
 
-        var includesHeader = new Checkbox("File includes header row.", true);
+        var includesHeader = new Checkbox(i18n.fileIncludesHeaderRow(), true);
         includesHeader.addValueChangeListener(event -> {
             importedData.hasHeader = event.getValue();
             updateGrid();
@@ -407,7 +415,7 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
 
     @ToString
     @AllArgsConstructor
-    private static class Table {
+    private class Table {
 
         private boolean hasHeader;
 
@@ -428,7 +436,7 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
                     if (headerRow.data.size() > i) {
                         columns.add(Tuple.apply(i, headerRow.data.get(i).toString()));
                     } else {
-                        columns.add(Tuple.apply(i, "Column " + (i + 1)));
+                        columns.add(Tuple.apply(i, i18n.tableColumn() + " " + (i + 1)));
                     }
                 }
 
@@ -436,7 +444,7 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
             } else {
                 return IntStream
                     .range(1, maxColumnCount + 1)
-                    .mapToObj(i -> Tuple.apply(i - 1, "Column " + i))
+                    .mapToObj(i -> Tuple.apply(i - 1, i18n.tableColumn() + " " + i))
                     .collect(Collectors.toList());
             }
         }

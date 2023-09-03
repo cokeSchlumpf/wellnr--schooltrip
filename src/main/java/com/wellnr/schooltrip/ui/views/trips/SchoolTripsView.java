@@ -49,7 +49,7 @@ public class SchoolTripsView extends AbstractApplicationAppView {
                 .addComponentColumn(trip -> new RouterLink(
                     trip.getTitle(), SchoolTripView.class, SchoolTripView.getRouteParameters(trip.getName())
                 ))
-                .setHeader("School Trip")
+                .setHeader(userSession.getMessages().schoolTrip())
                 .setSortable(true);
 
             this.getGrid().sort(List.of(
@@ -57,7 +57,10 @@ public class SchoolTripsView extends AbstractApplicationAppView {
             ));
 
             if (userSession.getPermissions().isCanManageSchoolTrips()) {
-                var bttNew = this.getMenuBar().addItem("Create Trip");
+                var bttNew = this.getMenuBar().addItem(
+                    userSession.getMessages().createSchoolTrip()
+                );
+
                 bttNew.addClickListener(ignore -> UI.getCurrent().navigate(CreateSchoolTripView.class));
             }
 

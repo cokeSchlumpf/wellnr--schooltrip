@@ -3,7 +3,6 @@ package com.wellnr.schooltrip.ui.views.admin;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.application.commands.users.RegisterUserCommand;
@@ -22,6 +21,7 @@ public class CreateUserView extends AbstractApplicationAppView implements Applic
 
     public CreateUserView(ApplicationCommandRunner commandRunner, ApplicationUserSession userSession) {
         super(userSession);
+        var i18n = userSession.getMessages();
 
         //noinspection SwitchStatementWithTooFewBranches
         var form = new ApplicationCommandFormBuilder<>(
@@ -30,7 +30,7 @@ public class CreateUserView extends AbstractApplicationAppView implements Applic
             () -> RegisterUserCommand.apply("", "", "", "", false)
         )
             .setLabelProvider(field -> switch(field) {
-                case "admin" -> Optional.of("User should be administrator.");
+                case "admin" -> Optional.of(i18n.userShouldBeAdmin());
                 default -> Optional.empty();
             })
             .build();
@@ -41,12 +41,11 @@ public class CreateUserView extends AbstractApplicationAppView implements Applic
 
         this.add(
             new H3(
-                new RouterLink("Settings", SettingsView.class),
-                new Text(" » Add new user")
+                new RouterLink(i18n.settings(), SettingsView.class),
+                new Text(" » " + i18n.addRegisteredUser())
             ),
 
             new ApplicationContentContainer(
-                new Paragraph("Add a new user."),
                 form
             )
         );

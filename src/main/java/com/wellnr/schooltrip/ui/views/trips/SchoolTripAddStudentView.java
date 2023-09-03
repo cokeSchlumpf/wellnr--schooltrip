@@ -10,6 +10,7 @@ import com.wellnr.common.markup.Tuple2;
 import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolClass;
 import com.wellnr.schooltrip.core.model.student.Gender;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
@@ -21,10 +22,13 @@ import java.time.LocalDate;
 @Route(value = "trips/:name/register-student", layout = ApplicationAppLayout.class)
 public class SchoolTripAddStudentView extends AbstractSchoolTripView {
 
+    private final SchoolTripMessages i18n;
+
     public SchoolTripAddStudentView(
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
+        this.i18n = userSession.getMessages();
     }
 
     /**
@@ -68,6 +72,7 @@ public class SchoolTripAddStudentView extends AbstractSchoolTripView {
                     .map(sc -> Tuple2.apply(sc.getName(), sc.getName()))
                     .toList()
             )
+            .setI18nMessages(i18n)
             .build();
 
         form.addCompletionListener(event -> UI.getCurrent().navigate(
@@ -76,14 +81,14 @@ public class SchoolTripAddStudentView extends AbstractSchoolTripView {
 
         this.add(
             new H3(
-                new RouterLink("School Trips", SchoolTripsView.class),
+                new RouterLink(i18n.schoolTrips(), SchoolTripsView.class),
                 new Text(" » "),
                 new RouterLink(
                     this.schoolTrip.schoolTrip().getTitle(),
                     SchoolTripView.class,
                     SchoolTripView.getRouteParameters(this.schoolTrip.schoolTrip().getName())
                 ),
-                new Text(" » Register new student")
+                new Text(" » " + i18n.addStudent())
             ),
             form
         );
