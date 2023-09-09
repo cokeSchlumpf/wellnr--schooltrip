@@ -1,13 +1,17 @@
 FROM eclipse-temurin:17-jdk-alpine as build
 WORKDIR /workspace/app
 
+RUN apk add --update npm
+COPY package.json package-lock.json /workspace/app/
+RUN npm install
+
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
-RUN ./mvnw install -DskipTests
+RUN ./mvnw dependency:resolve
 
-COPY src src
-RUN ./mvnw install -DskipTests
+COPY . .
+RUN ./mvnw clean package -Pproduction -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM eclipse-temurin:17-jdk-alpine
