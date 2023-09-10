@@ -31,16 +31,6 @@ public interface SchoolTripMessages {
         return "Add student";
     }
 
-    @DE("Schüler bearbeiten")
-    default String editStudent() {
-        return "Edit student";
-    }
-
-    @DE("Klasse bearbeiten")
-    default String editSchoolClass() {
-        return "Edit school class";
-    }
-
     @DE("Alle Fahrten")
     default String allSchoolTrips() {
         return "All school trips";
@@ -49,6 +39,11 @@ public interface SchoolTripMessages {
     @DE("Gesamt")
     default String amountSum() {
         return "Sum";
+    }
+
+    @DE("Betrag")
+    default String amount() {
+        return "Amount";
     }
 
     @DE("Anwendungs-Einstelltungen")
@@ -69,6 +64,16 @@ public interface SchoolTripMessages {
     @DE("Anfänger")
     default String beginner() {
         return "Beginner";
+    }
+
+    @DE("Geburtstag")
+    default String birthday() {
+        return "Birthday";
+    }
+
+    @DE("Typ")
+    default String type() {
+        return "Type";
     }
 
     @DE("Körpergröße (in cm)")
@@ -165,9 +170,29 @@ public interface SchoolTripMessages {
         return "Disciplines";
     }
 
+    @DE("Klasse bearbeiten")
+    default String editSchoolClass() {
+        return "Edit school class";
+    }
+
+    @DE("Schüler bearbeiten")
+    default String editStudent() {
+        return "Edit student";
+    }
+
     @DE("E-Mail")
     default String email() {
         return "Email";
+    }
+
+    @DE("E-Mail-Adresse")
+    default String emailAddress() {
+        return "Email address";
+    }
+
+    @DE("Englisch")
+    default String english() {
+        return "English";
     }
 
     @DE("Zahlungen eingeben")
@@ -213,6 +238,11 @@ public interface SchoolTripMessages {
     @DE("m")
     default String genderMaleAbbreviation() {
         return "m";
+    }
+
+    @DE("Deutsch")
+    default String german() {
+        return "German";
     }
 
     @DE("Ausleihe Helm")
@@ -313,6 +343,11 @@ public interface SchoolTripMessages {
     @DE("Weiter >")
     default String nextButton() {
         return "Next >";
+    }
+
+    @DE("Keine Präferenz")
+    default String noPreference() {
+        return "No preference";
     }
 
     @DE("Essgewohnheiten")

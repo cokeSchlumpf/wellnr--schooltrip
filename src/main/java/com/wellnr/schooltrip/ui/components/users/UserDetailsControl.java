@@ -2,6 +2,7 @@ package com.wellnr.schooltrip.ui.components.users;
 
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
+import com.wellnr.common.markup.Tuple2;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.application.commands.UpdateRegisteredUserCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ResetPasswordCommand;
@@ -13,6 +14,8 @@ import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationFormBuilder;
 import com.wellnr.schooltrip.ui.components.grid.EntityDetailsControl;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
@@ -33,6 +36,11 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
                 case "newEmail" -> Optional.of(i18n.email());
                 default -> Optional.empty();
             })
+            .setFieldPossibleValues("preferredLocal", List.of(
+                Tuple2.apply(null, i18n.noPreference()),
+                Tuple2.apply(Locale.ENGLISH.toLanguageTag(), i18n.english()),
+                Tuple2.apply(Locale.GERMAN.toLanguageTag(), i18n.german())
+            ))
             .build();
 
         this.updatePropertiesForm.addCompletionListener(
@@ -66,7 +74,8 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
         super.setEntity(entity);
 
         this.updatePropertiesForm.setGetInitialCommand(() -> UpdateRegisteredUserCommand.apply(
-            entity.getEmail(), entity.getEmail(), entity.getFirstName(), entity.getLastName()
+            entity.getEmail(), entity.getEmail(), entity.getFirstName(), entity.getLastName(),
+            entity.getPreferredLocale().map(Locale::toLanguageTag).orElse(null)
         ));
 
         this.resetPasswordForm.setGetInitialCommand(() -> ResetPasswordCommand.apply(

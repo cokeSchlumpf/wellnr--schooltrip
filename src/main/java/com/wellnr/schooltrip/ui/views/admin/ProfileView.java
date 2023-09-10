@@ -5,6 +5,7 @@ import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.Route;
+import com.wellnr.common.markup.Tuple2;
 import com.wellnr.schooltrip.core.application.commands.UpdateRegisteredUserCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ResetPasswordCommand;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
@@ -17,6 +18,8 @@ import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppView;
 
+import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Route(value = "profile", layout = ApplicationAppLayout.class)
@@ -50,7 +53,8 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
             UpdateRegisteredUserCommand.class,
             commandRunner,
             () -> UpdateRegisteredUserCommand.apply(
-                user.getEmail(), user.getEmail(), user.getFirstName(), user.getLastName()
+                user.getEmail(), user.getEmail(), user.getFirstName(), user.getLastName(),
+                user.getPreferredLocale().map(Locale::toLanguageTag).orElse(null)
             )
         )
             .addVariant("oldEmail", ApplicationFormBuilder.FormVariant.HIDDEN)
@@ -59,6 +63,11 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
                 case "newEmail" -> Optional.of(i18n.email());
                 default -> Optional.empty();
             })
+            .setFieldPossibleValues("preferredLocal", List.of(
+                Tuple2.apply(null, i18n.noPreference()),
+                Tuple2.apply(Locale.ENGLISH.toLanguageTag(), i18n.english()),
+                Tuple2.apply(Locale.GERMAN.toLanguageTag(), i18n.german())
+            ))
             .build()
             .withCompletionListener(
                 e -> UI.getCurrent().navigate(ProfileView.class)

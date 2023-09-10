@@ -10,7 +10,6 @@ import com.wellnr.schooltrip.core.model.user.exceptions.PasswordsNotEqualExcepti
 import com.wellnr.schooltrip.core.model.user.exceptions.UserAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
-import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,6 +31,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
     private static final String LAST_NAME = "lastName";
     private static final String LAST_LOGIN = "lastLogin";
     private static final String DOMAIN_ROLES = "domainRoles";
+    private static final String PREFERRED_LOCALE = "preferredLocale";
 
     /**
      * The unique idempotent id of the user.
@@ -75,6 +75,12 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
     @JsonProperty(DOMAIN_ROLES)
     Set<DomainRole> domainRoles;
 
+    /**
+     * A language code (e.g., `en-US`, `de`, ...) which identifies the preferred locale/ language of the user.
+     */
+    @JsonProperty(PREFERRED_LOCALE)
+    String preferredLocale;
+
     @JsonCreator
     public static RegisteredUser apply(
         @JsonProperty(ID) String id,
@@ -83,14 +89,15 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         @JsonProperty(FIRST_NAME) String firstName,
         @JsonProperty(LAST_NAME) String lastName,
         @JsonProperty(LAST_LOGIN) Instant lastLogin,
-        @JsonProperty(DOMAIN_ROLES) Set<DomainRole> domainRoles
+        @JsonProperty(DOMAIN_ROLES) Set<DomainRole> domainRoles,
+        @JsonProperty(PREFERRED_LOCALE) String preferredLocale
     ) {
         if (Objects.isNull(domainRoles)) {
             domainRoles = Set.of();
         }
 
         return new RegisteredUser(
-            id, email, password, firstName, lastName, lastLogin, new HashSet<>(domainRoles)
+            id, email, password, firstName, lastName, lastLogin, new HashSet<>(domainRoles), preferredLocale
         );
     }
 
@@ -110,31 +117,72 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         var passwordEncrypted = passwordEncryptionPort.encode(password);
 
         return new RegisteredUser(
-            id, email, passwordEncrypted, firstName, lastName, Instant.now(), new HashSet<>(domainRoles)
+            id, email, passwordEncrypted, firstName, lastName, Instant.now(), new HashSet<>(domainRoles), null
         );
     }
 
     public static RegisteredUser fake() {
-        return RegisteredUser.apply("123", "info@bar.de", "blaböa", "Egon", "Olsen", Instant.now(), Set.of());
+        return RegisteredUser.apply("123", "info@bar.de", "blaböa", "Egon", "Olsen", Instant.now(), Set.of(), null);
     }
 
     public Set<DomainRole> getDomainRoles() {
         return Set.copyOf(this.domainRoles);
     }
 
+    public Optional<Instant> getLastLogin() {
+        return Optional.ofNullable(lastLogin);
+    }
+
     public String getName() {
         return getFirstName() + " " + getLastName();
+    }
+
+    public Optional<Locale> getPreferredLocale() {
+        return Optional
+            .ofNullable(this.preferredLocale)
+            .map(Locale::forLanguageTag);
+    }
+
+    @Override
+    public Optional<RegisteredUser> getRegisteredUser() {
+        return Optional.of(this);
     }
 
     /**
      * Grants a domain role to this user.
      *
-     * @param role The role to be granted.
+     * @param role  The role to be granted.
      * @param users The repository to persist the information.
      */
     public void grantDomainRole(DomainRole role, RegisteredUsersRepository users) {
         this.domainRoles.add(role);
         users.insertOrUpdate(this);
+    }
+
+    @Override
+    public boolean hasSinglePermission(DomainPermission permission) {
+        var allPermissions = getPermissions();
+
+        return allPermissions
+            .stream()
+            .anyMatch(p -> p.equals(permission));
+    }
+
+    public Result<Done> login(
+        String password, RegisteredUsersRepository users, PasswordEncryptionPort encryptionPort
+    ) {
+
+        if (encryptionPort.matches(password, this.getPassword())) {
+            // Valid login
+            this.setLastLogin(Instant.now());
+            users.insertOrUpdate(this);
+
+            return Result.success(Done.getInstance());
+        } else {
+            // Invalid login
+            // TODO: Add number of failed logins and lock account on too many retries.
+            return Result.failure(NotAuthorizedException.apply());
+        }
     }
 
     /**
@@ -152,41 +200,6 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         } else {
             this.registerEvent(RegisteredUserRegisteredEvent.apply(this));
             users.insertOrUpdate(this);
-        }
-    }
-
-    public Optional<Instant> getLastLogin() {
-        return Optional.ofNullable(lastLogin);
-    }
-
-    @Override
-    public boolean hasSinglePermission(DomainPermission permission) {
-        var allPermissions = getPermissions();
-
-        return allPermissions
-            .stream()
-            .anyMatch(p -> p.equals(permission));
-    }
-
-    @Override
-    public Optional<RegisteredUser> getRegisteredUser() {
-        return Optional.of(this);
-    }
-
-    public Result<Done> login(
-        String password, RegisteredUsersRepository users, PasswordEncryptionPort encryptionPort
-    ) {
-
-        if (encryptionPort.matches(password, this.getPassword())) {
-            // Valid login
-            this.setLastLogin(Instant.now());
-            users.insertOrUpdate(this);
-
-            return Result.success(Done.getInstance());
-        } else {
-            // Invalid login
-            // TODO: Add number of failed logins and lock account on too many retries.
-            return Result.failure(NotAuthorizedException.apply());
         }
     }
 
@@ -222,7 +235,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
     /**
      * Revokes a domain role from a user.
      *
-     * @param role The role to be revoked.
+     * @param role  The role to be revoked.
      * @param users The repository to persist the information.
      */
     public void revokeDomainRole(DomainRole role, RegisteredUsersRepository users) {
@@ -238,8 +251,11 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
      * @param email     The email of the user
      * @param users     The repository to store entity data
      */
-    public void updateProperties(User executor, String firstName, String lastName, String email,
-                                 RegisteredUsersRepository users) {
+    public void updateProperties(
+        User executor, String firstName, String lastName, String email, Locale preferredLocale,
+        RegisteredUsersRepository users
+    ) {
+
         /*
          * Check Permission
          */
@@ -257,6 +273,7 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.preferredLocale = preferredLocale.toLanguageTag();
 
         users.insertOrUpdate(this);
     }

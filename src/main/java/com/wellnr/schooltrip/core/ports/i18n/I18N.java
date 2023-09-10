@@ -14,6 +14,10 @@ public class I18N {
                 clazz.getClassLoader(),
                 new Class[]{clazz},
                 (proxy, method, args) -> {
+                    if (method.getName().equals("getClass")) {
+                        return clazz;
+                    }
+
                     DE annotation = method.getAnnotation(DE.class);
                     if (isDE && annotation!= null) {
                         return String.format(annotation.value(), args);

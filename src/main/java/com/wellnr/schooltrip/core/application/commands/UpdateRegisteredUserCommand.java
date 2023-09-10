@@ -9,6 +9,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Locale;
+
 @Data
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -22,10 +24,16 @@ public class UpdateRegisteredUserCommand implements AbstractSchoolTripCommand<Me
 
     String lastName;
 
+    String preferredLocale;
+
     @Override
     public MessageResult<RegisteredUser> run(User user, SchoolTripDomainRegistry domainRegistry) {
         var registeredUser = domainRegistry.getUsers().getOneByEmail(oldEmail);
-        registeredUser.updateProperties(user, firstName, lastName, newEmail, domainRegistry.getUsers());
+        registeredUser.updateProperties(
+            user, firstName, lastName, newEmail,
+            preferredLocale != null ? Locale.forLanguageTag(preferredLocale) : null,
+            domainRegistry.getUsers()
+        );
 
         return MessageResult.formatted("Successfully updated user `%s`.", newEmail).withData(registeredUser);
     }

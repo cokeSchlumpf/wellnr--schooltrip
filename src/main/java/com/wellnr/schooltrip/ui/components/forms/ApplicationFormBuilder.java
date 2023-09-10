@@ -68,6 +68,18 @@ public class ApplicationFormBuilder<T> {
         this(valueType, () -> null);
     }
 
+    public ApplicationFormBuilder<T> addCustomComponent(Field field,
+                                                        Function1<BeanValidationBinder<T>, Component> componentFactory) {
+        this.customComponents.put(field, Objects.requireNonNull(componentFactory));
+        return this;
+    }
+
+    public ApplicationFormBuilder<T> addCustomComponent(String field,
+                                                        Function1<BeanValidationBinder<T>, Component> componentFactory) {
+        var declaredField = Operators.suppressExceptions(() -> this.valueType.getDeclaredField(field));
+        return addCustomComponent(declaredField, componentFactory);
+    }
+
     public ApplicationFormBuilder<T> addVariant(Field field, FormVariant... variants) {
         var toBeAdded = Arrays.stream(variants).toList();
 
@@ -83,100 +95,6 @@ public class ApplicationFormBuilder<T> {
     public ApplicationFormBuilder<T> addVariant(String field, FormVariant... variants) {
         var declaredField = Operators.suppressExceptions(() -> this.valueType.getDeclaredField(field));
         return addVariant(declaredField, variants);
-    }
-
-    public ApplicationFormBuilder<T> addCustomComponent(Field field,
-                                                        Function1<BeanValidationBinder<T>, Component> componentFactory) {
-        this.customComponents.put(field, Objects.requireNonNull(componentFactory));
-        return this;
-    }
-
-    public ApplicationFormBuilder<T> addCustomComponent(String field,
-                                                        Function1<BeanValidationBinder<T>, Component> componentFactory) {
-        var declaredField = Operators.suppressExceptions(() -> this.valueType.getDeclaredField(field));
-        return addCustomComponent(declaredField, componentFactory);
-    }
-
-    /**
-     * Spcifies possible values for a (text) field. The field will then be represented as a select box.
-     *
-     * @param field          The field which the values should be constrained.
-     * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
-     * @return This application form builder.
-     */
-    public ApplicationFormBuilder<T> setFieldPossibleValues(
-        Field field, List<Tuple2<String, String>> possibleValues) {
-
-        return addCustomComponent(field, binder -> {
-            var valuesMap = possibleValues
-                .stream()
-                .collect(Collectors.toMap(Tuple2::get_1, Tuple2::get_2));
-
-            var input = new Select<String>();
-            input.setLabel(this.getLabel(field.getName()));
-            input.setItems(possibleValues.stream().map(Tuple2::get_1).toList());
-            input.setItemLabelGenerator(s -> valuesMap.getOrDefault(s, ""));
-
-            binder.bind(input, field.getName());
-
-            return input;
-        });
-    }
-
-    /**
-     * Spcifies possible values for a (text) field. The field will then be represented as a select box.
-     *
-     * @param field          The field which the values should be constrained.
-     * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
-     * @return This application form builder.
-     */
-    public ApplicationFormBuilder<T> setFieldPossibleValues(
-        String field, List<Tuple2<String, String>> possibleValues) {
-        return setFieldPossibleValues(
-            Operators.suppressExceptions(() -> valueType.getDeclaredField(field)), possibleValues
-        );
-    }
-
-    /**
-     * Specifies the label provider for the controls. The function will be called with the field name
-     * of the class. It may return a label. If Optional.empty() is returned, the field name will
-     * be humanized.
-     *
-     * @param labelProvider A function to provide labels.
-     * @return The form builder.
-     */
-    public ApplicationFormBuilder<T> setLabelProvider(Function1<String, Optional<String>> labelProvider) {
-        this.labelProvider = labelProvider;
-        return this;
-    }
-
-    /**
-     * Set an object which provides i18n message translations for field names of the form.
-     * <p>
-     * If an object is set, the builder will lookup the object whether it provides a function
-     * returning a string which has similar name as the field. If no method is found, it will
-     * fall back to the default behaviour (de-camel-cased form name).
-     *
-     * @param i18nMessages An object providing i18n message translations.
-     * @return The form builder.
-     */
-    public ApplicationFormBuilder<T> setI18nMessages(Object i18nMessages) {
-        this.i18nMessages = i18nMessages;
-        return this;
-    }
-
-    public ApplicationFormBuilder<T> withSaveButton(boolean withSaveButton) {
-        this.withSaveButton = withSaveButton;
-        return this;
-    }
-
-    public ApplicationFormBuilder<T> withSaveButton() {
-        return withSaveButton(true);
-    }
-
-    public ApplicationFormBuilder<T> withTitle(String title) {
-        this.title = title;
-        return this;
     }
 
     public ApplicationForm<T> build() {
@@ -355,8 +273,91 @@ public class ApplicationFormBuilder<T> {
             binder,
             getInitialValue,
             forms,
-            withSaveButton
+            withSaveButton,
+            getLabel("Save")
         );
+    }
+
+    /**
+     * Spcifies possible values for a (text) field. The field will then be represented as a select box.
+     *
+     * @param field          The field which the values should be constrained.
+     * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
+     * @return This application form builder.
+     */
+    public ApplicationFormBuilder<T> setFieldPossibleValues(
+        Field field, List<Tuple2<String, String>> possibleValues) {
+
+        return addCustomComponent(field, binder -> {
+            var valuesMap = possibleValues
+                .stream()
+                .collect(Collectors.toMap(Tuple2::get_1, Tuple2::get_2));
+
+            var input = new Select<String>();
+            input.setLabel(this.getLabel(field.getName()));
+            input.setItems(possibleValues.stream().map(Tuple2::get_1).toList());
+            input.setItemLabelGenerator(s -> valuesMap.getOrDefault(s, ""));
+
+            binder.bind(input, field.getName());
+
+            return input;
+        });
+    }
+
+    /**
+     * Spcifies possible values for a (text) field. The field will then be represented as a select box.
+     *
+     * @param field          The field which the values should be constrained.
+     * @param possibleValues A list of possible values. 1st parameter is the value, 2nd the label.
+     * @return This application form builder.
+     */
+    public ApplicationFormBuilder<T> setFieldPossibleValues(
+        String field, List<Tuple2<String, String>> possibleValues) {
+        return setFieldPossibleValues(
+            Operators.suppressExceptions(() -> valueType.getDeclaredField(field)), possibleValues
+        );
+    }
+
+    /**
+     * Set an object which provides i18n message translations for field names of the form.
+     * <p>
+     * If an object is set, the builder will lookup the object whether it provides a function
+     * returning a string which has similar name as the field. If no method is found, it will
+     * fall back to the default behaviour (de-camel-cased form name).
+     *
+     * @param i18nMessages An object providing i18n message translations.
+     * @return The form builder.
+     */
+    public ApplicationFormBuilder<T> setI18nMessages(Object i18nMessages) {
+        this.i18nMessages = i18nMessages;
+        return this;
+    }
+
+    /**
+     * Specifies the label provider for the controls. The function will be called with the field name
+     * of the class. It may return a label. If Optional.empty() is returned, the field name will
+     * be humanized.
+     *
+     * @param labelProvider A function to provide labels.
+     * @return The form builder.
+     */
+    public ApplicationFormBuilder<T> setLabelProvider(Function1<String, Optional<String>> labelProvider) {
+        this.labelProvider = labelProvider;
+        return this;
+    }
+
+    public ApplicationFormBuilder<T> withSaveButton(boolean withSaveButton) {
+        this.withSaveButton = withSaveButton;
+        return this;
+    }
+
+    public ApplicationFormBuilder<T> withSaveButton() {
+        return withSaveButton(true);
+    }
+
+    public ApplicationFormBuilder<T> withTitle(String title) {
+        this.title = title;
+        return this;
     }
 
     private FormLayout createForm() {
@@ -365,10 +366,11 @@ public class ApplicationFormBuilder<T> {
         return form;
     }
 
-    private String getLabel(String fieldName) {
+    protected String getLabel(String fieldName) {
         return labelProvider.get(fieldName).orElseGet(() -> {
             if (Objects.nonNull(this.i18nMessages)) {
-                return Arrays.stream(this
+                return Arrays
+                    .stream(this
                         .i18nMessages
                         .getClass()
                         .getMethods())

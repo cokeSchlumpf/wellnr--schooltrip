@@ -22,9 +22,10 @@ public class ApplicationCommandForm<RESULT extends CommandResult, CMD extends Ab
         BeanValidationBinder<CMD> binder,
         Function0<CMD> getInitialCommand,
         ApplicationCommandRunner commandRunner,
-        List<FormLayout> forms) {
+        List<FormLayout> forms,
+        String saveButtonLabel) {
 
-        super(binder, getInitialCommand, forms, true);
+        super(binder, getInitialCommand, forms, true, saveButtonLabel);
 
         this.getSaveButton().addClickListener(event -> {
             var cmd = super.getGetInitialValue().get();

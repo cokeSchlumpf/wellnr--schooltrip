@@ -21,6 +21,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.time.Instant;
@@ -31,7 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
-@RequestScope
+@SessionScope
 public class ApplicationUserSession {
 
     private final SchoolTripDomainRegistry domainRegistry;
@@ -45,6 +46,8 @@ public class ApplicationUserSession {
     private final ObjectMapper objectMapper;
 
     private final HttpServletRequest request;
+
+    private SchoolTripMessages i18n;
 
     User user;
 
@@ -60,8 +63,12 @@ public class ApplicationUserSession {
     }
 
     public SchoolTripMessages getMessages() {
-        var locale = RequestContextUtils.getLocale(request);
-        return I18N.createInstance(SchoolTripMessages.class, locale);
+        if (this.i18n == null) {
+            var locale = RequestContextUtils.getLocale(request);
+            i18n = I18N.createInstance(SchoolTripMessages.class, locale);
+        }
+
+        return i18n;
     }
 
     public User getUser() {

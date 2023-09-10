@@ -84,7 +84,8 @@ public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD ext
             form.getBinder(),
             form.getGetInitialValue(),
             this.commandRunner,
-            form.getForms()
+            form.getForms(),
+            getLabel("Save")
         );
     }
 

@@ -26,7 +26,8 @@ public class ApplicationForm<T> extends VerticalLayout {
         BeanValidationBinder<T> binder,
         Function0<T> getInitialValue,
         List<FormLayout> forms,
-        boolean withSaveButton) {
+        boolean withSaveButton,
+        String saveButtonLabel) {
 
         this.binder = binder;
         this.getInitialValue = getInitialValue;
@@ -38,7 +39,7 @@ public class ApplicationForm<T> extends VerticalLayout {
         forms.forEach(this::add);
 
         if (withSaveButton) {
-            saveButton = new Button("Save");
+            saveButton = new Button(saveButtonLabel);
             saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             this.add(saveButton);
 
