@@ -9,7 +9,9 @@ import com.wellnr.schooltrip.core.model.user.exceptions.NotAuthorizedException;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainRole;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
+import com.wellnr.schooltrip.core.ports.i18n.I18N;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.RequestScope;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -41,22 +44,24 @@ public class ApplicationUserSession {
 
     private final ObjectMapper objectMapper;
 
+    private final HttpServletRequest request;
+
     User user;
 
     GetUserApplicationPermissionsCommand.ApplicationPermissions permissions;
 
-    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om) {
+    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om, HttpServletRequest ctx) {
         this.domainRegistry = domainRegistry;
         this.users = domainRegistry.getUsers();
         this.passwordEncryption = domainRegistry.getPasswordEncryptionPort();
         this.jwtEncoder = jwtEncoder;
         this.objectMapper = om;
+        this.request = ctx;
     }
 
     public SchoolTripMessages getMessages() {
-        return new SchoolTripMessages() {
-
-        };
+        var locale = RequestContextUtils.getLocale(request);
+        return I18N.createInstance(SchoolTripMessages.class, locale);
     }
 
     public User getUser() {

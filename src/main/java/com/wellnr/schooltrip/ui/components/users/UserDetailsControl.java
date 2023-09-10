@@ -3,9 +3,10 @@ package com.wellnr.schooltrip.ui.components.users;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Hr;
 import com.wellnr.ddd.commands.MessageResult;
-import com.wellnr.schooltrip.core.application.commands.schooltrip.ResetPasswordCommand;
 import com.wellnr.schooltrip.core.application.commands.UpdateRegisteredUserCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.ResetPasswordCommand;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
@@ -19,7 +20,7 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
     ApplicationCommandForm<MessageResult<RegisteredUser>, UpdateRegisteredUserCommand> updatePropertiesForm;
     ApplicationCommandForm<MessageResult<RegisteredUser>, ResetPasswordCommand> resetPasswordForm;
 
-    public UserDetailsControl(ApplicationCommandRunner commandRunner) {
+    public UserDetailsControl(SchoolTripMessages i18n, ApplicationCommandRunner commandRunner) {
         super(commandRunner);
 
         //noinspection SwitchStatementWithTooFewBranches
@@ -29,7 +30,7 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
             .addVariant("oldEmail", ApplicationFormBuilder.FormVariant.HIDDEN)
             .addVariant("newEmail", ApplicationFormBuilder.FormVariant.LINE_BREAK_AFTER)
             .setLabelProvider(field -> switch (field) {
-                case "newEmail" -> Optional.of("E-Mail");
+                case "newEmail" -> Optional.of(i18n.email());
                 default -> Optional.empty();
             })
             .build();
@@ -44,7 +45,7 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
         )
             .addVariant("email", ApplicationFormBuilder.FormVariant.HIDDEN)
             .setLabelProvider(field -> switch (field) {
-                case "newPasswordRepeated" -> Optional.of("Repeat Password");
+                case "newPasswordRepeated" -> Optional.of(i18n.repeatNewPassword());
                 default -> Optional.empty();
             })
             .build();
@@ -53,10 +54,10 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
             event -> fireUpdatedEvent(event.getResult().getData())
         );
 
-        this.add(new H4("User Properties"));
+        this.add(new H4(i18n.userProperties()));
         this.add(updatePropertiesForm);
         this.add(new Hr());
-        this.add(new H4("Reset Password"));
+        this.add(new H4(i18n.resetPassword()));
         this.add(resetPasswordForm);
     }
 

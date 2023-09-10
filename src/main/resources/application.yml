@@ -12,6 +12,19 @@ spring.jpa.defer-datasource-initialization: true
 # UI
 #
 app:
+  jwt.rsa: |
+    {
+      "p": "vTfmzY7-0NNdnBVgK-E7usrLKLWV2uLjoKMLaCr2oVn-fzTdTruG-MuJPu0ye7mkqFicfuegSbKLNLwBtetgOsYytVSXPOSgj4iNZlDTRO8ILn2YjQGNqzMT9dUJhxDRj1Zn7UB4KJbll724x2cXaSR6BR4bCVHP-2AD6L46VvE",
+      "kty": "RSA",
+      "q": "1ZjLHpblRKw0Jtd_p1wEgX1Xs3nftKRSY8lz_DiWiKCCR9F1nV1qhdI1Em9KRr88BREe16-ffFar0RQ1p8qMcn6sSldRBv4qIvWR-yoGe-8lRPLtXGM_Cm4wr_7BfEmI3ym3TMoJLlh4w0bE3H-ZetD32l-lhmgQQQZ3YNvapa0",
+      "d": "Cw0YhDdD8llMlbNPD-JqvzC3vJD0QvUa1FU444s5qEBtOu5C7U4YnE_f8q3jf6PgmgpytkOEQniSC6XDSFureXNL6fi6Fgwo2qZi82BNwlzm-KYmzvYtz00ZrEaH8tYSTTt0BXNXcWDV5yWPHYKeeG38FdkHmpvm9kCk38lxdqQC2g_d7RKhDrE9catuwyWO5MWcFB9j_OKOZGARm794E3bBabruBM8q_qPkp3cGZBpSnYtcDOo-UFlkqcdJTijjHw5r1uV4McUlMhNYGM7XihFl1Yd-Z7G2ZAcAfD1aWbw8BWgXtIjXq20aE37MwHRE7ObP4uFsVRJAPVrvbHn6YQ",
+      "e": "AQAB",
+      "kid": "secret",
+      "qi": "bC4uqpyJIoQhsVhJtRZUVRTuxLS7yjZMdQj15lX5oAdC32Qyk9_umPgeAoic8b_ldCmjQXEF4TVY6Iib_QeIWgWfkik30QfAMKESAhCZPGdT8fu3TkaYTIl-RbIlL7vlQzgDDshGgh4nPYnNjO3LLUcpXqg5iBCXbDDIlSNh4Dw",
+      "dp": "N4qCKBJyP4_baWZo3Vh2tOSz75Ylj6OL12okfgYmcMQ-zM4Sq_qlqr_r4Fm1uNWMPJIOFb4dsaRD8k3BXsnhbD8jQVC8N_aQHrGhd8f_y7syNptNPQ6YrAkJMd6_tjK8oItnZB_JZXitmfXpmDZti8JWQsxMeVbXat0LKLU14LE",
+      "dq": "HoGEAQpsFDLEAAgnIy_xNM1CCVAOsy4E1lufRRaP6VODR96Sfbcpz5MGIWvjn9cQK2kWjpd2n7uBLotEXoJ_LJsK4FM4L1d9jSCliMmnw2uUVxSa8eb6yfKS4Y_w8l9OPREoLL9uMEBSfxFMbHGM6g2OWJHwghG6wI673gmIYME",
+      "n": "neByXAIhLoa06ntQLEd2z_Nwp-V7y7t2BYcHmqqoxwBHK3iAGfM3Wi2bMYRK-Vo4acBCHIdMMw0PG2q4jMpV1T3Ss8ekMKy1Ep--eRvFG75WakHfwHBSAKok9o15pRjBtkT813qRL5aaL1jwIK-rWSwHsQtFCXyrcB2jjp_WCkzvpiD_0MPrm4svJtj8Qm4_eyQbetk0XDBQFwgqmALmc8FdDW4c09c6W39_yDoCoDQPexXbeZsU1g3shBG0AhuDDN_UeBxVz_L1MMfctASoct0BF-zISOBbb7x8tqBiTtzGmDxOhzOWn0cAdBBHTxK8WPvynWHfzeLgRi5SW7AV3Q"
+    }
   default-admin-users:
     - email: michael.wellner@gmail.com
       password: secret

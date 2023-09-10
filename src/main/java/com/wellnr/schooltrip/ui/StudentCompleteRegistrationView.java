@@ -13,7 +13,9 @@ import com.vaadin.flow.router.*;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteStudentRegistrationViewCommand;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
 import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionnaireControl;
 
@@ -21,13 +23,16 @@ import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionna
 @PageTitle("School Trip")
 public class StudentCompleteRegistrationView extends ApplicationContentContainer implements BeforeEnterObserver {
 
+    private final SchoolTripMessages i18n;
+
     private final ApplicationCommandRunner commandRunner;
 
     private StudentRegistrationQuestionnaireControl questionnaire;
 
     private Student student;
 
-    public StudentCompleteRegistrationView(ApplicationCommandRunner commandRunner) {
+    public StudentCompleteRegistrationView(ApplicationUserSession userSession, ApplicationCommandRunner commandRunner) {
+        this.i18n = userSession.getMessages();
         this.commandRunner = commandRunner;
     }
 
@@ -59,12 +64,11 @@ public class StudentCompleteRegistrationView extends ApplicationContentContainer
          * Initialize view.
          */
 
-        questionnaire = new StudentRegistrationQuestionnaireControl(schoolTrip, student);
+        questionnaire = new StudentRegistrationQuestionnaireControl(i18n, schoolTrip, student);
 
         var layout = new VerticalLayout();
-        layout.add(new H3("Anmeldung Ski-Kurs 2023 für " + student.getDisplayName()));
-        layout.add(new Paragraph("Nutzen Sie das folgende Formular um die Registrierung für " + student.getFirstName() + " " +
-            "abzuschließen."));
+        layout.add(new H3(i18n.registerStudentHeadline(student)));
+        layout.add(new Paragraph(i18n.registerStudentInfo(student)));
         layout.add(questionnaire);
         layout.add(new SubmitSection());
 
@@ -76,17 +80,16 @@ public class StudentCompleteRegistrationView extends ApplicationContentContainer
         private final EmailField email;
 
         public SubmitSection() {
-            this.email = new EmailField("E-Mail");
+            this.email = new EmailField(i18n.email());
 
-            add(new H4("Bestätigung"));
-            add(new Paragraph("Bitte verifizieren Sie die verbindliche Anmeldung. Die Angaben zu Sportart, " +
-                "Ausleihe, Körpergröße und -gewicht können noch bis zum 13.12.2023 angepasst werden."));
+            add(new H4(i18n.confirmation()));
+            add(new Paragraph(i18n.confirmationInfo()));
 
             var form = new FormLayout();
             form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
             form.add(email);
 
-            var submit = new Button("Absenden");
+            var submit = new Button(i18n.submit());
             submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             submit.addClickShortcut(Key.ENTER);
             submit.setEnabled(false);

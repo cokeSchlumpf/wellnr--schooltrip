@@ -26,7 +26,7 @@ public class SchoolTripView extends AbstractSchoolTripGridView {
 
     @Override
     protected ApplicationGridWithControls<Student> createStudentsGrid() {
-        return new StudentsOverviewGrid();
+        return new StudentsOverviewGrid(i18n);
     }
 
     /**
@@ -43,7 +43,8 @@ public class SchoolTripView extends AbstractSchoolTripGridView {
 
     private class StudentsOverviewGrid extends StudentsGrid {
 
-        public StudentsOverviewGrid() {
+        public StudentsOverviewGrid(SchoolTripMessages i18n) {
+            super(i18n);
             this.addDefaultColumnsWithSorting(schoolTrip.schoolTrip());
             this.addRegistrationStatusColumn();
             this.addDisciplineColumns();

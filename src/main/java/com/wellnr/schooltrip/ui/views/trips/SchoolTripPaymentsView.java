@@ -49,6 +49,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
     private class StudentsPaymentGrid extends StudentsGrid {
 
         public StudentsPaymentGrid() {
+            super(i18n);
             this.addDefaultColumnsWithSorting(schoolTrip.schoolTrip());
 
             this

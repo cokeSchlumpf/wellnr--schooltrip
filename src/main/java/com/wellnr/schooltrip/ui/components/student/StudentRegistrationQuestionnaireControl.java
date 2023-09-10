@@ -22,6 +22,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.payments.PriceLineItem;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -32,7 +33,8 @@ import java.util.Set;
 public class StudentRegistrationQuestionnaireControl
     extends AbstractCompositeField<VerticalLayout, StudentRegistrationQuestionnaireControl, Questionaire> {
 
-    private static final String SUM_LABEL = "Gesamt";
+    private final String SUM_LABEL;
+    private final SchoolTripMessages i18n;
 
     private final DisciplinSection disciplinSection;
     private final CostSection costSection;
@@ -40,10 +42,12 @@ public class StudentRegistrationQuestionnaireControl
 
     private SchoolTrip schoolTrip;
 
-    public StudentRegistrationQuestionnaireControl(SchoolTrip schoolTrip, Student student) {
+    public StudentRegistrationQuestionnaireControl(SchoolTripMessages i18n, SchoolTrip schoolTrip, Student student) {
         super(student.getQuestionaire().orElse(Questionaire.empty()));
 
+        this.i18n = i18n;
         this.schoolTrip = schoolTrip;
+        this.SUM_LABEL = i18n.amountSum();
 
         disciplinSection = new DisciplinSection(student, this.getEmptyValue().getDisziplin());
         additionalInformationSection = new AdditionalInformationSection(this.getEmptyValue());
@@ -98,7 +102,7 @@ public class StudentRegistrationQuestionnaireControl
         this.setValue(questionnaire);
     }
 
-    private static class DisciplinSection extends AbstractCompositeField<VerticalLayout, DisciplinSection, Discipline> {
+    private class DisciplinSection extends AbstractCompositeField<VerticalLayout, DisciplinSection, Discipline> {
 
         public final DisciplineRadioButtons discipline;
 
@@ -192,7 +196,7 @@ public class StudentRegistrationQuestionnaireControl
 
     }
 
-    private static class ExperienceSection extends AbstractCompositeField<VerticalLayout, ExperienceSection,
+    private class ExperienceSection extends AbstractCompositeField<VerticalLayout, ExperienceSection,
         Experience> {
 
         public final Paragraph info;
@@ -208,7 +212,7 @@ public class StudentRegistrationQuestionnaireControl
 
             this.getContent().setMargin(false);
             this.getContent().setPadding(false);
-            this.getContent().add(new H4("Erfahrungs-Level des Kindes"));
+            this.getContent().add(new H4(i18n.studentsExperienceLevel()));
             this.getContent().add(info);
             this.getContent().add(this.experience);
 
@@ -218,9 +222,7 @@ public class StudentRegistrationQuestionnaireControl
         public void setStudent(Student student) {
             this.info.removeAll();
             this.info.add(
-                "Bitte geben Sie an, wie erfahren " + student.getFirstName() + " in der gewählten " +
-                    "Sportart ist. Lorem " +
-                    "Ipsum, erklären was die Level bedeuten."
+                i18n.studentsExperienceLevelInfo(student)
             );
         }
 
@@ -236,7 +238,7 @@ public class StudentRegistrationQuestionnaireControl
         }
     }
 
-    private static class RentalSection extends AbstractCompositeField<
+    private class RentalSection extends AbstractCompositeField<
         VerticalLayout, RentalSection, Tuple2<Optional<RentalDetails>, Optional<BootRentalDetails>>> {
 
         private final RentalRadioButtons rental;
@@ -273,8 +275,8 @@ public class StudentRegistrationQuestionnaireControl
 
             this.getContent().setMargin(false);
             this.getContent().setPadding(false);
-            this.getContent().add(new H4("Material-Ausleihe"));
-            this.getContent().add(new Paragraph("Lorem Ipsum dolor"));
+            this.getContent().add(new H4(i18n.materialRental()));
+            this.getContent().add(i18n.materialRentalInfo());
             this.getContent().add(rental);
             this.getContent().add(rentalDetails);
             this.getContent().add(bootRental);
@@ -340,7 +342,7 @@ public class StudentRegistrationQuestionnaireControl
         }
     }
 
-    private static class AdditionalInformationSection extends AbstractCompositeField<VerticalLayout,
+    private class AdditionalInformationSection extends AbstractCompositeField<VerticalLayout,
         AdditionalInformationSection, Questionaire> {
 
         public final NutritionCheckboxes nutrition;
@@ -384,14 +386,14 @@ public class StudentRegistrationQuestionnaireControl
         }
     }
 
-    private static class CostSection extends VerticalLayout {
+    private class CostSection extends VerticalLayout {
 
         private final Grid<PriceLineItem> grid;
 
         private final DecimalFormat format;
 
         public CostSection(SchoolTrip schoolTrip, Questionaire questionaire) {
-            format = new DecimalFormat("#.00");
+            format = new DecimalFormat(i18n.currencyNumberFormat());
             grid = new Grid<>(PriceLineItem.class, false);
             grid.addComponentColumn(item -> {
                 if (item.label().equals(SUM_LABEL)) {
@@ -402,7 +404,7 @@ public class StudentRegistrationQuestionnaireControl
                 } else {
                     return new Text(item.label());
                 }
-            }).setHeader("Position");
+            }).setHeader(i18n.invoicePosition());
             grid
                 .addComponentColumn(item -> {
                     var amount = format.format(item.amount()) + " €";
@@ -416,7 +418,7 @@ public class StudentRegistrationQuestionnaireControl
                         return new Text(amount);
                     }
                 })
-                .setHeader("Betrag")
+                .setHeader(i18n.currencyAmount())
                 .setWidth("100px")
                 .setTextAlign(ColumnTextAlign.END);
 
@@ -424,8 +426,8 @@ public class StudentRegistrationQuestionnaireControl
 
             this.setMargin(false);
             this.setPadding(false);
-            this.add(new H4("Kosten"));
-            this.add(new Paragraph("Übersicht über entstehende Kosten."));
+            this.add(new H4(i18n.costs()));
+            this.add(new Paragraph(i18n.costsInfo()));
             this.add(grid);
 
             this.setValue(schoolTrip, questionaire);
@@ -441,18 +443,18 @@ public class StudentRegistrationQuestionnaireControl
 
     }
 
-    private static class DisciplineRadioButtons extends RadioButtonGroup<Class<? extends Discipline>> {
+    private class DisciplineRadioButtons extends RadioButtonGroup<Class<? extends Discipline>> {
 
         @SuppressWarnings("unchecked")
         public DisciplineRadioButtons() {
-            this.setLabel("Meine Kind möchte teilnehmen:");
+            this.setLabel(i18n.studentWantsToParticipate());
             this.setItems(Ski.class, Snowboard.class);
 
             this.setItemLabelGenerator(cls -> {
                 if (Ski.class.isAssignableFrom(cls)) {
-                    return "Ski";
+                    return i18n.ski();
                 } else {
-                    return "Snowboard";
+                    return i18n.snowboard();
                 }
             });
 
@@ -462,15 +464,15 @@ public class StudentRegistrationQuestionnaireControl
 
     }
 
-    private static class ExperienceRadioButtons extends RadioButtonGroup<Experience> {
+    private class ExperienceRadioButtons extends RadioButtonGroup<Experience> {
 
         public ExperienceRadioButtons() {
-            this.setLabel("Erfahrung");
+            this.setLabel(i18n.experience());
             this.setItems(Experience.BEGINNER, Experience.INTERMEDIATE, Experience.EXPERT);
             this.setItemLabelGenerator(exp -> switch (exp) {
-                case BEGINNER -> "Anfänger";
-                case INTERMEDIATE -> "Fortgeschritten/ Erste Erfahrungen gesammelt.";
-                case EXPERT -> "Profi";
+                case BEGINNER -> i18n.beginner();
+                case INTERMEDIATE -> i18n.intermediate();
+                case EXPERT -> i18n.expert();
             });
             this.setValue(Experience.BEGINNER);
             this.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
@@ -478,7 +480,7 @@ public class StudentRegistrationQuestionnaireControl
 
     }
 
-    private static class RentalRadioButtons extends RadioButtonGroup<Boolean> {
+    private class RentalRadioButtons extends RadioButtonGroup<Boolean> {
 
         public RentalRadioButtons() {
             this.setLabel("");
@@ -486,8 +488,8 @@ public class StudentRegistrationQuestionnaireControl
             this.setItemLabelGenerator(exp ->
                 When
                     .isTrue(exp)
-                    .then("Mein Kind möchte Ski und Zubehör ausleihen.")
-                    .otherwise("Mein Kind nutzt seine eigenen Ski.")
+                    .then(i18n.studentWantsToRentSki())
+                    .otherwise(i18n.studentWantsToUseOwnSki())
             );
             this.setValue(Boolean.FALSE);
             this.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
@@ -498,22 +500,22 @@ public class StudentRegistrationQuestionnaireControl
                 this.setItemLabelGenerator(exp ->
                     When
                         .isTrue(exp)
-                        .then("Mein Kind möchte Ski und Zubehör ausleihen.")
-                        .otherwise("Mein Kind nutzt seine eigenen Ski.")
+                        .then(i18n.studentWantsToRentSki())
+                        .otherwise(i18n.studentWantsToUseOwnSki())
                 );
             } else {
                 this.setItemLabelGenerator(exp ->
                     When
                         .isTrue(exp)
-                        .then("Mein Kind möchte ein Snowboard ausleihen.")
-                        .otherwise("Mein Kind nutzt sein eigenes Snowboard.")
+                        .then(i18n.studentWantsToRentSnowboard())
+                        .otherwise(i18n.studentWantsToUseOwnSnowboard())
                 );
             }
         }
 
     }
 
-    private static class NutritionCheckboxes
+    private class NutritionCheckboxes
         extends AbstractCompositeField<VerticalLayout, NutritionCheckboxes, Nutrition> {
 
         private static final String VEGETARIAN = "vegetarian";
@@ -524,13 +526,13 @@ public class StudentRegistrationQuestionnaireControl
         public NutritionCheckboxes() {
             super(Nutrition.apply());
 
-            this.checkboxGroup = new CheckboxGroup<>("Essgewohnheiten");
+            this.checkboxGroup = new CheckboxGroup<>(i18n.nutrition());
             this.checkboxGroup.setItems(VEGETARIAN, HALAL);
             this.checkboxGroup.setItemLabelGenerator(s -> {
                 if (s.equals(VEGETARIAN)) {
-                    return "Vegetarisch";
+                    return i18n.nutritionVegetarian();
                 } else {
-                    return "Halal";
+                    return i18n.nutritionHalal();
                 }
             });
             this.checkboxGroup.addThemeVariants(CheckboxGroupVariant.LUMO_VERTICAL);
@@ -579,7 +581,7 @@ public class StudentRegistrationQuestionnaireControl
 
     }
 
-    private static class RentalDetailsForm extends AbstractCompositeField<
+    private class RentalDetailsForm extends AbstractCompositeField<
         FormLayout, RentalDetailsForm, RentalDetails> {
 
         public final IntegerField height;
@@ -587,12 +589,12 @@ public class StudentRegistrationQuestionnaireControl
 
         public RentalDetailsForm() {
             super(new RentalDetails(165, 40));
-            height = new IntegerField("Körpergröße (in cm)");
+            height = new IntegerField(i18n.bodyHeight());
             height.setValue(165);
             height.setMin(120);
             height.setMax(230);
 
-            weight = new IntegerField("Körpergewicht (in KG)");
+            weight = new IntegerField(i18n.bodyWeight());
             weight.setValue(40);
             weight.setMin(30);
             weight.setMax(300);
@@ -628,16 +630,16 @@ public class StudentRegistrationQuestionnaireControl
 
     }
 
-    private static class BootRentalRadioButtons extends RadioButtonGroup<Boolean> {
+    private class BootRentalRadioButtons extends RadioButtonGroup<Boolean> {
 
         public BootRentalRadioButtons() {
-            this.setLabel("Ausliehe Ski-Schuhe");
+            this.setLabel(i18n.skiBootRental());
             this.setItems(Boolean.FALSE, Boolean.TRUE);
             this.setItemLabelGenerator(rent -> {
                 if (rent) {
-                    return "Mein Kind benötigt Ski-Schuhe";
+                    return i18n.studentWantsToRentSkiBoots();
                 } else {
-                    return "Mein Kind hat eigene Ski-Schuhe";
+                    return i18n.studentsWantsToUseOwnSkiBoots();
                 }
             });
             this.setValue(Boolean.FALSE);
@@ -649,15 +651,15 @@ public class StudentRegistrationQuestionnaireControl
                 this.setItemLabelGenerator(exp ->
                     When
                         .isTrue(exp)
-                        .then("Mein Kind benötigt Ski-Schuhe.")
-                        .otherwise("Mein Kind nutzt seine eigenen Ski-Schuhe.")
+                        .then(i18n.studentWantsToRentSkiBoots())
+                        .otherwise(i18n.studentsWantsToUseOwnSkiBoots())
                 );
             } else {
                 this.setItemLabelGenerator(exp ->
                     When
                         .isTrue(exp)
-                        .then("Mein Kind möchte ein Snowboard Boots ausleihen.")
-                        .otherwise("Mein Kind nutzt sein eigenen Boots.")
+                        .then(i18n.studentWantsToRentSnowboardBoots())
+                        .otherwise(i18n.studentsWantsToUseOwnSnowboardBoots())
                 );
             }
         }
@@ -667,14 +669,14 @@ public class StudentRegistrationQuestionnaireControl
 
     }
 
-    private static class BootRentalDetailsForm extends AbstractCompositeField<FormLayout, BootRentalDetailsForm,
+    private class BootRentalDetailsForm extends AbstractCompositeField<FormLayout, BootRentalDetailsForm,
         BootRentalDetails> {
 
         public final IntegerField size;
 
         public BootRentalDetailsForm() {
             super(new BootRentalDetails(35));
-            size = new IntegerField("Schuhgröße");
+            size = new IntegerField(i18n.shoeSize());
             size.setValue(35);
             size.setMax(20);
             size.setMax(60);

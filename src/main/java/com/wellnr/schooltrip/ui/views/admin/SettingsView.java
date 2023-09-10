@@ -36,7 +36,7 @@ public class SettingsView extends AbstractApplicationAppView {
         this.i18n = userSession.getMessages();
         this.commandRunner = commandRunner;
 
-        this.gridAndDetails = new ApplicationGridAndDetails<>(new UsersGrid(), new UserDetailsControl(commandRunner));
+        this.gridAndDetails = new ApplicationGridAndDetails<>(new UsersGrid(), new UserDetailsControl(i18n, commandRunner));
         this.gridAndDetails.getDetails().addUpdatedListener(event -> refreshData());
 
         this.add(

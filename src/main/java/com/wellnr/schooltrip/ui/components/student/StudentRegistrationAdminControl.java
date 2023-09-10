@@ -10,11 +10,14 @@ import com.wellnr.schooltrip.core.application.commands.schooltrip.ConfirmStudent
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 
 import java.util.Objects;
 
 public class StudentRegistrationAdminControl extends VerticalLayout {
+
+    private final SchoolTripMessages i18n;
 
     private final SchoolTrip schoolTrip;
 
@@ -34,12 +37,13 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
 
     private StudentRegistrationQuestionnaireControl existingRegistration;
 
-    public StudentRegistrationAdminControl(SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
+    public StudentRegistrationAdminControl(SchoolTripMessages i18n, SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
         this.schoolTrip = schoolTrip;
         this.commandRunner = commandRunner;
+        this.i18n = i18n;
 
         this.infoText = new Paragraph();
-        this.registerStudent = new Button("Register student");
+        this.registerStudent = new Button(i18n.addRegisteredUser());
 
         this.registerStudent.addClickListener(event -> {
             var cmd = CompleteOrUpdateStudentRegistrationByOrganizerCommand.apply(
@@ -51,7 +55,7 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
             ));
         });
 
-        this.confirmRegistration = new Button("Confirm Registration");
+        this.confirmRegistration = new Button(i18n.confirmRegistration());
         this.confirmRegistration.addClickListener(e -> {
             var cmd = ConfirmStudentRegistrationCommand.apply(student.getConfirmationToken());
             this.commandRunner.runAndNotify(cmd).ifPresent(i -> fireEvent(
@@ -59,7 +63,7 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
             ));
         });
 
-        this.updateRegistration = new Button("Update registration details");
+        this.updateRegistration = new Button(i18n.save());
         this.updateRegistration.addClickListener(e -> {
             var cmd = CompleteOrUpdateStudentRegistrationByOrganizerCommand.apply(
                 this.student.getId(), existingRegistration.getValue()
@@ -79,6 +83,7 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
 
         if (Objects.isNull(initialRegistration)) {
             initialRegistration = new StudentRegistrationQuestionnaireControl(
+                i18n,
                 this.schoolTrip,
                 student
             );
@@ -86,6 +91,7 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
 
         if (Objects.isNull(existingRegistration)) {
             existingRegistration = new StudentRegistrationQuestionnaireControl(
+                i18n,
                 this.schoolTrip,
                 student
             );
@@ -96,13 +102,13 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
         existingRegistration.setSchoolTripAndStudent(schoolTrip, student);
 
         if (student.getRegistrationState().equals(RegistrationState.CREATED)) {
-            this.infoText.setText("Student is not registered yet. You may register the student manually.");
+            this.infoText.setText(i18n.studentIsNotRegisteredYet());
             this.add(infoText, initialRegistration, registerStudent);
         } else if (student.getRegistrationState().equals(RegistrationState.WAITING_FOR_CONFIRMATION)) {
-            this.infoText.setText("Student has been registered, but confirmation link has not been called.");
+            this.infoText.setText(i18n.studentIsWaitingForConfirmation());
             this.add(infoText, confirmRegistration);
         } else if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
-            this.infoText.setText("Student has been registred. You may change the configurations of the student.");
+            this.infoText.setText(i18n.studentIsRegistered());
             this.add(infoText, existingRegistration, updateRegistration);
         }
     }

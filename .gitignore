@@ -37,3 +37,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Vaadin ###
+frontend/generated/jar-resources/vaadin-dev-tools/**/*

@@ -16,6 +16,7 @@ import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.repositories.SchoolTripsMongoRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -33,8 +34,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.WebUtils;
 
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
@@ -43,6 +42,9 @@ import java.util.Objects;
 @Slf4j
 @Configuration
 public class ApplicationSpringConfiguration implements WebMvcConfigurer {
+
+    @Value("${app.jwt.rsa}")
+    String rsaKey;
 
     @Bean
     public SchoolTripDomainRegistry getSchoolTripDomainRegistry(
@@ -88,17 +90,11 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
 
     @Bean
     public RSAKey rsaKey() throws NoSuchAlgorithmException {
-        // TODO: Replace with configuration
-        var rsaKeyFile = "/Users/michaelwellner/Workspaces/wellnr--schooltrip/src/test/resources/rsakey.json";
-        var rsaKeyFilePath = Paths.get(rsaKeyFile);
+        rsaKey = rsaKey == null ? null : rsaKey.trim();
 
-        if (Files.exists(rsaKeyFilePath)) {
-            log.info("Reading RSA key file from `" + rsaKeyFilePath + "`");
-
-            return Operators.suppressExceptions(() -> {
-                var content = Files.readString(rsaKeyFilePath);
-                return RSAKey.parse(content);
-            });
+        if (rsaKey != null && rsaKey.length() > 0) {
+            log.info("Use RSA-key from configuration.");
+            return Operators.suppressExceptions(() -> RSAKey.parse(rsaKey));
         } else {
             log.info("Creating new RSA Key file.");
 

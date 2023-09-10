@@ -16,14 +16,17 @@ import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 
 import java.util.List;
 
 public class StudentsGrid extends ApplicationGridWithControls<Student> {
 
-    public StudentsGrid() {
+    private final SchoolTripMessages i18n;
 
+    public StudentsGrid(SchoolTripMessages i18n) {
+        this.i18n = i18n;
     }
 
     public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function2<Student, Questionaire, Component> createComponent) {
@@ -78,21 +81,21 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
                 .getQuestionaire()
                 .map(q -> {
                     if (q.getDisziplin() instanceof Ski) {
-                        return "Ski";
+                        return i18n.ski();
                     } else {
-                        return "Snowboard";
+                        return i18n.snowboard();
                     }
                 })
                 .orElse("")
             )
-            .setHeader("Disziplin");
+            .setHeader(i18n.discipline());
     }
 
     public Grid.Column<Student> addClassColumn() {
         return this
             .getGrid()
             .addColumn(Student::getSchoolClass)
-            .setHeader("Class")
+            .setHeader(i18n.schoolClass())
             .setSortable(true)
             .setFrozen(true)
             .setAutoWidth(true);
@@ -102,7 +105,7 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         var lastNameColumn = this
             .getGrid()
             .addColumn(Student::getLastName)
-            .setHeader("Last Name")
+            .setHeader(i18n.lastName())
             .setSortable(true)
             .setFrozen(true)
             .setAutoWidth(true);
@@ -110,7 +113,7 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         var firstNameColumn = this
             .getGrid()
             .addColumn(Student::getFirstName)
-            .setHeader("First Name")
+            .setHeader(i18n.firstName())
             .setSortable(true)
             .setFrozen(true)
             .setAutoWidth(true);
@@ -126,7 +129,7 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
                 span.setClassName("app--trip--registration-state--created");
                 span.add(VaadinIcon.CHECK.create());
                 return span;
-            }).setHeader("Status");
+            }).setHeader(i18n.status());
     }
 
     public Grid.Column<Student> addSchoolTripIdColumn() {

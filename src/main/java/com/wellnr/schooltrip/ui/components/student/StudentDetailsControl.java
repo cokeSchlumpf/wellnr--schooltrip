@@ -118,7 +118,7 @@ public class StudentDetailsControl extends Scroller {
      */
     private void setupRegistration(SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
         this.registration = new StudentRegistrationAdminControl(
-            schoolTrip, commandRunner
+            i18n, schoolTrip, commandRunner
         );
 
         this.registration.addRegistrationUpdatedListener(event -> {

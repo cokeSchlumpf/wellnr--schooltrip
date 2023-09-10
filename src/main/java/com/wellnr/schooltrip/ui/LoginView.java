@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Route("")
-@PageTitle("Login | Vaadin CRM")
+@PageTitle("wellnr SchoolTrips")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final ApplicationUserSession userSession;
