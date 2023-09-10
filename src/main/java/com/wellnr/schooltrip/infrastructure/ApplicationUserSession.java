@@ -20,13 +20,13 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.annotation.RequestScope;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -64,11 +64,18 @@ public class ApplicationUserSession {
 
     public SchoolTripMessages getMessages() {
         if (this.i18n == null) {
-            var locale = RequestContextUtils.getLocale(request);
+            var locale = getRegisteredUser()
+                .flatMap(RegisteredUser::getPreferredLocale)
+                .orElse(RequestContextUtils.getLocale(request));
+
             i18n = I18N.createInstance(SchoolTripMessages.class, locale);
         }
 
         return i18n;
+    }
+
+    public void setLocale(Locale locale) {
+        this.i18n = I18N.createInstance(SchoolTripMessages.class, locale);
     }
 
     public User getUser() {
@@ -166,6 +173,7 @@ public class ApplicationUserSession {
 
     public void logout() {
         this.user = AnonymousUser.apply();
+        this.i18n = null;
     }
 
     @Value

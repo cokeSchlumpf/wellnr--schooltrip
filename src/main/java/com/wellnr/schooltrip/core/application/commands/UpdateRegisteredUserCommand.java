@@ -31,7 +31,7 @@ public class UpdateRegisteredUserCommand implements AbstractSchoolTripCommand<Me
         var registeredUser = domainRegistry.getUsers().getOneByEmail(oldEmail);
         registeredUser.updateProperties(
             user, firstName, lastName, newEmail,
-            preferredLocale != null ? Locale.forLanguageTag(preferredLocale) : null,
+            preferredLocale != null && preferredLocale.trim().length() > 0 ? Locale.forLanguageTag(preferredLocale) : null,
             domainRegistry.getUsers()
         );
 

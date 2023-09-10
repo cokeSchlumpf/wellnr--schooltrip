@@ -36,8 +36,8 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
                 case "newEmail" -> Optional.of(i18n.email());
                 default -> Optional.empty();
             })
-            .setFieldPossibleValues("preferredLocal", List.of(
-                Tuple2.apply(null, i18n.noPreference()),
+            .setFieldPossibleValues("preferredLocale", List.of(
+                Tuple2.apply("", i18n.noPreference()),
                 Tuple2.apply(Locale.ENGLISH.toLanguageTag(), i18n.english()),
                 Tuple2.apply(Locale.GERMAN.toLanguageTag(), i18n.german())
             ))
@@ -75,7 +75,7 @@ public class UserDetailsControl extends EntityDetailsControl<RegisteredUser> {
 
         this.updatePropertiesForm.setGetInitialCommand(() -> UpdateRegisteredUserCommand.apply(
             entity.getEmail(), entity.getEmail(), entity.getFirstName(), entity.getLastName(),
-            entity.getPreferredLocale().map(Locale::toLanguageTag).orElse(null)
+            entity.getPreferredLocale().map(Locale::toLanguageTag).orElse("")
         ));
 
         this.resetPasswordForm.setGetInitialCommand(() -> ResetPasswordCommand.apply(

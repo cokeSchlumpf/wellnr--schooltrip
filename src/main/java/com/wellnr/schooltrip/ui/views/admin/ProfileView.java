@@ -54,7 +54,7 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
             commandRunner,
             () -> UpdateRegisteredUserCommand.apply(
                 user.getEmail(), user.getEmail(), user.getFirstName(), user.getLastName(),
-                user.getPreferredLocale().map(Locale::toLanguageTag).orElse(null)
+                user.getPreferredLocale().map(Locale::toLanguageTag).orElse("")
             )
         )
             .addVariant("oldEmail", ApplicationFormBuilder.FormVariant.HIDDEN)
@@ -63,14 +63,18 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
                 case "newEmail" -> Optional.of(i18n.email());
                 default -> Optional.empty();
             })
-            .setFieldPossibleValues("preferredLocal", List.of(
-                Tuple2.apply(null, i18n.noPreference()),
+            .setFieldPossibleValues("preferredLocale", List.of(
+                Tuple2.apply("", i18n.noPreference()),
                 Tuple2.apply(Locale.ENGLISH.toLanguageTag(), i18n.english()),
                 Tuple2.apply(Locale.GERMAN.toLanguageTag(), i18n.german())
             ))
+            .setI18nMessages(i18n)
             .build()
             .withCompletionListener(
-                e -> UI.getCurrent().navigate(ProfileView.class)
+                e -> {
+                    e.getResult().getData().getPreferredLocale().ifPresent(userSession::setLocale);
+                    UI.getCurrent().navigate(ProfileView.class);
+                }
             );
 
         var resetPasswordForm = new ApplicationCommandFormBuilder<>(
@@ -85,9 +89,10 @@ public class ProfileView extends AbstractApplicationAppView implements Applicati
             )
             .setLabelProvider(field -> switch (field) {
                 case "newPassword" -> Optional.of(i18n.newPassword());
-                case "passwordRepeated" -> Optional.of(i18n.repeatNewPassword());
+                case "newPasswordRepeated" -> Optional.of(i18n.repeatNewPassword());
                 default -> Optional.empty();
             })
+            .setI18nMessages(i18n)
             .build();
 
         this.removeAll();

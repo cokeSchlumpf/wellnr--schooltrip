@@ -36,14 +36,14 @@ public interface SchoolTripMessages {
         return "All school trips";
     }
 
-    @DE("Gesamt")
-    default String amountSum() {
-        return "Sum";
-    }
-
     @DE("Betrag")
     default String amount() {
         return "Amount";
+    }
+
+    @DE("Gesamt")
+    default String amountSum() {
+        return "Sum";
     }
 
     @DE("Anwendungs-Einstelltungen")
@@ -69,11 +69,6 @@ public interface SchoolTripMessages {
     @DE("Geburtstag")
     default String birthday() {
         return "Birthday";
-    }
-
-    @DE("Typ")
-    default String type() {
-        return "Type";
     }
 
     @DE("Körpergröße (in cm)")
@@ -390,6 +385,11 @@ public interface SchoolTripMessages {
         return "Payments made";
     }
 
+    @DE("Sprache")
+    default String preferredLocale() {
+        return "Preferred locale";
+    }
+
     @DE("Profil-Einstellungen")
     default String profileSettings() {
         return "Profile Settings";
@@ -644,6 +644,11 @@ public interface SchoolTripMessages {
     @DE("Titel")
     default String title() {
         return "Title";
+    }
+
+    @DE("Typ")
+    default String type() {
+        return "Type";
     }
 
     @DE("Benutzer-Profil")
