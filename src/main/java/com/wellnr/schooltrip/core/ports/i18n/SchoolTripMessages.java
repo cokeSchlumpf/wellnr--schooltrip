@@ -410,9 +410,12 @@ public interface SchoolTripMessages {
         return "Record payment";
     }
 
-    @DE("Anmeldung Ski-Kurs 2023") // TODO
     default String registerStudentHeadline(Student student) {
         return "Registration for Ski and Snowboard Days 2023 für " + student.getDisplayName();
+    }
+
+    default String registerStudentHeadline$DE(Student student) {
+        return "Registrierung für die Ski- und Snowboard Lehrfahrt 2024 für " + student.getDisplayName();
     }
 
     @DE("Nutzen Sie das folgende Formular für die Registrierung Ihres Kindes.") // TODO

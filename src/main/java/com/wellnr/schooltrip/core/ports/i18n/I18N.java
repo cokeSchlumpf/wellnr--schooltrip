@@ -1,5 +1,7 @@
 package com.wellnr.schooltrip.core.ports.i18n;
 
+import com.wellnr.common.Operators;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.Locale;
@@ -18,10 +20,21 @@ public class I18N {
                         return clazz;
                     }
 
-                    DE annotation = method.getAnnotation(DE.class);
+                    var annotation = method.getAnnotation(DE.class);
+
                     if (isDE && annotation!= null) {
                         return String.format(annotation.value(), args);
-                    } else if (method.isDefault()) {
+                    } else if (isDE) {
+                        var deTemplate = Operators.ignoreExceptionsToOptional(
+                            () -> clazz.getMethod(method.getName() + "$DE", method.getParameterTypes())
+                        );
+
+                        if (deTemplate.isPresent()) {
+                            return deTemplate.get().invoke(proxy, args);
+                        }
+                    }
+
+                    if (method.isDefault()) {
                         return InvocationHandler.invokeDefault(proxy, method, args);
                     } else {
                         return method.getDefaultValue();

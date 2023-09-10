@@ -94,6 +94,22 @@ public class Operators {
         return ignoreExceptionsWithDefault(supplier, defaultValue, null);
     }
 
+    public static <T> Optional<T> ignoreExceptionsToOptional(ExceptionalSupplier<T> supplier) {
+        return ignoreExceptionsToOptional(supplier, null);
+    }
+
+    public static <T> Optional<T> ignoreExceptionsToOptional(ExceptionalSupplier<T> supplier, Logger log) {
+        try {
+            return Optional.of(supplier.get());
+        } catch (Exception e) {
+            if (log!= null) {
+                log.warn("An exception occurred but will be ignored", e);
+            }
+
+            return Optional.empty();
+        }
+    }
+
     @SuppressWarnings({"CatchMayIgnoreException", "ResultOfMethodCallIgnored"})
     public static void suppressExceptions(ExceptionalRunnable runnable) {
         try {
