@@ -1,12 +1,11 @@
 package com.wellnr.schooltrip.ui;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.router.*;
@@ -16,32 +15,48 @@ import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
-import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
 import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionnaireControl;
 
-@Route("/students/complete-registration/:token")
+import java.util.Arrays;
+
 @PageTitle("School Trip")
-public class StudentCompleteRegistrationView extends ApplicationContentContainer implements BeforeEnterObserver {
+@Route("/students/complete-registration/:token")
+public class StudentRegistrationView extends Div implements BeforeEnterObserver {
 
     private final SchoolTripMessages i18n;
 
     private final ApplicationCommandRunner commandRunner;
 
-    private StudentRegistrationQuestionnaireControl questionnaire;
+    private final Div contentContainer;
 
     private Student student;
 
-    public StudentCompleteRegistrationView(ApplicationUserSession userSession, ApplicationCommandRunner commandRunner) {
+    private StudentRegistrationQuestionnaireControl questionnaire;
+
+    public StudentRegistrationView(ApplicationCommandRunner commandRunner, ApplicationUserSession userSession) {
         this.i18n = userSession.getMessages();
         this.commandRunner = commandRunner;
-    }
 
-    public static RouteParameters getRouteParameters(String token) {
-        return new RouteParameters(new RouteParam("token", token));
+        this.addClassName("app__student-registration");
+
+        var logo = new Image("images/logo.png", "Ski- und Snowboard-Freizeit des GaS Merzig.");
+        logo.addClassName("app__student-registration__logo__img");
+
+        var logoContainer = new Div();
+        logoContainer.addClassName("app__student-registration__logo");
+        logoContainer.add(logo);
+
+        this.contentContainer = new Div();
+        contentContainer.addClassName("app__student-registration__content");
+
+        this.add(logoContainer);
+        this.add(contentContainer);
     }
 
     public static RouteParameters getRouteParameters(Student student) {
-        return getRouteParameters(student.getToken());
+        return new RouteParameters(
+            "token", student.getToken()
+        );
     }
 
     @Override
@@ -66,13 +81,29 @@ public class StudentCompleteRegistrationView extends ApplicationContentContainer
 
         questionnaire = new StudentRegistrationQuestionnaireControl(i18n, schoolTrip, student);
 
+        var headlineHeaderTitle = new Span(projection.schoolTrip().getTitle());
+        headlineHeaderTitle.addClassName("app__student-registration__headline__header-title");
+
+        var headline = new H2(
+            headlineHeaderTitle,
+            new Span(i18n.registerStudentHeadline(student))
+        );
+        headline.addClassName("app__student-registration__headline");
+
+        var introduction = new Div();
+        introduction.addClassName("app__student-registration__introduction");
+        introduction.add(Arrays
+            .stream(i18n.registerStudentInfo(student).split("<p>"))
+            .map(p -> (Component) new Paragraph(p))
+            .toList()
+        );
+
         var layout = new VerticalLayout();
-        layout.add(new H3(i18n.registerStudentHeadline(student)));
-        layout.add(new Paragraph(i18n.registerStudentInfo(student)));
+        layout.add(headline);
+        layout.add(introduction);
         layout.add(questionnaire);
         layout.add(new SubmitSection());
-
-        this.add(layout);
+        this.contentContainer.add(layout);
     }
 
     private class SubmitSection extends VerticalLayout {
@@ -80,10 +111,16 @@ public class StudentCompleteRegistrationView extends ApplicationContentContainer
         private final EmailField email;
 
         public SubmitSection() {
+            this.setMargin(false);
+            this.setPadding(false);
+
             this.email = new EmailField(i18n.email());
 
+            var info = new Paragraph(i18n.confirmationInfo());
+            info.addClassName("app__student-registration__submit-section__info");
+
             add(new H4(i18n.confirmation()));
-            add(new Paragraph(i18n.confirmationInfo()));
+            add(info);
 
             var form = new FormLayout();
             form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
@@ -103,7 +140,7 @@ public class StudentCompleteRegistrationView extends ApplicationContentContainer
         }
 
         private void submit() {
-            var questionnaire = StudentCompleteRegistrationView.this.questionnaire.getValue();
+            var questionnaire = StudentRegistrationView.this.questionnaire.getValue();
 
             var cmd = CompleteStudentRegistrationCommand.apply(
                 student.getToken(), questionnaire, email.getValue()

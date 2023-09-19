@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip.core.ports.i18n;
 
+import com.vaadin.flow.component.Component;
 import com.wellnr.schooltrip.core.model.student.Student;
 
 import java.text.MessageFormat;
@@ -29,6 +30,16 @@ public interface SchoolTripMessages {
     @DE("Schüler hinzufügen")
     default String addStudent() {
         return "Add student";
+    }
+
+    @DE("Weitere Informationen")
+    default String additionalInformation() {
+        return "Additional infomrmation";
+    }
+
+    @DE("Gibt es etwas abseits der Piste zu beachten?")
+    default String additionalInformationInfo() {
+        return "Furthermore we need some infomration regarding nutrition, and if there is something else we need to know.";
     }
 
     @DE("Alle Fahrten")
@@ -64,6 +75,11 @@ public interface SchoolTripMessages {
     @DE("Anfänger")
     default String beginner() {
         return "Beginner";
+    }
+
+    @DE("Anfänger - Keine, oder fast keine Erfahrung.")
+    default String beginnerWithDesc() {
+        return "Beginner - None or almost no experience.";
     }
 
     @DE("Geburtstag")
@@ -107,7 +123,7 @@ public interface SchoolTripMessages {
     }
 
     @DE("Bitte verifizieren Sie die verbindliche Anmeldung. Die Angaben zu Sportart, " +
-        "Ausleihe, Körpergröße und -gewicht können noch später angepasst werden.")
+        "Ausleihe, Körpergröße und -gewicht können bei Bedarf zu einem späteren Zeitpunkt angepasst werden.")
     default String confirmationInfo() {
         return "Please confirm the registration information.";
     }
@@ -117,8 +133,9 @@ public interface SchoolTripMessages {
         return "Costs";
     }
 
+    @DE("Basierend auf den gewählten Optionen berechnen sich die Kosten für die Fahrt wie folgt:")
     default String costsInfo() {
-        return "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.";
+        return "Based on the current selection of options above, the following costs will be charged for the trip.";
     }
 
     @DE("Fahrt anlegen")
@@ -158,6 +175,11 @@ public interface SchoolTripMessages {
     @DE("Disziplin")
     default String discipline() {
         return "Discipline";
+    }
+
+    @DE("Ein, oder zwei Bretter?")
+    default String disciplineSelection() {
+        return "One or two boards?";
     }
 
     @DE("Disziplinen")
@@ -208,6 +230,11 @@ public interface SchoolTripMessages {
     @DE("Profi")
     default String expert() {
         return "Expert";
+    }
+
+    @DE("Profi - Kann Berge sportlich und zügig abfahren. Hat Erfahrung aus mehreren Winter-Urlauben.")
+    default String expertWithDesc() {
+        return "Expert - Already has a lot of experience, can go in a sportive and safe style.";
     }
 
     @DE("Datei enthält Tabellenüberschriften.")
@@ -275,6 +302,11 @@ public interface SchoolTripMessages {
         return "Fortgeschritten/ Erste Erfahrungen gesammelt.";
     }
 
+    @DE("Fortgeschritten - Erste Erfahrung gesammelt. Kann Berge sicher herunter fahren.")
+    default String intermediateWithDesc() {
+        return "Intermediate - Some experience, can go down the hill on his own in a safe driving style.";
+    }
+
     @DE("Einladungs-Schreiben")
     default String invitationMailing() {
         return "Invitation mailing";
@@ -320,9 +352,25 @@ public interface SchoolTripMessages {
         return "Rental Options";
     }
 
-    // TODO
+    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne können aber auch eigene Geräte mit gebracht und genutzt werden.")
     default String materialRentalInfo() {
-        return "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.";
+        return "Please indicate whether materials should be rented by us at Hinterglemm, or own materials should be used.";
+    }
+
+    default String myChildWantsToSki(Student student) {
+        return "%s wants to do Skiing".formatted(student.getFirstName());
+    }
+
+    default String myChildWantsToSki$DE(Student student) {
+        return "%s möchte Ski fahren".formatted(student.getFirstName());
+    }
+
+    default String myChildWantsToBoard(Student student) {
+        return "%s wants to do Snowboard".formatted(student.getFirstName());
+    }
+
+    default String myChildWantsToBoard$DE(Student student) {
+        return "%s möchte Snowboard fahren".formatted(student.getFirstName());
     }
 
     @DE("Name")
@@ -411,16 +459,27 @@ public interface SchoolTripMessages {
     }
 
     default String registerStudentHeadline(Student student) {
-        return "Registration for Ski and Snowboard Days 2023 für " + student.getDisplayName();
+        return "Registration for " + student.getDisplayName();
     }
 
     default String registerStudentHeadline$DE(Student student) {
-        return "Registrierung für die Ski- und Snowboard Lehrfahrt 2024 für " + student.getDisplayName();
+        return "Anmeldung für " + student.getDisplayName();
     }
 
-    @DE("Nutzen Sie das folgende Formular für die Registrierung Ihres Kindes.") // TODO
     default String registerStudentInfo(Student student) {
         return "Please fill out the registration form for " + student.getDisplayName() + " .";
+    }
+
+    default String registerStudentInfo$DE(Student student) {
+        var msg = """
+            Bitte nutzen Sie das folgende Formular, um %s für die Ski- und Snowboard-Lehrfahrt anzumelden.
+            Falls Ihr Kind nicht an der Ski- und Snowboard-Lehrfahrt teilnimmt, melden Sie es bitte für die Ausfahrt "Out of Snow" an, oder bestätigen Sie, dass %s am Schulunterricht teilnimmt.
+            <p>
+            Gerne können Sie die Anmeldung bzw. Rückmeldung auch schriftlich über Ihr ausgehändigtes Formular bei Frau Wellner oder Herrn Ortinau abgeben.
+            """
+            .stripIndent();
+
+        return String.format(msg, student.getDisplayName(), student.getDisplayName());
     }
 
     @DE("Anmeldung")
@@ -612,11 +671,20 @@ public interface SchoolTripMessages {
         return "Experience level of the child";
     }
 
-    // TODO: Invent templates.
     default String studentsExperienceLevelInfo(Student student) {
-        return "Bitte geben Sie an, wie erfahren " + student.getFirstName() + " in der gewählten " +
-            "Sportart ist. Lorem " +
-            "Ipsum, erklären was die Level bedeuten.";
+        return """
+            Please indicate the experience of %s.
+            """
+            .stripIndent()
+            .formatted(student.getDisplayName());
+    }
+
+    default String studentsExperienceLevelInfo$DE(Student student) {
+        return """
+            Bitte geben Sie an, wie erfahren %s in der gewählten Sportart ist.
+            """
+            .stripIndent()
+            .formatted(student.getDisplayName());
     }
 
     @DE("Mein Kind nutzt die eigenen Ski-Schuhe.")
@@ -629,9 +697,9 @@ public interface SchoolTripMessages {
         return "My child wants to use own snowboard boots.";
     }
 
-    @DE("Submit")
+    @DE("Absenden")
     default String submit() {
-        return "Absenden";
+        return "Submit";
     }
 
     @DE("Spalte")

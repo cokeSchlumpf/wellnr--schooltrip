@@ -1,0 +1,8 @@
+.app__student-registration-questionnaire__info-text {
+    margin: 0;
+    padding: 0;
+}
+
+.app__student-registration-questionnaire__section {
+    margin-bottom: var(--lumo-space-l);
+}

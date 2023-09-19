@@ -1,0 +1,58 @@
+.app__student-registration {
+    --lumo-primary-color: #3D79B7;
+}
+
+.app__student-registration__logo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #051934;
+}
+
+.app__student-registration__logo__img {
+    max-width: 80%;
+}
+
+.app__student-registration__content {
+    margin-left: 50%;
+    padding: 1.5em;
+}
+
+.app__student-registration__headline__header-title {
+    display: block;
+    font-size: 0.8em;
+    color: var(--lumo-primary-color);
+}
+
+.app__student-registration__introduction {
+    font-size: 1.2em;
+    line-height: 1.5em;
+
+    border-bottom: 2px solid #B9B8B8;
+    padding-bottom: 1.5em;
+    margin-bottom: 1.5em;
+}
+
+.app__student-registration__submit-section__info {
+    margin: 0;
+    padding: 0;
+}
+
+@media only screen and (min-width: 1024px) {
+    .app__student-registration__logo {
+        position: relative;
+    }
+
+    .app__student-registration__logo__img {
+        max-width: 40vw;
+    }
+}
+
