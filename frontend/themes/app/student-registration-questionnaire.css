@@ -5,4 +5,5 @@
 
 .app__student-registration-questionnaire__section {
     margin-bottom: var(--lumo-space-l);
+    width: 100%;
 }

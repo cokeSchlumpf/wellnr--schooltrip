@@ -8,6 +8,7 @@ import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.User;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -54,6 +55,11 @@ public class LoginCommand implements AbstractSchoolTripCommand<MessageResult<Res
 
         public NotSuccessfulException() {
             super("Login was not successful.");
+        }
+
+        @Override
+        public String getUserMessage(SchoolTripMessages i18n) {
+            return i18n.loginFailed();
         }
 
     }

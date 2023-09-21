@@ -9,6 +9,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
+import com.wellnr.schooltrip.core.model.student.exceptions.StudentAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
 import com.wellnr.schooltrip.core.model.student.payments.Payments;
 import com.wellnr.schooltrip.core.model.student.payments.PriceLineItem;

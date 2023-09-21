@@ -392,13 +392,20 @@ public class StudentRegistrationQuestionnaireControl
                 setModelValue(q, true);
             });
 
+            var form = new FormLayout();
+            form.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("650px", 2)
+            );
+            form.add(comments);
+
             this.getContent().setMargin(false);
             this.getContent().setPadding(false);
             this.getContent().add(
                 new H4(i18n.additionalInformation()),
                 new InfoTextParagraph(i18n.additionalInformationInfo()),
                 nutrition,
-                comments
+                form
             );
         }
 
@@ -635,7 +642,10 @@ public class StudentRegistrationQuestionnaireControl
                 setModelValue(new RentalDetails(height.getValue(), event.getValue()), true)
             );
 
-            this.getContent().setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
+            this.getContent().setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("650px", 2)
+            );
             this.getContent().add(height, weight);
         }
 
@@ -707,7 +717,10 @@ public class StudentRegistrationQuestionnaireControl
 
             size.addValueChangeListener(event -> setModelValue(new BootRentalDetails(event.getValue()), true));
 
-            this.getContent().setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
+            this.getContent().setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("650px", 2)
+            );
             this.getContent().add(size);
         }
 

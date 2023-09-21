@@ -307,6 +307,10 @@ public interface SchoolTripMessages {
         return "Intermediate - Some experience, can go down the hill on his own in a safe driving style.";
     }
 
+    default String internalServerError() {
+        return "Internal server error";
+    }
+
     @DE("Einladungs-Schreiben")
     default String invitationMailing() {
         return "Invitation mailing";
@@ -393,6 +397,16 @@ public interface SchoolTripMessages {
         return "No preference";
     }
 
+    @DE("Nicht erforderlich")
+    default String notRequired() {
+        return "Not required";
+    }
+
+    @DE("Leider nicht authorisiert.")
+    default String notAuthorized() {
+        return "You're not authorized.";
+    }
+
     @DE("Essgewohnheiten")
     default String nutrition() {
         return "Nutrition preferences";
@@ -421,6 +435,11 @@ public interface SchoolTripMessages {
     @DE("Passwort")
     default String password() {
         return "Password";
+    }
+
+    @DE("Die Passwörter stimmen nicht überein.")
+    default String passwordsNotEqual() {
+        return "The passwords do not match.";
     }
 
     @DE("Zahlungen")
@@ -526,6 +545,19 @@ public interface SchoolTripMessages {
         return "School Class";
     }
 
+    @DE("Eine Klasse mit diesem Namen existiert bereits.")
+    default String schoolClassAlreadyExists() {
+        return "A school class with this name already exists.";
+    }
+
+    default String schoolClassNotFound(String schoolClass) {
+        return "No school class `%s` found.".formatted(schoolClass);
+    }
+
+    default String schoolClassNotFound$DE(String schoolClass) {
+        return "Es existiert keine Klasse `%s`".formatted(schoolClass);
+    }
+
     @DE("Klassen")
     default String schoolClasses() {
         return "School classes";
@@ -536,9 +568,22 @@ public interface SchoolTripMessages {
         return "School Trip";
     }
 
+    @DE("Eine Klasse mit diesem Namen existiert bereits.")
+    default String schoolTripAlreadyExists(String name) {
+        return "A school trip with this name already exists.";
+    }
+
     @DE("Fahrt Administratoren")
     default String schoolTripManagers() {
         return "Trip Managers";
+    }
+
+    default String schoolTripNotFound(String name) {
+        return "No school trip `%s` found.".formatted(name);
+    }
+
+    default String schoolTripNotFound$DE(String name) {
+        return "Keine Fahrt `%s` gefunden.".formatted(name);
     }
 
     @DE("Fahrt Einstellungen")
@@ -604,6 +649,11 @@ public interface SchoolTripMessages {
     @DE("Schüler")
     default String student() {
         return "Student";
+    }
+
+    @DE("Schüler existiert bereits.")
+    default String studentAlreadyExists() {
+        return "Student already exists.";
     }
 
     @DE("SchülerIn ist nicht angemeldet. Die Anmeldung kann manuell durchgeführt werden.")
@@ -717,9 +767,22 @@ public interface SchoolTripMessages {
         return "Title";
     }
 
+    default String tokenNotFound(String token) {
+        return "Token `%s` not found.".formatted(token);
+    }
+
+    default String tokenNotFound$DE(String token) {
+        return "Token `%s` nicht gefunden.".formatted(token);
+    }
+
     @DE("Typ")
     default String type() {
         return "Type";
+    }
+
+    @DE("Benutzer existiert bereits.")
+    default String userAlreadyExists() {
+        return "User already exists.";
     }
 
     @DE("Benutzer-Profil")

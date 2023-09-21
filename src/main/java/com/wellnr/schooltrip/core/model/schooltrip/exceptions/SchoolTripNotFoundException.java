@@ -1,13 +1,22 @@
 package com.wellnr.schooltrip.core.model.schooltrip.exceptions;
 
 import com.wellnr.ddd.DomainException;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 
 import java.text.MessageFormat;
 
 public class SchoolTripNotFoundException extends DomainException {
 
-    private SchoolTripNotFoundException(String message) {
+    private final String name;
+
+    private SchoolTripNotFoundException(String name, String message) {
         super(message);
+        this.name = name;
+    }
+
+    @Override
+    public String getUserMessage(SchoolTripMessages i18n) {
+        return i18n.schoolTripNotFound(name);
     }
 
     public static SchoolTripNotFoundException withName(String name) {
@@ -16,7 +25,7 @@ public class SchoolTripNotFoundException extends DomainException {
             name
         );
 
-        return new SchoolTripNotFoundException(message);
+        return new SchoolTripNotFoundException(name, message);
     }
 
 }

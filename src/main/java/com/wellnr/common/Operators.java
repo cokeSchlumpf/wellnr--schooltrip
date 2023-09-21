@@ -1,9 +1,11 @@
 package com.wellnr.common;
 
+import com.wellnr.ddd.DomainException;
 import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Objects;
 import java.util.Optional;
 
 public class Operators {
@@ -35,6 +37,28 @@ public class Operators {
             .replaceAll("([a-z0-9])([A-Z])", "$1-$2")
             .replaceAll("([A-Z])([A-Z])(?=[a-z])", "$1-$2")
             .toLowerCase();
+    }
+
+    /**
+     * Checks whether the stack trace contains the given exception class. If yes it returns this instance.
+     * Return value is empty if stack trace does not contain the given exception class.
+     *
+     * @param exception The exception to check.
+     * @param exceptionClass  The exception class to check
+     * @return Empty if stack trace does not contain the given exception class.
+     * @param <T> The type of the exception.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<T> hasCause(Throwable exception, Class<T> exceptionClass) {
+        if (exceptionClass.isInstance(exceptionClass)) {
+            return Optional.of((T) exception);
+        } else if (Objects.isNull(exception.getCause())) {
+            return Optional.empty();
+        } else if (exceptionClass.isInstance(exception.getCause())) {
+            return Optional.of((T) exception.getCause());
+        } else {
+            return hasCause(exception.getCause(), exceptionClass);
+        }
     }
 
     public static String stringToCamelCase(String s) {

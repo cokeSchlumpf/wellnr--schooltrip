@@ -1,4 +1,5 @@
-@import "./navbar.css";
 @import "./card.css";
+@import "./domain-exception-view.css";
+@import "./navbar.css";
 @import "./student-registration.css";
 @import "./student-registration-questionnaire.css";
