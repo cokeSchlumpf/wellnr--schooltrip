@@ -17,8 +17,8 @@ import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
-import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.model.user.User;
+import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -64,6 +64,46 @@ public class Student extends AggregateRoot<String, Student> {
     List<Payment> payments;
 
     Integer tripStudentId;
+
+    public static PriceLineItems calculatePriceLineItems(SchoolTrip schoolTrip, Questionaire questionaire) {
+        var lineItems = new ArrayList<PriceLineItem>();
+
+        lineItems.add(new PriceLineItem(
+            "Grundpreis", schoolTrip.getSettings().getBasePrice()
+        ));
+
+        if (questionaire.getDisziplin() instanceof Ski ski) {
+            if (ski.getRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Ski-Ausleihe", schoolTrip.getSettings().getSkiRentalPrice()
+                ));
+            }
+
+            if (ski.getBootRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Ski-Schuh-Ausleihe", schoolTrip.getSettings().getSkiBootsRentalPrice()
+                ));
+            }
+        }
+
+        if (questionaire.getDisziplin() instanceof Snowboard sb) {
+            if (sb.getRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Snowboard-Ausleihe", schoolTrip.getSettings().getSnowboardRentalPrice()
+                ));
+            }
+
+            if (sb.getBootRental().isPresent()) {
+                lineItems.add(new PriceLineItem(
+                    "Snowboard-Boots-Ausleihe", schoolTrip.getSettings().getSnowboardBootsRentalPrice()
+                ));
+            }
+        }
+
+        // TODO: Helmet Rental!
+
+        return PriceLineItems.apply(lineItems);
+    }
 
     /**
      * Creates a new instance of this entity.
@@ -130,7 +170,7 @@ public class Student extends AggregateRoot<String, Student> {
     /**
      * Assigns a student id for a school trip.
      *
-     * @param id The assigned id.
+     * @param id       The assigned id.
      * @param students The repository to read/ write the information.
      */
     public void assignSchoolTripStudentId(Integer id, StudentsRepository students) {
@@ -138,30 +178,79 @@ public class Student extends AggregateRoot<String, Student> {
         students.insertOrUpdateStudent(this);
     }
 
+    public void completeOrUpdateStudentRegistrationByOrganizer(
+        Questionaire questionaire,
+        StudentsRepository students
+    ) {
+        this.questionaire = questionaire;
+        this.registrationState = RegistrationState.REGISTERED;
+        students.insertOrUpdateStudent(this);
+    }
+
+    public void completeStudentRegistration(
+        Questionaire questionaire,
+        String notificationEmail,
+        StudentsRepository students,
+        JavaMailSender mailSender,
+        SchoolTripMessages messages) {
+
+        this.questionaire = questionaire;
+        this.registrationState = RegistrationState.WAITING_FOR_CONFIRMATION;
+        this.notificationEmail = notificationEmail;
+        students.insertOrUpdateStudent(this);
+
+        // Send E-Mail for confirmation.
+        var message = new SimpleMailMessage();
+        message.setFrom("michael.wellner@gmail.com");
+        message.setTo(notificationEmail);
+        message.setSubject("Prima Sache, dass du dabei bist.");
+        message.setText(messages.registrationConfirmationEmailText(this));
+        mailSender.send(message);
+    }
+
+    public void confirmStudentRegistration(StudentsRepository students) {
+        this.registrationState = RegistrationState.REGISTERED;
+        students.insertOrUpdateStudent(this);
+    }
+
+    @JsonIgnore
+    public String getDisplayName() {
+        return String.format("%s %s", firstName, lastName);
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public Payments getPayments() {
+        return Payments.apply(payments);
+    }
+
+    public Optional<PriceLineItems> getPriceLineItems(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips) {
+        return getQuestionaire().map(q -> {
+            var schoolTrip = schoolTrips
+                .map(
+                    l -> l.getSchoolTripById(this.schoolTrip.schoolTripId()),
+                    r -> r
+                );
+
+            return Student.calculatePriceLineItems(schoolTrip, q);
+        });
+    }
+
+    public Optional<Questionaire> getQuestionaire() {
+        return Optional.ofNullable(questionaire);
+    }
+
     /**
-     * Remove an existing payment.
+     * Returns the unique id of the student which have been assigned
+     * by the school trip tp the student.
      *
-     * @param id The id of the payment.
+     * @return The id, if set.
      */
-    public void removePayment(
-        User executor, String id, StudentsRepository studens, SchoolTripsReadRepository schoolTrips) {
-
-        /*
-         * Validate if creator is allowed.
-         */
-        var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
-
-        executor.checkPermission(
-            DomainPermissions.ManageSchoolTrips.apply(),
-            DomainPermissions.ManageSchoolTrip.apply(schoolTrip.getId())
-        );
-
-        /*
-         * Make Changes.
-         */
-        this.payments = new ArrayList<>(
-            this.payments.stream().filter(p -> !p.getId().equals(id)).toList()
-        );
+    public Optional<Integer> getSchoolTripStudentId() {
+        return Optional.ofNullable(tripStudentId);
     }
 
     /**
@@ -214,109 +303,40 @@ public class Student extends AggregateRoot<String, Student> {
         }
     }
 
-    @JsonIgnore
-    public String getDisplayName() {
-        return String.format("%s %s", firstName, lastName);
+    /**
+     * Remove an existing payment.
+     *
+     * @param id The id of the payment.
+     */
+    public void removePayment(
+        User executor, String id, StudentsRepository studens, SchoolTripsReadRepository schoolTrips) {
+
+        /*
+         * Validate if creator is allowed.
+         */
+        var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip);
+
+        executor.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(schoolTrip.getId())
+        );
+
+        /*
+         * Make Changes.
+         */
+        this.payments = new ArrayList<>(
+            this.payments.stream().filter(p -> !p.getId().equals(id)).toList()
+        );
     }
 
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    public static PriceLineItems calculatePriceLineItems(SchoolTrip schoolTrip, Questionaire questionaire) {
-        var lineItems = new ArrayList<PriceLineItem>();
-
-        lineItems.add(new PriceLineItem(
-            "Grundpreis", schoolTrip.getSettings().getBasePrice()
-        ));
-
-        if (questionaire.getDisziplin() instanceof Ski ski) {
-            if (ski.getRental().isPresent()) {
-                lineItems.add(new PriceLineItem(
-                    "Ski-Ausleihe", schoolTrip.getSettings().getSkiRentalPrice()
-                ));
-            }
-
-            if (ski.getBootRental().isPresent()) {
-                lineItems.add(new PriceLineItem(
-                    "Ski-Schuh-Ausleihe", schoolTrip.getSettings().getSkiBootsRentalPrice()
-                ));
-            }
-        }
-
-        if (questionaire.getDisziplin() instanceof Snowboard sb) {
-            if (sb.getRental().isPresent()) {
-                lineItems.add(new PriceLineItem(
-                    "Snowboard-Ausleihe", schoolTrip.getSettings().getSnowboardRentalPrice()
-                ));
-            }
-
-            if (sb.getBootRental().isPresent()) {
-                lineItems.add(new PriceLineItem(
-                    "Snowboard-Boots-Ausleihe", schoolTrip.getSettings().getSnowboardBootsRentalPrice()
-                ));
-            }
-        }
-
-        // TODO: Helmet Rental!
-
-        return PriceLineItems.apply(lineItems);
-    }
-
-    public Payments getPayments() {
-        return Payments.apply(payments);
-    }
-
-    public Optional<PriceLineItems> getPriceLineItems(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips) {
-        return getQuestionaire().map(q -> {
-            var schoolTrip = schoolTrips
-                .map(
-                    l -> l.getSchoolTripById(this.schoolTrip.schoolTripId()),
-                    r -> r
-                );
-
-            return Student.calculatePriceLineItems(schoolTrip, q);
-        });
-    }
-
-    public Optional<Questionaire> getQuestionaire() {
-        return Optional.ofNullable(questionaire);
-    }
-
-    public void completeStudentRegistration(
-        Questionaire questionaire,
-        String notificationEmail,
-        StudentsRepository students,
-        JavaMailSender mailSender,
-        SchoolTripMessages messages) {
-
-        this.questionaire = questionaire;
-        this.registrationState = RegistrationState.WAITING_FOR_CONFIRMATION;
-        this.notificationEmail = notificationEmail;
-        students.insertOrUpdateStudent(this);
-
-        // Send E-Mail for confirmation.
-        var message = new SimpleMailMessage();
-        message.setFrom("michael.wellner@gmail.com");
-        message.setTo(notificationEmail);
-        message.setSubject("Prima Sache, dass du dabei bist.");
-        message.setText(messages.registrationConfirmationEmailText(this));
-        mailSender.send(message);
-    }
-
-    public void completeOrUpdateStudentRegistrationByOrganizer(
-        Questionaire questionaire,
-        StudentsRepository students
-    ) {
-        this.questionaire = questionaire;
-        this.registrationState = RegistrationState.REGISTERED;
-        students.insertOrUpdateStudent(this);
-    }
-
-    public void confirmStudentRegistration(StudentsRepository students) {
-        this.registrationState = RegistrationState.REGISTERED;
-        students.insertOrUpdateStudent(this);
+    /**
+     * Should be called, when student has been removed from a school trip.
+     *
+     * @param students The repository to read/ write student information.
+     */
+    public void removeStudentFromSchoolTrip(StudentsRepository students) {
+        // As of now we delete students compeltely.
+        students.remove(this);
     }
 
     public void updateStudentProperties(
@@ -349,26 +369,6 @@ public class Student extends AggregateRoot<String, Student> {
         }
 
         students.insertOrUpdateStudent(this);
-    }
-
-    /**
-     * Should be called, when student has been removed from a school trip.
-     *
-     * @param students The repository to read/ write student information.
-     */
-    public void removeStudentFromSchoolTrip(StudentsRepository students) {
-        // As of now we delete students compeltely.
-        students.remove(this);
-    }
-
-    /**
-     * Returns the unique id of the student which have been assigned
-     * by the school trip tp the student.
-     *
-     * @return The id, if set.
-     */
-    public Optional<Integer> getSchoolTripStudentId() {
-        return Optional.ofNullable(tripStudentId);
     }
 
 }

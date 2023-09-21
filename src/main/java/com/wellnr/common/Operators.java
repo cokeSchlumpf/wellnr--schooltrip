@@ -1,6 +1,5 @@
 package com.wellnr.common;
 
-import com.wellnr.ddd.DomainException;
 import org.apache.commons.text.CaseUtils;
 import org.slf4j.Logger;
 
@@ -39,40 +38,6 @@ public class Operators {
             .toLowerCase();
     }
 
-    /**
-     * Checks whether the stack trace contains the given exception class. If yes it returns this instance.
-     * Return value is empty if stack trace does not contain the given exception class.
-     *
-     * @param exception The exception to check.
-     * @param exceptionClass  The exception class to check
-     * @return Empty if stack trace does not contain the given exception class.
-     * @param <T> The type of the exception.
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> Optional<T> hasCause(Throwable exception, Class<T> exceptionClass) {
-        if (exceptionClass.isInstance(exceptionClass)) {
-            return Optional.of((T) exception);
-        } else if (Objects.isNull(exception.getCause())) {
-            return Optional.empty();
-        } else if (exceptionClass.isInstance(exception.getCause())) {
-            return Optional.of((T) exception.getCause());
-        } else {
-            return hasCause(exception.getCause(), exceptionClass);
-        }
-    }
-
-    public static String stringToCamelCase(String s) {
-        return CaseUtils.toCamelCase(s, false);
-    }
-
-    public static String stringToKebabCase(String s) {
-        return camelCaseToKebabCase(CaseUtils.toCamelCase(s, false));
-    }
-
-    public static String stringToTechFriendlyName(String s) {
-        return camelCaseToKebabCase(stringToCamelCase(s));
-    }
-
     public static boolean fuzzyEquals(String s1, String s2) {
         return s1.strip().equalsIgnoreCase(s2.strip());
     }
@@ -88,6 +53,28 @@ public class Operators {
         }
     }
 
+    /**
+     * Checks whether the stack trace contains the given exception class. If yes it returns this instance.
+     * Return value is empty if stack trace does not contain the given exception class.
+     *
+     * @param exception      The exception to check.
+     * @param exceptionClass The exception class to check
+     * @param <T>            The type of the exception.
+     * @return Empty if stack trace does not contain the given exception class.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Optional<T> hasCause(Throwable exception, Class<T> exceptionClass) {
+        if (exceptionClass.isInstance(exceptionClass)) {
+            return Optional.of((T) exception);
+        } else if (Objects.isNull(exception.getCause())) {
+            return Optional.empty();
+        } else if (exceptionClass.isInstance(exception.getCause())) {
+            return Optional.of((T) exception.getCause());
+        } else {
+            return hasCause(exception.getCause(), exceptionClass);
+        }
+    }
+
     public static void ignoreExceptions(ExceptionalRunnable runnable, Logger log) {
         try {
             runnable.run();
@@ -100,6 +87,22 @@ public class Operators {
 
     public static void ignoreExceptions(ExceptionalRunnable runnable) {
         ignoreExceptions(runnable, null);
+    }
+
+    public static <T> Optional<T> ignoreExceptionsToOptional(ExceptionalSupplier<T> supplier) {
+        return ignoreExceptionsToOptional(supplier, null);
+    }
+
+    public static <T> Optional<T> ignoreExceptionsToOptional(ExceptionalSupplier<T> supplier, Logger log) {
+        try {
+            return Optional.of(supplier.get());
+        } catch (Exception e) {
+            if (log != null) {
+                log.warn("An exception occurred but will be ignored", e);
+            }
+
+            return Optional.empty();
+        }
     }
 
     public static <T> T ignoreExceptionsWithDefault(ExceptionalSupplier<T> supplier, T defaultValue, Logger log) {
@@ -118,20 +121,16 @@ public class Operators {
         return ignoreExceptionsWithDefault(supplier, defaultValue, null);
     }
 
-    public static <T> Optional<T> ignoreExceptionsToOptional(ExceptionalSupplier<T> supplier) {
-        return ignoreExceptionsToOptional(supplier, null);
+    public static String stringToCamelCase(String s) {
+        return CaseUtils.toCamelCase(s, false);
     }
 
-    public static <T> Optional<T> ignoreExceptionsToOptional(ExceptionalSupplier<T> supplier, Logger log) {
-        try {
-            return Optional.of(supplier.get());
-        } catch (Exception e) {
-            if (log!= null) {
-                log.warn("An exception occurred but will be ignored", e);
-            }
+    public static String stringToKebabCase(String s) {
+        return camelCaseToKebabCase(CaseUtils.toCamelCase(s, false));
+    }
 
-            return Optional.empty();
-        }
+    public static String stringToTechFriendlyName(String s) {
+        return camelCaseToKebabCase(stringToCamelCase(s));
     }
 
     @SuppressWarnings({"CatchMayIgnoreException", "ResultOfMethodCallIgnored"})

@@ -3,7 +3,6 @@ package com.wellnr.schooltrip.core.model.student.questionaire;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
-import org.apache.commons.math3.analysis.function.Exp;
 
 @With
 @Value

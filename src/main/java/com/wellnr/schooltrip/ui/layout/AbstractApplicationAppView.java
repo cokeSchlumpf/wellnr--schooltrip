@@ -17,13 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 // @JsModule("./copy-to-clipboard.js")
-public abstract class AbstractApplicationAppView extends VerticalLayout implements ApplicationAppView, BeforeEnterObserver {
-
-    private final SchoolTripMessages i18n;
+public abstract class AbstractApplicationAppView extends VerticalLayout implements ApplicationAppView,
+    BeforeEnterObserver {
 
     protected final ApplicationUserSession userSession;
-
     protected final List<DomainPermission> minimumPermissions;
+    private final SchoolTripMessages i18n;
 
     public AbstractApplicationAppView(
         ApplicationUserSession userSession, List<DomainPermission> minimumPermissions
@@ -41,6 +40,18 @@ public abstract class AbstractApplicationAppView extends VerticalLayout implemen
     }
 
     @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        var maybeUser = userSession.getRegisteredUser();
+
+        if (maybeUser.isEmpty()) {
+            event.forwardTo(LoginView.class);
+        } else if (!minimumPermissions.isEmpty()) {
+            var user = maybeUser.get();
+            user.checkPermission(minimumPermissions);
+        }
+    }
+
+    @Override
     public List<RouterLink> getMainMenuComponents() {
         var menuItems = new ArrayList<RouterLink>();
         menuItems.add(
@@ -54,18 +65,6 @@ public abstract class AbstractApplicationAppView extends VerticalLayout implemen
         }
 
         return menuItems;
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent event) {
-        var maybeUser = userSession.getRegisteredUser();
-
-        if (maybeUser.isEmpty()) {
-            event.forwardTo(LoginView.class);
-        } else if (!minimumPermissions.isEmpty()) {
-            var user = maybeUser.get();
-            user.checkPermission(minimumPermissions);
-        }
     }
 
 }

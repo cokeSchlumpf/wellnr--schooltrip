@@ -113,7 +113,7 @@ public class StudentDetailsControl extends Scroller {
     /**
      * Sets up the student registration form.
      *
-     * @param schoolTrip The current school trip.
+     * @param schoolTrip    The current school trip.
      * @param commandRunner The runner to execute the command.
      */
     private void setupRegistration(SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {

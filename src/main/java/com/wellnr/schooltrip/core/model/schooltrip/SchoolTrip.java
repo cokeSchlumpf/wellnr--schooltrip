@@ -133,6 +133,43 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     }
 
     /**
+     * (Re-)assigns student numbers/ IDs to students.
+     *
+     * @param executor    The user executing the action.
+     * @param schoolTrips The repository to read/ write trip information.
+     * @param students    The rpeository to read student information.
+     */
+    public void assignStudentIDs(User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students) {
+        var id = 1;
+        this.studentIdAssignments.clear();
+
+        var classesSorted = this
+            .schoolClasses
+            .stream()
+            .map(SchoolClass::getName)
+            .sorted()
+            .toList();
+
+        for (String sc : classesSorted) {
+            var scStudents = students
+                .findStudentsBySchoolTripAndSchoolClassName(new SchoolTripId(this.id), sc)
+                .stream()
+                .filter(s -> s.getRegistrationState().equals(RegistrationState.REGISTERED))
+                .sorted(Comparator.comparing(Student::getLastName).thenComparing(Student::getLastName))
+                .toList();
+
+            for (var student : scStudents) {
+                var studentId = new StudentId(student.getId());
+                this.studentIdAssignments.put(id, studentId);
+                registerEvent(StudentIDAssigndEvent.apply(new SchoolTripId(this.id), studentId, id));
+                id = id + 1;
+            }
+        }
+
+        schoolTrips.save(this);
+    }
+
+    /**
      * Checks whether a user can see the school trip.
      *
      * @param user The user for which access should be checked.
@@ -143,6 +180,85 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             DomainPermissions.ManageSchoolTrips.apply(),
             DomainPermissions.ManageSchoolTrip.apply(this.id)
         );
+    }
+
+    /**
+     * This operation closes the registration of the school trip. This includes the removal of
+     * all students who have not completed registration. And assignment of increasing order number
+     * of students.
+     *
+     * @param executor    The user who is executing teh action.
+     * @param schoolTrips The repository to store trip information.
+     * @param students    The repository to read student information.
+     */
+    public List<Student> closeRegistration(
+        User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students
+    ) {
+        /*
+         * Remove students who are not registered yet.
+         */
+        var allStudents = students.findStudentsBySchoolTrip(new SchoolTripId(this.id));
+
+        var notRegisteredStudents = allStudents
+            .stream()
+            .filter(s -> !s.getRegistrationState().equals(RegistrationState.REGISTERED))
+            .collect(Collectors.toList());
+
+        for (var s : notRegisteredStudents) {
+            Operators.ignoreExceptions(() -> {
+                var id = new StudentId(s.getId());
+
+                this.getSchoolClassByName(s.getSchoolClass()).getStudents().remove(id);
+
+                registerEvent(StudentRemovedFromSchoolTripEvent.apply(
+                    new SchoolTripId(this.id), id
+                ));
+            });
+        }
+
+        this.assignStudentIDs(executor, schoolTrips, students);
+        return notRegisteredStudents;
+    }
+
+    /**
+     * Initially creates (persists) this school trip.
+     *
+     * @param creator    The user who wants to create the school trip.
+     * @param repository The repository to persist the information.
+     */
+    public void create(User creator, SchoolTripsRepository repository, BeanValidation validation) {
+        var existing = repository.findSchoolTripByName(this.name);
+
+        /*
+         * Validate if creator is allowed.
+         */
+        creator.checkPermission(DomainPermissions.ManageSchoolTrips.apply());
+
+        /*
+         * Validate Properties. TODO: Execute by Proxy (on every void method?)
+         */
+        validation.validateObject(this);
+
+        /*
+         * Actual logic:
+         * - Check whether trip already exists (from a different entity).
+         * - If it does not exist, create.
+         * - If it exists for the current entity, do nothing.
+         */
+        if (existing.isPresent() && !existing.get().id.equals(this.id)) {
+            throw SchoolTripAlreadyExistsException.apply(this.name);
+        } else if (existing.isEmpty()) {
+            this.registerEvent(SchoolTripCreatedEvent.apply(this));
+
+            if (creator.getRegisteredUser().isPresent()) {
+                var user = creator.getRegisteredUser().get();
+                var userId = new RegisteredUserId(user.getId());
+                this.registerEvent(SchoolTripManagerAddedEvent.apply(this, userId));
+                this.managers.add(userId);
+            }
+
+            repository.save(this);
+        }
     }
 
     /**
@@ -247,62 +363,27 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     }
 
     /**
-     * Removes a manager from the school trip.
+     * Get a school class by its name.
      *
-     * @param executor    The user executing the operation.
-     * @param userId      The user who should be removed as manager.
-     * @param schoolTrips The repository to read/ write entity information.
+     * @param name The name of the class.
+     * @return The class, if found.
      */
-    public void removeManager(
-        User executor, RegisteredUserId userId, SchoolTripsRepository schoolTrips
-    ) {
-        /*
-         * Only administratirs can remove managers for school trips.
-         */
-        executor.checkPermission(
-            DomainPermissions.ManageSchoolTrips.apply()
-        );
-
-        this.managers.remove(userId);
-        this.registerEvent(SchoolTripManagerRemovedEvent.apply(this, userId));
-        schoolTrips.save(this);
-    }
-
-    /**
-     * (Re-)assigns student numbers/ IDs to students.
-     *
-     * @param executor    The user executing the action.
-     * @param schoolTrips The repository to read/ write trip information.
-     * @param students    The rpeository to read student information.
-     */
-    public void assignStudentIDs(User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students) {
-        var id = 1;
-        this.studentIdAssignments.clear();
-
-        var classesSorted = this
+    public Optional<SchoolClass> findSchoolClassByName(String name) {
+        return this
             .schoolClasses
             .stream()
-            .map(SchoolClass::getName)
-            .sorted()
+            .filter(cls -> cls.getName().equalsIgnoreCase(name))
+            .findFirst();
+    }
+
+    public List<RegisteredUser> getManagers(RegisteredUsersRepository users) {
+        return this
+            .getManagers()
+            .stream()
+            .map(id -> users.findOneById(id.id()))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .toList();
-
-        for (String sc : classesSorted) {
-            var scStudents = students
-                .findStudentsBySchoolTripAndSchoolClassName(new SchoolTripId(this.id), sc)
-                .stream()
-                .filter(s -> s.getRegistrationState().equals(RegistrationState.REGISTERED))
-                .sorted(Comparator.comparing(Student::getLastName).thenComparing(Student::getLastName))
-                .toList();
-
-            for (var student : scStudents) {
-                var studentId = new StudentId(student.getId());
-                this.studentIdAssignments.put(id, studentId);
-                registerEvent(StudentIDAssigndEvent.apply(new SchoolTripId(this.id), studentId, id));
-                id = id + 1;
-            }
-        }
-
-        schoolTrips.save(this);
     }
 
     /**
@@ -328,82 +409,23 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     }
 
     /**
-     * This operation closes the registration of the school trip. This includes the removal of
-     * all students who have not completed registration. And assignment of increasing order number
-     * of students.
+     * Get a school class by its name, throw if class not found.
      *
-     * @param executor    The user who is executing teh action.
-     * @param schoolTrips The repository to store trip information.
-     * @param students    The repository to read student information.
+     * @param name The name of the class.
+     * @return The class.
      */
-    public List<Student> closeRegistration(
-        User executor, SchoolTripsRepository schoolTrips, StudentsReadRepository students
-    ) {
-        /*
-         * Remove students who are not registered yet.
-         */
-        var allStudents = students.findStudentsBySchoolTrip(new SchoolTripId(this.id));
-
-        var notRegisteredStudents = allStudents
-            .stream()
-            .filter(s -> !s.getRegistrationState().equals(RegistrationState.REGISTERED))
-            .collect(Collectors.toList());
-
-        for (var s : notRegisteredStudents) {
-            Operators.ignoreExceptions(() -> {
-                var id = new StudentId(s.getId());
-
-                this.getSchoolClassByName(s.getSchoolClass()).getStudents().remove(id);
-
-                registerEvent(StudentRemovedFromSchoolTripEvent.apply(
-                    new SchoolTripId(this.id), id
-                ));
-            });
-        }
-
-        this.assignStudentIDs(executor, schoolTrips, students);
-        return notRegisteredStudents;
+    public SchoolClass getSchoolClassByName(String name) {
+        return this.findSchoolClassByName(name).orElseThrow(
+            () -> SchoolClassNotFoundException.apply(name)
+        );
     }
 
-    /**
-     * Initially creates (persists) this school trip.
-     *
-     * @param creator    The user who wants to create the school trip.
-     * @param repository The repository to persist the information.
-     */
-    public void create(User creator, SchoolTripsRepository repository, BeanValidation validation) {
-        var existing = repository.findSchoolTripByName(this.name);
-
-        /*
-         * Validate if creator is allowed.
-         */
-        creator.checkPermission(DomainPermissions.ManageSchoolTrips.apply());
-
-        /*
-         * Validate Properties. TODO: Execute by Proxy (on every void method?)
-         */
-        validation.validateObject(this);
-
-        /*
-         * Actual logic:
-         * - Check whether trip already exists (from a different entity).
-         * - If it does not exist, create.
-         * - If it exists for the current entity, do nothing.
-         */
-        if (existing.isPresent() && !existing.get().id.equals(this.id)) {
-            throw SchoolTripAlreadyExistsException.apply(this.name);
-        } else if (existing.isEmpty()) {
-            this.registerEvent(SchoolTripCreatedEvent.apply(this));
-
-            if (creator.getRegisteredUser().isPresent()) {
-                var user = creator.getRegisteredUser().get();
-                var userId = new RegisteredUserId(user.getId());
-                this.registerEvent(SchoolTripManagerAddedEvent.apply(this, userId));
-                this.managers.add(userId);
-            }
-
-            repository.save(this);
-        }
+    @Override
+    @JsonIgnore
+    public URI getUri() {
+        return URI.create(MessageFormat.format(
+            "urn:schoolclass:{0}", this.id
+        ));
     }
 
     /**
@@ -444,18 +466,24 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     }
 
     /**
-     * Updates a students membership of a class.
+     * Removes a manager from the school trip.
      *
-     * @param oldClass    The old class he was part of until now.
-     * @param newClass    The new class he is now part of.
-     * @param student     The student id.
-     * @param schoolTrips The repository to store the information.
+     * @param executor    The user executing the operation.
+     * @param userId      The user who should be removed as manager.
+     * @param schoolTrips The repository to read/ write entity information.
      */
-    public void updateStudentsClass(
-        String oldClass, String newClass, StudentId student, SchoolTripsRepository schoolTrips
+    public void removeManager(
+        User executor, RegisteredUserId userId, SchoolTripsRepository schoolTrips
     ) {
-        this.getSchoolClassByName(oldClass).getStudents().remove(student);
-        this.getSchoolClassByName(newClass).getStudents().add(student);
+        /*
+         * Only administratirs can remove managers for school trips.
+         */
+        executor.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply()
+        );
+
+        this.managers.remove(userId);
+        this.registerEvent(SchoolTripManagerRemovedEvent.apply(this, userId));
         schoolTrips.save(this);
     }
 
@@ -480,42 +508,6 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
     }
 
     /**
-     * Get a school class by its name.
-     *
-     * @param name The name of the class.
-     * @return The class, if found.
-     */
-    public Optional<SchoolClass> findSchoolClassByName(String name) {
-        return this
-            .schoolClasses
-            .stream()
-            .filter(cls -> cls.getName().equalsIgnoreCase(name))
-            .findFirst();
-    }
-
-    public List<RegisteredUser> getManagers(RegisteredUsersRepository users) {
-        return this
-            .getManagers()
-            .stream()
-            .map(id -> users.findOneById(id.id()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .toList();
-    }
-
-    /**
-     * Get a school class by its name, throw if class not found.
-     *
-     * @param name The name of the class.
-     * @return The class.
-     */
-    public SchoolClass getSchoolClassByName(String name) {
-        return this.findSchoolClassByName(name).orElseThrow(
-            () -> SchoolClassNotFoundException.apply(name)
-        );
-    }
-
-    /**
      * Updates the school trips settings.
      *
      * @param settings    The updated settings.
@@ -526,12 +518,20 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         schoolTrips.save(this);
     }
 
-    @Override
-    @JsonIgnore
-    public URI getUri() {
-        return URI.create(MessageFormat.format(
-            "urn:schoolclass:{0}", this.id
-        ));
+    /**
+     * Updates a students membership of a class.
+     *
+     * @param oldClass    The old class he was part of until now.
+     * @param newClass    The new class he is now part of.
+     * @param student     The student id.
+     * @param schoolTrips The repository to store the information.
+     */
+    public void updateStudentsClass(
+        String oldClass, String newClass, StudentId student, SchoolTripsRepository schoolTrips
+    ) {
+        this.getSchoolClassByName(oldClass).getStudents().remove(student);
+        this.getSchoolClassByName(newClass).getStudents().add(student);
+        schoolTrips.save(this);
     }
 
 }

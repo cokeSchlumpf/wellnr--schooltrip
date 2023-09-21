@@ -8,9 +8,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class FakeMailSender implements JavaMailSender {
     @Override
@@ -46,16 +44,16 @@ public class FakeMailSender implements JavaMailSender {
     @Override
     public void send(SimpleMailMessage simpleMessage) throws MailException {
         System.out.println(MessageFormat.format("""
-            SENDING MAIL
-            ------------
-            
-            From: {0}
-            To:   {1}
-            
-            {2}
-            
-            ---
-            """,
+                SENDING MAIL
+                ------------
+                            
+                From: {0}
+                To:   {1}
+                            
+                {2}
+                            
+                ---
+                """,
             simpleMessage.getFrom(),
             String.join(", ", Objects.requireNonNull(simpleMessage.getTo())),
             simpleMessage.getText()

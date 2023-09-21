@@ -38,7 +38,8 @@ public class DomainExceptionView extends Div implements HasErrorParameter<Except
         var domainException = Operators.hasCause(parameter.getException(), DomainException.class);
 
         if (domainException.isPresent()) {
-            this.errorMessage.setText(domainException.get().getStatus() + " - " + domainException.get().getUserMessage(i18n));
+            this.errorMessage.setText(domainException.get().getStatus() + " - " + domainException.get()
+                .getUserMessage(i18n));
             return domainException.get().getStatus();
         } else {
             parameter.getException().printStackTrace();

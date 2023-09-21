@@ -8,13 +8,13 @@ public class SchoolClassAlreadyExistsException extends DomainException {
         super(message);
     }
 
+    public SchoolClassAlreadyExistsException apply() {
+        return new SchoolClassAlreadyExistsException("School class already exists.");
+    }
+
     @Override
     public String getUserMessage(SchoolTripMessages i18n) {
         return i18n.schoolClassAlreadyExists();
-    }
-
-    public SchoolClassAlreadyExistsException apply() {
-        return new SchoolClassAlreadyExistsException("School class already exists.");
     }
 
 }

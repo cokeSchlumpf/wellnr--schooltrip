@@ -12,16 +12,16 @@ public class SchoolClassNotFoundException extends DomainException {
         this.schoolClass = schoolClass;
     }
 
-    @Override
-    public String getUserMessage(SchoolTripMessages i18n) {
-        return i18n.schoolClassNotFound(schoolClass);
-    }
-
     public static SchoolClassNotFoundException apply(String schoolClass) {
         return new SchoolClassNotFoundException(
             schoolClass,
             String.format("School class `%s` does not exist.", schoolClass)
         );
+    }
+
+    @Override
+    public String getUserMessage(SchoolTripMessages i18n) {
+        return i18n.schoolClassNotFound(schoolClass);
     }
 
 }

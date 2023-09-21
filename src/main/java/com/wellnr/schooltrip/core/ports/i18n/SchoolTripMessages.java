@@ -1,6 +1,5 @@
 package com.wellnr.schooltrip.core.ports.i18n;
 
-import com.vaadin.flow.component.Component;
 import com.wellnr.schooltrip.core.model.student.Student;
 
 import java.text.MessageFormat;
@@ -39,7 +38,8 @@ public interface SchoolTripMessages {
 
     @DE("Gibt es etwas abseits der Piste zu beachten?")
     default String additionalInformationInfo() {
-        return "Furthermore we need some infomration regarding nutrition, and if there is something else we need to know.";
+        return "Furthermore we need some infomration regarding nutrition, and if there is something else we need to " +
+            "know.";
     }
 
     @DE("Alle Fahrten")
@@ -356,17 +356,11 @@ public interface SchoolTripMessages {
         return "Rental Options";
     }
 
-    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne können aber auch eigene Geräte mit gebracht und genutzt werden.")
+    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne können aber auch eigene Geräte mit " +
+        "gebracht und genutzt werden.")
     default String materialRentalInfo() {
-        return "Please indicate whether materials should be rented by us at Hinterglemm, or own materials should be used.";
-    }
-
-    default String myChildWantsToSki(Student student) {
-        return "%s wants to do Skiing".formatted(student.getFirstName());
-    }
-
-    default String myChildWantsToSki$DE(Student student) {
-        return "%s möchte Ski fahren".formatted(student.getFirstName());
+        return "Please indicate whether materials should be rented by us at Hinterglemm, or own materials should be " +
+            "used.";
     }
 
     default String myChildWantsToBoard(Student student) {
@@ -375,6 +369,14 @@ public interface SchoolTripMessages {
 
     default String myChildWantsToBoard$DE(Student student) {
         return "%s möchte Snowboard fahren".formatted(student.getFirstName());
+    }
+
+    default String myChildWantsToSki(Student student) {
+        return "%s wants to do Skiing".formatted(student.getFirstName());
+    }
+
+    default String myChildWantsToSki$DE(Student student) {
+        return "%s möchte Ski fahren".formatted(student.getFirstName());
     }
 
     @DE("Name")
@@ -397,14 +399,14 @@ public interface SchoolTripMessages {
         return "No preference";
     }
 
-    @DE("Nicht erforderlich")
-    default String notRequired() {
-        return "Not required";
-    }
-
     @DE("Leider nicht authorisiert.")
     default String notAuthorized() {
         return "You're not authorized.";
+    }
+
+    @DE("Nicht erforderlich")
+    default String notRequired() {
+        return "Not required";
     }
 
     @DE("Essgewohnheiten")

@@ -37,7 +37,8 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
 
     private StudentRegistrationQuestionnaireControl existingRegistration;
 
-    public StudentRegistrationAdminControl(SchoolTripMessages i18n, SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
+    public StudentRegistrationAdminControl(SchoolTripMessages i18n, SchoolTrip schoolTrip,
+                                           ApplicationCommandRunner commandRunner) {
         this.schoolTrip = schoolTrip;
         this.commandRunner = commandRunner;
         this.i18n = i18n;
@@ -78,6 +79,12 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
         this.setPadding(false);
     }
 
+    public Registration addRegistrationUpdatedListener(
+        ComponentEventListener<StudentRegistrationUpdatedEvent> listener) {
+
+        return addListener(StudentRegistrationUpdatedEvent.class, listener);
+    }
+
     public void setStudent(Student student) {
         this.removeAll();
 
@@ -111,12 +118,6 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
             this.infoText.setText(i18n.studentIsRegistered());
             this.add(infoText, existingRegistration, updateRegistration);
         }
-    }
-
-    public Registration addRegistrationUpdatedListener(
-        ComponentEventListener<StudentRegistrationUpdatedEvent> listener) {
-
-        return addListener(StudentRegistrationUpdatedEvent.class, listener);
     }
 
 }

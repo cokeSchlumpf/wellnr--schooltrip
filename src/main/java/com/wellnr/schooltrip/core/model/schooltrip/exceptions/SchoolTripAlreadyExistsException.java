@@ -15,11 +15,6 @@ public class SchoolTripAlreadyExistsException extends DomainException {
         this.name = name;
     }
 
-    @Override
-    public String getUserMessage(SchoolTripMessages i18n) {
-        return i18n.schoolTripAlreadyExists(name);
-    }
-
     public static SchoolTripAlreadyExistsException apply(String name) {
         var message = MessageFormat.format(
             "School trip `{0}` already exists.",
@@ -29,6 +24,10 @@ public class SchoolTripAlreadyExistsException extends DomainException {
         return new SchoolTripAlreadyExistsException(name, message);
     }
 
+    @Override
+    public String getUserMessage(SchoolTripMessages i18n) {
+        return i18n.schoolTripAlreadyExists(name);
+    }
 
 
 }

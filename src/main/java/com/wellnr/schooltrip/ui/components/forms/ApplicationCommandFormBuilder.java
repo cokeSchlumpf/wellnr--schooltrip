@@ -8,7 +8,6 @@ import com.wellnr.common.markup.Tuple2;
 import com.wellnr.ddd.commands.CommandResult;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
-import org.apache.regexp.RE;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -65,18 +64,6 @@ public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD ext
     }
 
     @Override
-    public ApplicationCommandFormBuilder<RESULT, CMD> setI18nMessages(Object i18nMessages) {
-        super.setI18nMessages(i18nMessages);
-        return this;
-    }
-
-    @Override
-    public ApplicationCommandFormBuilder<RESULT, CMD> withTitle(String title) {
-        super.withTitle(title);
-        return this;
-    }
-
-    @Override
     public ApplicationCommandForm<RESULT, CMD> build() {
         var form = super.build();
 
@@ -90,20 +77,34 @@ public class ApplicationCommandFormBuilder<RESULT extends CommandResult, CMD ext
     }
 
     @Override
-    public ApplicationCommandFormBuilder<RESULT, CMD> setFieldPossibleValues(Field field, List<Tuple2<String, String>> possibleValues) {
+    public ApplicationCommandFormBuilder<RESULT, CMD> setFieldPossibleValues(Field field,
+                                                                             List<Tuple2<String, String>> possibleValues) {
         super.setFieldPossibleValues(field, possibleValues);
         return this;
     }
 
     @Override
-    public ApplicationCommandFormBuilder<RESULT, CMD> setFieldPossibleValues(String field, List<Tuple2<String, String>> possibleValues) {
+    public ApplicationCommandFormBuilder<RESULT, CMD> setFieldPossibleValues(String field, List<Tuple2<String,
+        String>> possibleValues) {
         super.setFieldPossibleValues(field, possibleValues);
+        return this;
+    }
+
+    @Override
+    public ApplicationCommandFormBuilder<RESULT, CMD> setI18nMessages(Object i18nMessages) {
+        super.setI18nMessages(i18nMessages);
         return this;
     }
 
     @Override
     public ApplicationCommandFormBuilder<RESULT, CMD> setLabelProvider(Function1<String, Optional<String>> labelProvider) {
         super.setLabelProvider(labelProvider);
+        return this;
+    }
+
+    @Override
+    public ApplicationCommandFormBuilder<RESULT, CMD> withTitle(String title) {
+        super.withTitle(title);
         return this;
     }
 }

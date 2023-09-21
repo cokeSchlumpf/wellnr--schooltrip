@@ -24,7 +24,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final ApplicationUserSession userSession;
 
-    public LoginView(ApplicationRESTAPIController authController, SchoolTripDomainRegistry domainRegistry, ApplicationUserSession session) {
+    public LoginView(ApplicationRESTAPIController authController, SchoolTripDomainRegistry domainRegistry,
+                     ApplicationUserSession session) {
         this.userSession = session;
 
         var i18n = LoginI18n.createDefault();

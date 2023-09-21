@@ -29,6 +29,20 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         this.i18n = i18n;
     }
 
+    public Grid.Column<Student> addClassColumn() {
+        return this
+            .getGrid()
+            .addColumn(Student::getSchoolClass)
+            .setHeader(i18n.schoolClass())
+            .setSortable(true)
+            .setFrozen(true)
+            .setAutoWidth(true);
+    }
+
+    public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function1<Student, Component> createComponent) {
+        return addComponentColumnForRegisteredStudent((s, q) -> createComponent.get(s));
+    }
+
     public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function2<Student, Questionaire, Component> createComponent) {
         return this.getGrid().addComponentColumn(student -> {
             if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
@@ -37,10 +51,6 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
                 return new Span("-");
             }
         });
-    }
-
-    public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function1<Student, Component> createComponent) {
-        return addComponentColumnForRegisteredStudent((s, q) -> createComponent.get(s));
     }
 
     public Tuple4<Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>, Grid.Column<Student>> addDefaultColumns(
@@ -89,16 +99,6 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
                 .orElse("")
             )
             .setHeader(i18n.discipline());
-    }
-
-    public Grid.Column<Student> addClassColumn() {
-        return this
-            .getGrid()
-            .addColumn(Student::getSchoolClass)
-            .setHeader(i18n.schoolClass())
-            .setSortable(true)
-            .setFrozen(true)
-            .setAutoWidth(true);
     }
 
     public Tuple2<Grid.Column<Student>, Grid.Column<Student>> addNameColumns() {

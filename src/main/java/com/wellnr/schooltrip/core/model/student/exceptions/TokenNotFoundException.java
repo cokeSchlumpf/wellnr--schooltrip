@@ -12,12 +12,12 @@ public class TokenNotFoundException extends DomainException {
         this.token = token;
     }
 
+    public static TokenNotFoundException apply(String token) {
+        return new TokenNotFoundException(token, "The token `" + token + "` was not found.");
+    }
+
     @Override
     public String getUserMessage(SchoolTripMessages i18n) {
         return i18n.tokenNotFound(token);
-    }
-
-    public static TokenNotFoundException apply(String token) {
-        return new TokenNotFoundException(token, "The token `" + token + "` was not found.");
     }
 }

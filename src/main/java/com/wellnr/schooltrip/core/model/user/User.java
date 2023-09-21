@@ -9,11 +9,21 @@ import java.util.Optional;
 
 public interface User {
 
-    boolean hasSinglePermission(DomainPermission permission);
+    default void checkPermission(DomainPermission... permission) {
+        if (!this.hasPermission(permission)) {
+            throw NotAuthorizedException.apply();
+        }
+    }
+
+    default void checkPermission(List<DomainPermission> permissions) {
+        if (!this.hasPermission(permissions)) {
+            throw NotAuthorizedException.apply();
+        }
+    }
 
     Optional<RegisteredUser> getRegisteredUser();
 
-    default boolean hasPermission(DomainPermission ...permission) {
+    default boolean hasPermission(DomainPermission... permission) {
         return Arrays
             .stream(permission)
             .anyMatch(this::hasSinglePermission);
@@ -25,16 +35,6 @@ public interface User {
             .anyMatch(this::hasSinglePermission);
     }
 
-    default void checkPermission(DomainPermission ...permission) {
-        if (!this.hasPermission(permission)) {
-            throw NotAuthorizedException.apply();
-        }
-    }
-
-    default void checkPermission(List<DomainPermission> permissions) {
-        if (!this.hasPermission(permissions)) {
-            throw NotAuthorizedException.apply();
-        }
-    }
+    boolean hasSinglePermission(DomainPermission permission);
 
 }

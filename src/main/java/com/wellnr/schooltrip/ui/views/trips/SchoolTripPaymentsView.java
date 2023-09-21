@@ -29,11 +29,6 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
         this.i18n = userSession.getMessages();
     }
 
-    @Override
-    protected ApplicationGridWithControls<Student> createStudentsGrid() {
-        return new StudentsPaymentGrid();
-    }
-
     /**
      * Helper method to generate the route parameters for this view.
      *
@@ -44,6 +39,11 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
         return new RouteParameters(
             new RouteParam("name", name)
         );
+    }
+
+    @Override
+    protected ApplicationGridWithControls<Student> createStudentsGrid() {
+        return new StudentsPaymentGrid();
     }
 
     private class StudentsPaymentGrid extends StudentsGrid {

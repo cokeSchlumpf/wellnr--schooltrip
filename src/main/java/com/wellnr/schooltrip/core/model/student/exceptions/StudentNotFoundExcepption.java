@@ -9,14 +9,14 @@ public class StudentNotFoundExcepption extends DomainException {
         super(summary);
     }
 
-    @Override
-    public String getUserMessage(SchoolTripMessages i18n) {
-        return getMessage();
-    }
-
     public static StudentNotFoundExcepption apply(String schoolClassName, String firstName, String lastName) {
         var msg = String.format("Student with %s %s not found in class %s.", firstName, lastName, schoolClassName);
         return new StudentNotFoundExcepption(msg);
+    }
+
+    @Override
+    public String getUserMessage(SchoolTripMessages i18n) {
+        return getMessage();
     }
 
 }

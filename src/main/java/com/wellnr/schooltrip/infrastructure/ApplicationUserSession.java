@@ -46,14 +46,12 @@ public class ApplicationUserSession {
     private final ObjectMapper objectMapper;
 
     private final HttpServletRequest request;
-
+    User user;
+    GetUserApplicationPermissionsCommand.ApplicationPermissions permissions;
     private SchoolTripMessages i18n;
 
-    User user;
-
-    GetUserApplicationPermissionsCommand.ApplicationPermissions permissions;
-
-    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om, HttpServletRequest ctx) {
+    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om,
+                                  HttpServletRequest ctx) {
         this.domainRegistry = domainRegistry;
         this.users = domainRegistry.getUsers();
         this.passwordEncryption = domainRegistry.getPasswordEncryptionPort();
@@ -74,8 +72,23 @@ public class ApplicationUserSession {
         return i18n;
     }
 
-    public void setLocale(Locale locale) {
-        this.i18n = I18N.createInstance(SchoolTripMessages.class, locale);
+    public GetUserApplicationPermissionsCommand.ApplicationPermissions getPermissions() {
+        if (Objects.isNull(permissions)) {
+            this.permissions = GetUserApplicationPermissionsCommand
+                .apply()
+                .run(this.getUser(), domainRegistry)
+                .getData();
+        }
+
+        return permissions;
+    }
+
+    public Optional<RegisteredUser> getRegisteredUser() {
+        return getUser().getRegisteredUser();
+    }
+
+    public void setRegisteredUser(RegisteredUser user) {
+        this.user = user;
     }
 
     public User getUser() {
@@ -104,14 +117,6 @@ public class ApplicationUserSession {
         }
 
         return user;
-    }
-
-    public Optional<RegisteredUser> getRegisteredUser() {
-        return getUser().getRegisteredUser();
-    }
-
-    public void setRegisteredUser(RegisteredUser user) {
-        this.user = user;
     }
 
     public String login(String username, String password) {
@@ -152,7 +157,9 @@ public class ApplicationUserSession {
                     .getTokenValue();
             } else {
                 // TODO: Don't throw exception - This would roll back transactions?
-                Operators.suppressExceptions(() -> { throw loginResult.getException(); });
+                Operators.suppressExceptions(() -> {
+                    throw loginResult.getException();
+                });
                 return "";
             }
         } else {
@@ -160,20 +167,13 @@ public class ApplicationUserSession {
         }
     }
 
-    public GetUserApplicationPermissionsCommand.ApplicationPermissions getPermissions() {
-        if (Objects.isNull(permissions)) {
-            this.permissions = GetUserApplicationPermissionsCommand
-                .apply()
-                .run(this.getUser(), domainRegistry)
-                .getData();
-        }
-
-        return permissions;
-    }
-
     public void logout() {
         this.user = AnonymousUser.apply();
         this.i18n = null;
+    }
+
+    public void setLocale(Locale locale) {
+        this.i18n = I18N.createInstance(SchoolTripMessages.class, locale);
     }
 
     @Value
@@ -187,13 +187,13 @@ public class ApplicationUserSession {
         List<DomainPermission> permissions;
 
         @Override
-        public boolean hasSinglePermission(DomainPermission permission) {
-            return permissions.stream().anyMatch(p -> p.equals(permission));
+        public Optional<RegisteredUser> getRegisteredUser() {
+            return users.findOneByEmail(username);
         }
 
         @Override
-        public Optional<RegisteredUser> getRegisteredUser() {
-            return users.findOneByEmail(username);
+        public boolean hasSinglePermission(DomainPermission permission) {
+            return permissions.stream().anyMatch(p -> p.equals(permission));
         }
 
     }

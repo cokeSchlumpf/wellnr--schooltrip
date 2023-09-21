@@ -11,13 +11,13 @@ public class AuthenticatedUser implements User {
     String username;
 
     @Override
-    public boolean hasSinglePermission(DomainPermission permission) {
-        return true;
+    public Optional<RegisteredUser> getRegisteredUser() {
+        return Optional.empty();
     }
 
     @Override
-    public Optional<RegisteredUser> getRegisteredUser() {
-        return Optional.empty();
+    public boolean hasSinglePermission(DomainPermission permission) {
+        return true;
     }
 
 }

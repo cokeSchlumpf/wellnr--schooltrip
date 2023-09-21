@@ -1,7 +1,7 @@
 package com.wellnr.schooltrip.core.model.schooltrip.events;
 
-import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolClass;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 

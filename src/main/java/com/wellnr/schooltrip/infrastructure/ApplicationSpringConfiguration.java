@@ -47,28 +47,6 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
     String rsaKey;
 
     @Bean
-    public SchoolTripDomainRegistry getSchoolTripDomainRegistry(
-        SchoolTripApplicationConfiguration config,
-        BeanValidation beanValidation,
-        SchoolTripsMongoRepository schoolTrips,
-        StudentsRepository students,
-        RegisteredUsersRepository users,
-        PasswordEncryptionPort passwordEncryptionPort,
-        JavaMailSender mailSender
-    ) {
-        return SchoolTripDomainRegistry.apply(
-            config,
-            beanValidation,
-            schoolTrips,
-            students,
-            users,
-            passwordEncryptionPort,
-            new SchoolTripMessages() { },
-            mailSender
-        );
-    }
-
-    @Bean
     public BeanValidation getBeanValidation() {
         return new BeanValidation() {
             @Override
@@ -86,6 +64,58 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
     @Bean
     public JavaMailSender getMailSender() {
         return new FakeMailSender();
+    }
+
+    @Bean
+    public SchoolTripDomainRegistry getSchoolTripDomainRegistry(
+        SchoolTripApplicationConfiguration config,
+        BeanValidation beanValidation,
+        SchoolTripsMongoRepository schoolTrips,
+        StudentsRepository students,
+        RegisteredUsersRepository users,
+        PasswordEncryptionPort passwordEncryptionPort,
+        JavaMailSender mailSender
+    ) {
+        return SchoolTripDomainRegistry.apply(
+            config,
+            beanValidation,
+            schoolTrips,
+            students,
+            users,
+            passwordEncryptionPort,
+            new SchoolTripMessages() {
+            },
+            mailSender
+        );
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder(RSAKey key) throws JOSEException {
+        return NimbusJwtDecoder.withPublicKey(key.toRSAPublicKey()).build();
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder(RSAKey key) {
+        return new NimbusJwtEncoder(
+            new ImmutableJWKSet<>(new JWKSet(key))
+        );
+    }
+
+    @Bean
+    public PasswordEncryptionPort passwordEncryptionPort() {
+        var encoder = new BCryptPasswordEncoder();
+
+        return new PasswordEncryptionPort() {
+            @Override
+            public String encode(String password) {
+                return encoder.encode(password);
+            }
+
+            @Override
+            public boolean matches(String password, String encodedPassword) {
+                return encoder.matches(password, encodedPassword);
+            }
+        };
     }
 
     @Bean
@@ -107,18 +137,6 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
                 .keyID("secret")
                 .build();
         }
-    }
-
-    @Bean
-    public JwtEncoder jwtEncoder(RSAKey key) {
-        return new NimbusJwtEncoder(
-            new ImmutableJWKSet<>(new JWKSet(key))
-        );
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder(RSAKey key) throws JOSEException {
-        return NimbusJwtDecoder.withPublicKey(key.toRSAPublicKey()).build();
     }
 
     @Bean
@@ -152,23 +170,6 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
             .build();
-    }
-
-    @Bean
-    public PasswordEncryptionPort passwordEncryptionPort() {
-        var encoder = new BCryptPasswordEncoder();
-
-        return new PasswordEncryptionPort() {
-            @Override
-            public String encode(String password) {
-                return encoder.encode(password);
-            }
-
-            @Override
-            public boolean matches(String password, String encodedPassword) {
-                return encoder.matches(password, encodedPassword);
-            }
-        };
     }
 
 }

@@ -16,8 +16,24 @@ public class StudentsMongoRepository implements StudentsRepository {
     private final StudentsSpringDataMongoRepository spring;
 
     @Override
+    public Optional<Student> findStudentByConfirmationToken(String token) {
+        return spring.findStudentByConfirmationToken(token);
+    }
+
+    @Override
+    public Optional<Student> findStudentById(String id) {
+        return spring.findStudentById(id);
+    }
+
+    @Override
     public Optional<Student> findStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(SchoolTripId schoolTripId, String schoolClassName, String firstName, String lastName) {
-        return spring.findStudentBySchoolTripAndSchoolClassAndFirstNameAndLastName(schoolTripId, schoolClassName, firstName, lastName);
+        return spring.findStudentBySchoolTripAndSchoolClassAndFirstNameAndLastName(schoolTripId, schoolClassName,
+            firstName, lastName);
+    }
+
+    @Override
+    public Optional<Student> findStudentByToken(String token) {
+        return spring.findStudentByToken(token);
     }
 
     @Override
@@ -28,21 +44,6 @@ public class StudentsMongoRepository implements StudentsRepository {
     @Override
     public List<Student> findStudentsBySchoolTripAndSchoolClassName(SchoolTripId schoolTripId, String schoolClassName) {
         return spring.findStudentsBySchoolTripAndSchoolClass(schoolTripId, schoolClassName);
-    }
-
-    @Override
-    public Optional<Student> findStudentById(String id) {
-        return spring.findStudentById(id);
-    }
-
-    @Override
-    public Optional<Student> findStudentByToken(String token) {
-        return spring.findStudentByToken(token);
-    }
-
-    @Override
-    public Optional<Student> findStudentByConfirmationToken(String token) {
-        return spring.findStudentByConfirmationToken(token);
     }
 
     @Override

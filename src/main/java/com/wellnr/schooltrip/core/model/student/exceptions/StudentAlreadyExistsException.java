@@ -9,12 +9,12 @@ public class StudentAlreadyExistsException extends DomainException {
         super(summary);
     }
 
+    public static StudentAlreadyExistsException apply() {
+        return new StudentAlreadyExistsException("Student already exists.");
+    }
+
     @Override
     public String getUserMessage(SchoolTripMessages i18n) {
         return i18n.studentAlreadyExists();
-    }
-
-    public static StudentAlreadyExistsException apply() {
-        return new StudentAlreadyExistsException("Student already exists.");
     }
 }

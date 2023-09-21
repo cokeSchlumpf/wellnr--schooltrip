@@ -11,7 +11,8 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 
 public class ApplicationRouterLinkWithIcon extends RouterLink {
 
-    public ApplicationRouterLinkWithIcon(Icon icon, String text, Class<? extends Component> navigationTarget, RouteParameters paramters) {
+    public ApplicationRouterLinkWithIcon(Icon icon, String text, Class<? extends Component> navigationTarget,
+                                         RouteParameters paramters) {
         super(text, navigationTarget, paramters);
 
         this.removeAll();
@@ -25,7 +26,8 @@ public class ApplicationRouterLinkWithIcon extends RouterLink {
         this(icon, text, navigationTarget, RouteParameters.empty());
     }
 
-    public ApplicationRouterLinkWithIcon(VaadinIcon icon, String text, Class<? extends Component> navigationTarget, RouteParameters paramters) {
+    public ApplicationRouterLinkWithIcon(VaadinIcon icon, String text, Class<? extends Component> navigationTarget,
+                                         RouteParameters paramters) {
         this(new Icon(icon), text, navigationTarget, paramters);
     }
 

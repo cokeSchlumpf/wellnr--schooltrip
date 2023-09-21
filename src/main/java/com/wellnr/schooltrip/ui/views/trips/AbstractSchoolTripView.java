@@ -17,10 +17,8 @@ import java.util.List;
 
 public abstract class AbstractSchoolTripView extends AbstractApplicationAppView implements BeforeEnterObserver {
 
-    private final SchoolTripMessages i18n;
-
     protected final ApplicationCommandRunner commandRunner;
-
+    private final SchoolTripMessages i18n;
     protected SchoolTripDetailsProjection schoolTrip;
 
     protected AbstractSchoolTripView(
@@ -29,6 +27,22 @@ public abstract class AbstractSchoolTripView extends AbstractApplicationAppView 
         super(userSession);
         this.commandRunner = commandRunner;
         this.i18n = userSession.getMessages();
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        super.beforeEnter(beforeEnterEvent);
+
+        var name = beforeEnterEvent
+            .getRouteParameters()
+            .get("name")
+            .orElseThrow();
+
+        this.schoolTrip = commandRunner
+            .run(GetSchoolTripDetailsCommand.apply(name))
+            .getData();
+
+        this.updateView();
     }
 
     @Override
@@ -79,22 +93,6 @@ public abstract class AbstractSchoolTripView extends AbstractApplicationAppView 
             tasks,
             settings
         );
-    }
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        super.beforeEnter(beforeEnterEvent);
-
-        var name = beforeEnterEvent
-            .getRouteParameters()
-            .get("name")
-            .orElseThrow();
-
-            this.schoolTrip = commandRunner
-                .run(GetSchoolTripDetailsCommand.apply(name))
-                .getData();
-
-        this.updateView();
     }
 
     protected void reload() {

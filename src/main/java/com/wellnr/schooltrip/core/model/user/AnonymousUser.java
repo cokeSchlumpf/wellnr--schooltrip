@@ -11,13 +11,13 @@ import java.util.Optional;
 public class AnonymousUser implements User {
 
     @Override
-    public boolean hasSinglePermission(DomainPermission permission) {
-        return false;
+    public Optional<RegisteredUser> getRegisteredUser() {
+        return Optional.empty();
     }
 
     @Override
-    public Optional<RegisteredUser> getRegisteredUser() {
-        return Optional.empty();
+    public boolean hasSinglePermission(DomainPermission permission) {
+        return false;
     }
 
 }
