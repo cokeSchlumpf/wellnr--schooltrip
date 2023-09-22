@@ -68,23 +68,25 @@ public class Student extends AggregateRoot<String, Student> {
 
     Integer tripStudentId;
 
-    public static PriceLineItems calculatePriceLineItems(SchoolTrip schoolTrip, Questionnaire questionnaire) {
+    public static PriceLineItems calculatePriceLineItems(
+        SchoolTrip schoolTrip, Questionnaire questionnaire, SchoolTripMessages i18n
+    ) {
         var lineItems = new ArrayList<PriceLineItem>();
 
         lineItems.add(new PriceLineItem(
-            "Grundpreis", schoolTrip.getSettings().getBasePrice()
+            i18n.basePrice(), schoolTrip.getSettings().getBasePrice()
         ));
 
         if (questionnaire.getDisziplin() instanceof Ski ski) {
             if (ski.getRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    "Ski-Ausleihe", schoolTrip.getSettings().getSkiRentalPrice()
+                    i18n.skiRental(), schoolTrip.getSettings().getSkiRentalPrice()
                 ));
             }
 
             if (ski.getBootRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    "Ski-Schuh-Ausleihe", schoolTrip.getSettings().getSkiBootsRentalPrice()
+                    i18n.skiBootRental(), schoolTrip.getSettings().getSkiBootsRentalPrice()
                 ));
             }
         }
@@ -92,18 +94,22 @@ public class Student extends AggregateRoot<String, Student> {
         if (questionnaire.getDisziplin() instanceof Snowboard sb) {
             if (sb.getRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    "Snowboard-Ausleihe", schoolTrip.getSettings().getSnowboardRentalPrice()
+                    i18n.snowboardRental(), schoolTrip.getSettings().getSnowboardRentalPrice()
                 ));
             }
 
             if (sb.getBootRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    "Snowboard-Boots-Ausleihe", schoolTrip.getSettings().getSnowboardBootsRentalPrice()
+                    i18n.snowboardBootRental(), schoolTrip.getSettings().getSnowboardBootsRentalPrice()
                 ));
             }
         }
 
-        // TODO: Helmet Rental!
+        if (questionnaire.getDisziplin().hasHelmRental()) {
+            lineItems.add(new PriceLineItem(
+                i18n.helmetRental(), schoolTrip.getSettings().getHelmetRentalPrice()
+            ));
+        }
 
         return PriceLineItems.apply(lineItems);
     }
@@ -270,7 +276,10 @@ public class Student extends AggregateRoot<String, Student> {
         return Payments.apply(payments);
     }
 
-    public Optional<PriceLineItems> getPriceLineItems(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips) {
+    public Optional<PriceLineItems> getPriceLineItems(
+        Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips,
+        SchoolTripMessages i18n
+    ) {
         return getQuestionnaire().map(q -> {
             var schoolTrip = schoolTrips
                 .map(
@@ -278,7 +287,7 @@ public class Student extends AggregateRoot<String, Student> {
                     r -> r
                 );
 
-            return Student.calculatePriceLineItems(schoolTrip, q);
+            return Student.calculatePriceLineItems(schoolTrip, q, i18n);
         });
     }
 

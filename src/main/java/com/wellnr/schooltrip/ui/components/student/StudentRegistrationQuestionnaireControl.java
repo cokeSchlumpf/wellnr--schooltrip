@@ -3,6 +3,7 @@ package com.wellnr.schooltrip.ui.components.student;
 import com.vaadin.flow.component.AbstractCompositeField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -15,7 +16,7 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import com.wellnr.common.markup.Tuple2;
+import com.wellnr.common.markup.Tuple3;
 import com.wellnr.common.markup.When;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
@@ -142,7 +143,10 @@ public class StudentRegistrationQuestionnaireControl
             this.experienceSection = new ExperienceSection(student, initialValue.getExperience());
             this.rentalSection = new RentalSection(initialValue);
 
-            discipline.addValueChangeListener(event -> rentalSection.setDiscipline(event.getValue()));
+            discipline.addValueChangeListener(event -> {
+                rentalSection.setDiscipline(event.getValue());
+                this.setModelValue();
+            });
             experienceSection.addValueChangeListener(event -> this.setModelValue());
             rentalSection.addValueChangeListener(event -> this.setModelValue());
 
@@ -173,9 +177,10 @@ public class StudentRegistrationQuestionnaireControl
         @Override
         protected void setPresentationValue(Discipline newPresentationValue) {
             this.discipline.setValue(newPresentationValue.getClass());
-            this.rentalSection.setValue(Tuple2.apply(
+            this.rentalSection.setValue(Tuple3.apply(
                 newPresentationValue.getRental().map(r -> new RentalDetails(r.getHeight(), r.getWeight())),
-                newPresentationValue.getBootRental().map(r -> new BootRentalDetails(r.getSize()))
+                newPresentationValue.getBootRental().map(r -> new BootRentalDetails(r.getSize())),
+                newPresentationValue.hasHelmRental()
             ));
         }
 
@@ -199,6 +204,8 @@ public class StudentRegistrationQuestionnaireControl
                     value = value.withSkiBootRental(bootRental.get());
                 }
 
+                value = value.withHelmRental(this.rentalSection.getValue().get_3());
+
                 this.setModelValue(value, true);
             } else if (this.discipline.getValue().equals(Snowboard.class)) {
                 var value = Snowboard.apply(this.experienceSection.getValue());
@@ -218,6 +225,8 @@ public class StudentRegistrationQuestionnaireControl
                 if (bootRental.isPresent()) {
                     value = value.withSnowboardBootRental(bootRental.get());
                 }
+
+                value = value.withHelmRental(this.rentalSection.getValue().get_3());
 
                 this.setModelValue(value, true);
             }
@@ -266,7 +275,7 @@ public class StudentRegistrationQuestionnaireControl
     }
 
     private class RentalSection extends AbstractCompositeField<
-        VerticalLayout, RentalSection, Tuple2<Optional<RentalDetails>, Optional<BootRentalDetails>>> {
+        VerticalLayout, RentalSection, Tuple3<Optional<RentalDetails>, Optional<BootRentalDetails>, Boolean>> {
 
         private final RentalRadioButtons rental;
 
@@ -276,16 +285,20 @@ public class StudentRegistrationQuestionnaireControl
 
         private final BootRentalDetailsForm bootRentalDetails;
 
+        private final HelmetRentalForm helmetRentalForm;
+
         public RentalSection(Discipline discipline) {
-            super(Tuple2.apply(
+            super(Tuple3.apply(
                 discipline.getRental().map(r -> new RentalDetails(r.getHeight(), r.getWeight())),
-                discipline.getBootRental().map(r -> new BootRentalDetails(r.getSize()))
+                discipline.getBootRental().map(r -> new BootRentalDetails(r.getSize())),
+                false
             ));
 
             this.rental = new RentalRadioButtons();
             this.rentalDetails = new RentalDetailsForm();
             this.bootRental = new BootRentalRadioButtons();
             this.bootRentalDetails = new BootRentalDetailsForm();
+            this.helmetRentalForm = new HelmetRentalForm();
 
             this.rentalDetails.setEnabled(false);
             this.bootRentalDetails.setEnabled(false);
@@ -300,6 +313,8 @@ public class StudentRegistrationQuestionnaireControl
                 updateModelValue(true);
             });
 
+            helmetRentalForm.addValueChangeListener(event -> updateModelValue(true));
+
             this.getContent().setMargin(false);
             this.getContent().setPadding(false);
             this.getContent().add(new H5(i18n.materialRental()));
@@ -308,6 +323,7 @@ public class StudentRegistrationQuestionnaireControl
             this.getContent().add(rentalDetails);
             this.getContent().add(bootRental);
             this.getContent().add(bootRentalDetails);
+            this.getContent().add(helmetRentalForm);
         }
 
         public void setDiscipline(Class<? extends Discipline> discipline) {
@@ -318,13 +334,13 @@ public class StudentRegistrationQuestionnaireControl
         }
 
         @Override
-        public void setValue(Tuple2<Optional<RentalDetails>, Optional<BootRentalDetails>> value) {
+        public void setValue(Tuple3<Optional<RentalDetails>, Optional<BootRentalDetails>, Boolean> value) {
             super.setValue(value);
             this.setPresentationValue(value);
         }
 
         @Override
-        protected void setPresentationValue(Tuple2<Optional<RentalDetails>, Optional<BootRentalDetails>> newPresentationValue) {
+        protected void setPresentationValue(Tuple3<Optional<RentalDetails>, Optional<BootRentalDetails>, Boolean> newPresentationValue) {
             var maybeRental = newPresentationValue.get_1();
             var maybeBootRental = newPresentationValue.get_2();
 
@@ -347,6 +363,8 @@ public class StudentRegistrationQuestionnaireControl
                 this.bootRental.setValue(false);
                 this.bootRentalDetails.setEnabled(false);
             }
+
+            this.helmetRentalForm.setValue(newPresentationValue._3);
         }
 
         private void updateModelValue(boolean fromClient) {
@@ -363,8 +381,8 @@ public class StudentRegistrationQuestionnaireControl
                 bootRental = Optional.of(bootRentalDetails);
             }
 
-            setModelValue(Tuple2.apply(
-                rental, bootRental
+            setModelValue(Tuple3.apply(
+                rental, bootRental, helmetRentalForm.getValue()
             ), fromClient);
         }
     }
@@ -474,7 +492,7 @@ public class StudentRegistrationQuestionnaireControl
         }
 
         public void setValue(SchoolTrip schoolTrip, Questionnaire questionnaire) {
-            var items = Student.calculatePriceLineItems(schoolTrip, questionnaire);
+            var items = Student.calculatePriceLineItems(schoolTrip, questionnaire, i18n);
             var allItems = new ArrayList<>(items.getItems());
 
             allItems.add(new PriceLineItem(SUM_LABEL, items.getSum()));
@@ -703,6 +721,39 @@ public class StudentRegistrationQuestionnaireControl
                 );
             }
         }
+    }
+
+    private class HelmetRentalForm extends AbstractCompositeField<FormLayout, HelmetRentalForm, Boolean> {
+
+        private final Checkbox checkbox;
+
+        public HelmetRentalForm() {
+            super(false);
+
+            var p = new Paragraph(i18n.helmetRentalInfo());
+
+            checkbox = new Checkbox(i18n.studentWantsToRentHelmet());
+            checkbox.addValueChangeListener(event -> setModelValue(event.getValue(), true));
+
+            this.getContent().setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("650px", 2)
+            );
+            this.getContent().add(p, checkbox);
+            this.getContent().setColspan(p, 2);
+        }
+
+        @Override
+        public void setValue(Boolean value) {
+            super.setValue(value);
+            this.setPresentationValue(value);
+        }
+
+        @Override
+        protected void setPresentationValue(Boolean newPresentationValue) {
+            this.checkbox.setValue(newPresentationValue);
+        }
+
     }
 
     private class BootRentalDetailsForm extends AbstractCompositeField<FormLayout, BootRentalDetailsForm,

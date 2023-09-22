@@ -159,6 +159,145 @@ public interface SchoolTripMessages {
         if (questionnaire.getDisziplin() instanceof Ski ski) {
             parts.add(
                 """
+                    %s would like to do skiing.
+                        - Experience: %s
+                        - Ski rental: %s
+                        - Ski boot rental: %s
+                        - Helmet rental: %s
+                    """
+                    .stripIndent()
+                    .formatted(
+                        student.getFirstName(),
+                        experience(i18n, ski.getExperience()),
+                        rental,
+                        bootRental,
+                        questionnaire.getDisziplin().hasHelmRental() ? i18n.yes() : i18n.no()
+                    )
+            );
+        } else if (questionnaire.getDisziplin() instanceof Snowboard snowboard) {
+            parts.add(
+                """
+                    %s wants to do Boarding.
+                        - Experience: %s
+                        - Snowboard rental: %s
+                        - Snowboard boots rental: %s
+                        - Helmet rental: %s
+                    """
+                    .stripIndent()
+                    .formatted(
+                        student.getFirstName(),
+                        experience(i18n, snowboard.getExperience()),
+                        rental,
+                        bootRental,
+                        questionnaire.getDisziplin().hasHelmRental() ? i18n.yes() : i18n.no()
+                    )
+            );
+        }
+
+        /*
+         * Additional information
+         */
+        var additionalInformation = new ArrayList<String>();
+
+        var nutritionNotes = new ArrayList<String>();
+        if (questionnaire.getNutrition().isHalal()) nutritionNotes.add(i18n.nutritionHalal());
+        if (questionnaire.getNutrition().isVegetarian()) nutritionNotes.add(i18n.nutritionVegetarian());
+
+        if (!nutritionNotes.isEmpty()) {
+            additionalInformation.add("- %s eats %s".formatted(
+                student.getFirstName(), String.join(" and ", nutritionNotes)
+            ));
+        }
+
+        if (questionnaire.getComment().length() > 0) {
+            additionalInformation.add("- Additional information for us:\n" + (questionnaire.getComment()
+                .indent(6)));
+        }
+
+        if (!additionalInformation.isEmpty()) {
+            parts.add(
+                """
+                    Something you told us:
+                    %s
+                    """
+                    .stripIndent()
+                    .formatted(
+                        String.join("\n", additionalInformation).indent(3)
+                    )
+            );
+        }
+
+        /*
+         * Pricing
+         */
+        var format = new DecimalFormat(i18n.currencyNumberFormat());
+
+        var priceLineItems = student.getPriceLineItems(Either.fromRight(trip), i18n);
+        if (priceLineItems.isPresent()) {
+            var lineItems = priceLineItems
+                .get()
+                .getItems()
+                .stream()
+                .map(item -> "- " + item.label() + ": " + format.format(item.amount()) + " €")
+                .collect(Collectors.joining("\n"));
+
+            lineItems = lineItems + "\n- " + i18n.amountSum().toUpperCase() + ": " + priceLineItems.get()
+                .getSumFormatted();
+            lineItems = lineItems.indent(3);
+
+            parts.add(
+                """
+                    Costs are calculated as follows:
+                    %s
+                    """
+                    .stripIndent()
+                    .formatted(lineItems)
+            );
+        }
+
+        parts.add(
+            """
+                We are looking forward!
+                Team of Ski- und Snowboard-Freizeit 2024
+                """
+        );
+
+        return parts;
+    }
+
+    default List<String> commonEmailContent$DE(
+        SchoolTripMessages i18n, SchoolTrip trip, Student student) {
+
+        var questionnaire = student.getQuestionnaire().orElse(Questionnaire.empty());
+        var parts = new ArrayList<String>();
+
+        /*
+         * Discipline Selection
+         */
+        var rental = questionnaire
+            .getDisziplin()
+            .getRental()
+            .map(r -> {
+                var weight = r.getWeight() + "Kg";
+                var size = r.getHeight() + "cm";
+
+                return i18n.yes() + " (" + weight + ", " + size + ")";
+            })
+            .orElse(i18n.no());
+
+        var bootRental = questionnaire
+            .getDisziplin()
+            .getBootRental()
+            .map(r -> {
+                var size = r.getSize();
+
+                return i18n.yes() + " (" + i18n.shoeSize() + " " + size + ")";
+            })
+            .orElse(i18n.no());
+
+        if (questionnaire.getDisziplin() instanceof Ski ski) {
+            parts.add(
+                """
                     %s möchte Ski fahren.
                         - Erfahrung: %s
                         - Ski-Ausleihe gewünscht: %s
@@ -171,7 +310,7 @@ public interface SchoolTripMessages {
                         experience(i18n, ski.getExperience()),
                         rental,
                         bootRental,
-                        "Jo - Ohne Helm kommt uns keiner auf die Piste!" // TODO
+                        questionnaire.getDisziplin().hasHelmRental() ? i18n.yes() : i18n.no()
                     )
             );
         } else if (questionnaire.getDisziplin() instanceof Snowboard snowboard) {
@@ -189,7 +328,7 @@ public interface SchoolTripMessages {
                         experience(i18n, snowboard.getExperience()),
                         rental,
                         bootRental,
-                        "Jo - Ohne Helm kommt uns keiner auf die Piste!" // TODO
+                        questionnaire.getDisziplin().hasHelmRental() ? i18n.yes() : i18n.no()
                     )
             );
         }
@@ -232,7 +371,7 @@ public interface SchoolTripMessages {
          */
         var format = new DecimalFormat(i18n.currencyNumberFormat());
 
-        var priceLineItems = student.getPriceLineItems(Either.fromRight(trip));
+        var priceLineItems = student.getPriceLineItems(Either.fromRight(trip), i18n);
         if (priceLineItems.isPresent()) {
             var lineItems = priceLineItems
                 .get()
@@ -441,6 +580,11 @@ public interface SchoolTripMessages {
     @DE("Ausleihe Helm")
     default String helmetRental() {
         return "Helmet rental";
+    }
+
+    @DE("Auf der Piste besteht für alle Teilnehmer Helmpflicht.")
+    default String helmetRentalInfo() {
+        return "Everyone is required to wear a helmet on the pist.";
     }
 
     @DE("Daten importieren")
@@ -692,6 +836,41 @@ public interface SchoolTripMessages {
 
         parts.add(
             """
+                Registration Ski- und Snowboard-Freizeit 2024
+                            
+                We received the registration for %s. Please confirm the registration by following the link below:
+                            
+                %s
+                            
+                The registration is only complete after visiting the link.
+                                
+                You may change some of the registration options, to do so, follow the link below:
+                                
+                %s
+                                
+                Below you find the registered options.
+                            
+                """
+                .stripIndent()
+                .formatted(
+                    student.getFirstName(),
+                    confirmationUrl,
+                    updateUrl
+                )
+        );
+
+        parts.addAll(commonEmailContent(i18n, trip, student));
+        return parts.stream().map(String::trim).collect(Collectors.joining("\n\n"));
+    }
+
+    default String registrationConfirmationMailText$DE(
+        SchoolTripMessages i18n, SchoolTrip trip, Student student,
+        String confirmationUrl, String updateUrl) {
+
+        var parts = new ArrayList<String>();
+
+        parts.add(
+            """
                 Anmeldung zur Ski- und Snowboard-Freizeit 2024
                             
                 Die Anmeldung für %s für die Ski- und Snowboard-Freizeit haben wir entgegenegenommen. Bitte validieren Sie die Anmeldung in dem Sie den folgenden Link besuchen:
@@ -725,6 +904,33 @@ public interface SchoolTripMessages {
     }
 
     default String registrationUpdatedMailText(
+        SchoolTripMessages i18n, SchoolTrip trip,
+        Student student, String updateUrl) {
+
+        var parts = new ArrayList<String>();
+
+        parts.add(
+            """
+                Registration for Ski- und Snowboard-Freizeit 2024
+                            
+                The registration of %s has been updated.
+                
+                If you wish to change some of the registration options again, please follow the link below:
+                                
+                %s
+                """
+                .stripIndent()
+                .formatted(
+                    student.getFirstName(),
+                    updateUrl
+                )
+        );
+
+        parts.addAll(commonEmailContent(i18n, trip, student));
+        return parts.stream().map(String::trim).collect(Collectors.joining("\n\n"));
+    }
+
+    default String registrationUpdatedMailText$DE(
         SchoolTripMessages i18n, SchoolTrip trip,
         Student student, String updateUrl) {
 
@@ -852,6 +1058,11 @@ public interface SchoolTripMessages {
         return "Ski boots rental price";
     }
 
+    @DE("Ausleihe Ski")
+    default String skiRental() {
+        return "Ski rental";
+    }
+
     @DE("Leihgebühr Ski")
     default String skiRentalPrice() {
         return "Ski rental price";
@@ -862,9 +1073,19 @@ public interface SchoolTripMessages {
         return "Snowboard";
     }
 
+    @DE("Ausleihe Snowboard-Boots")
+    default String snowboardBootRental() {
+        return "Snowboard boot rental";
+    }
+
     @DE("Leihgebühr Snowboard-Boots")
     default String snowboardBootsRentalPrice() {
         return "Snowboard boots rental price";
+    }
+
+    @DE("Ausleihe Snowboard")
+    default String snowboardRental() {
+        return "Snowboard rental";
     }
 
     @DE("Leihgebühr Snowboard")
@@ -972,6 +1193,11 @@ public interface SchoolTripMessages {
     @DE("Mein Kind möchte teilnehmen:")
     default String studentWantsToParticipate() {
         return "My child wants to participate.";
+    }
+
+    @DE("Mein Kind benötigt einen Helm.")
+    default String studentWantsToRentHelmet() {
+        return "My child want to rent a helmet.";
     }
 
     @DE("Mein Kind möchte Ski und Zubehör ausleihen.")

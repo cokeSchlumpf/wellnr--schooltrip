@@ -10,4 +10,6 @@ public sealed interface Discipline permits Ski, Snowboard {
 
     Optional<? extends Rental> getRental();
 
+    boolean hasHelmRental();
+
 }

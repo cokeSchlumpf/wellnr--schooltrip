@@ -54,7 +54,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
 
             this
                 .addComponentColumnForRegisteredStudent(student -> student
-                    .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()))
+                    .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
                     .map(items -> new Span(items.getSumFormatted()))
                     .orElse(new Span("-"))
                 )
@@ -71,7 +71,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
             this
                 .addComponentColumnForRegisteredStudent(student -> {
                     var expected = student
-                        .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()))
+                        .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
                         .map(AbstractLineItems::getSum)
                         .orElse(0d);
 

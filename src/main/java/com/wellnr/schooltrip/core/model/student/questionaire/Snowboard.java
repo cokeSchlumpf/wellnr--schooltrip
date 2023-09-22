@@ -21,8 +21,11 @@ public class Snowboard implements Discipline {
     @Nullable
     SnowboardBootRental snowboardBootRental;
 
+    @With
+    boolean helmRental;
+
     public static Snowboard apply(Experience experience) {
-        return apply(experience, null, null);
+        return apply(experience, null, null, false);
     }
 
     public Optional<SnowboardBootRental> getBootRental() {
@@ -31,6 +34,10 @@ public class Snowboard implements Discipline {
 
     public Optional<SnowboardRental> getRental() {
         return Optional.ofNullable(snowboardRental);
+    }
+
+    public boolean hasHelmRental() {
+        return helmRental;
     }
 
 }
