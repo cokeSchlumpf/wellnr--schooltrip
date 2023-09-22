@@ -29,24 +29,24 @@ public class LoginCommand implements AbstractSchoolTripCommand<MessageResult<Res
     String password;
 
     @Override
-    public MessageResult<Result<RegisteredUser>> run(User ignoreUser, SchoolTripDomainRegistry domainRegistry) {
+    public MessageResult<Result<RegisteredUser>> run(User user, SchoolTripDomainRegistry domainRegistry) {
         var loginResult = domainRegistry
             .getUsers()
             .findOneByEmail(username)
-            .map(user -> user
+            .map(registeredUser -> registeredUser
                 .login(
                     password, domainRegistry.getUsers(), domainRegistry.getPasswordEncryptionPort()
                 )
                 .mapSuccess(
-                    done -> user
+                    done -> registeredUser
                 )
             )
             .orElse(Result.failure(new NotSuccessfulException()));
 
         var message = When
             .isTrue(loginResult.isFailure())
-            .then(domainRegistry.getMessages().loginFailed())
-            .otherwise("Login succeeded.");
+            .then(user.getMessages().loginFailed())
+            .otherwise(user.getMessages().loginSucceeded());
 
         return MessageResult.apply(message, loginResult);
     }

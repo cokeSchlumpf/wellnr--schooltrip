@@ -28,7 +28,7 @@ public class CompleteOrUpdateStudentRegistrationCommand implements AbstractSchoo
 
         student.completeStudentRegistration(
             questionnaire, notificationEmail, domainRegistry.getStudents(),domainRegistry.getSchoolTrips(),
-            domainRegistry.getMailSender(), domainRegistry.getConfig(), domainRegistry.getMessages()
+            domainRegistry.getMailSender(), domainRegistry.getConfig(), user.getMessages()
         );
 
         return MessageResult.formatted(

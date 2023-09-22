@@ -18,7 +18,23 @@
 }
 
 .app__public-app-view__logo__img {
-    max-width: 80%;
+    max-width: 70%;
+    max-height: 80%;
+}
+
+.app__public-app-view__language {
+    display: block;
+    width: 80%;
+
+    text-align: center;
+    padding-right: 4%;
+}
+
+.app__public-app-view__language__button {
+    top: 0.5em;
+    left: 1em;
+
+    color: #8B8181;
 }
 
 .app__public-app-view__content {

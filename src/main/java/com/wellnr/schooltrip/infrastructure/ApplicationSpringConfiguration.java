@@ -100,8 +100,6 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
             students,
             users,
             passwordEncryptionPort,
-            new SchoolTripMessages() {
-            },
             mailSender
         );
     }

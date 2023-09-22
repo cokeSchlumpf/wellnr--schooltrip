@@ -28,8 +28,6 @@ public class SchoolTripDomainRegistry implements DomainRegistry {
 
     PasswordEncryptionPort passwordEncryptionPort;
 
-    SchoolTripMessages messages;
-
     JavaMailSender mailSender;
 
 }

@@ -1045,6 +1045,11 @@ public interface SchoolTripMessages {
         return "Submit";
     }
 
+    @DE("English version")
+    default String switchLanguage() {
+        return "Deutsche Version";
+    }
+
     @DE("Spalte")
     default String tableColumn() {
         return "column";
