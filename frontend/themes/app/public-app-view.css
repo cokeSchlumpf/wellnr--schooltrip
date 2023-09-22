@@ -1,0 +1,44 @@
+.app__public-app-view {
+    --lumo-primary-color: #3D79B7;
+}
+
+.app__public-app-view__logo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #051934;
+}
+
+.app__public-app-view__logo__img {
+    max-width: 80%;
+}
+
+.app__public-app-view__content {
+    margin-left: 50%;
+    padding: 1.5em;
+}
+
+@media only screen and (max-width: 1024px) {
+    .app__public-app-view__logo {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
+
+    .app__public-app-view__logo__img {
+        max-width: 40vw;
+    }
+
+    .app__public-app-view__content {
+        margin: 0;
+        padding: 1.5em;
+    }
+}

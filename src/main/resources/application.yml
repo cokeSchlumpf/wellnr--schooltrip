@@ -25,6 +25,7 @@ app:
       "dq": "HoGEAQpsFDLEAAgnIy_xNM1CCVAOsy4E1lufRRaP6VODR96Sfbcpz5MGIWvjn9cQK2kWjpd2n7uBLotEXoJ_LJsK4FM4L1d9jSCliMmnw2uUVxSa8eb6yfKS4Y_w8l9OPREoLL9uMEBSfxFMbHGM6g2OWJHwghG6wI673gmIYME",
       "n": "neByXAIhLoa06ntQLEd2z_Nwp-V7y7t2BYcHmqqoxwBHK3iAGfM3Wi2bMYRK-Vo4acBCHIdMMw0PG2q4jMpV1T3Ss8ekMKy1Ep--eRvFG75WakHfwHBSAKok9o15pRjBtkT813qRL5aaL1jwIK-rWSwHsQtFCXyrcB2jjp_WCkzvpiD_0MPrm4svJtj8Qm4_eyQbetk0XDBQFwgqmALmc8FdDW4c09c6W39_yDoCoDQPexXbeZsU1g3shBG0AhuDDN_UeBxVz_L1MMfctASoct0BF-zISOBbb7x8tqBiTtzGmDxOhzOWn0cAdBBHTxK8WPvynWHfzeLgRi5SW7AV3Q"
     }
+
   default-admin-users:
     - email: michael.wellner@gmail.com
       password: secret
@@ -34,13 +35,29 @@ app:
       password: secret
       first-name: Katharina
       last-name: Wellner
+
   default-teachers:
     - email: marcus.ortenau@gas.de
       password: secret
       first-name: Marcus
       last-name: Ortenau
+
   ui:
     base-url: http://localhost:8080/
+
+  email:
+    mode: "fake"
+
+    host: smtp.strato.de
+    port: 587
+    username: info@ski.gas-merzig.digital
+    password: xxx
+
+    properties:
+      "[mail.transport.protocol]": "smtp"
+      "[mail.smtp.auth]": "true"
+      "[mail.smtp.starttls.enable]": "true"
+      "[mail.debug]": "false"
 
 #
 # Vaadin

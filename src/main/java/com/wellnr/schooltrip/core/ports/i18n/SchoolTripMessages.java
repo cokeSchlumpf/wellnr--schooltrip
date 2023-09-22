@@ -1,8 +1,17 @@
 package com.wellnr.schooltrip.core.ports.i18n;
 
+import com.wellnr.common.markup.Either;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
+import com.wellnr.schooltrip.core.model.student.questionaire.Experience;
+import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
+import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
+import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
 
-import java.text.MessageFormat;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public interface SchoolTripMessages {
 
@@ -67,6 +76,11 @@ public interface SchoolTripMessages {
         return "< Back";
     }
 
+    @DE("Zurück zur Registrierung")
+    default String backToRegistration() {
+        return "Back to registration";
+    }
+
     @DE("Grundpreis")
     default String basePrice() {
         return "Base price";
@@ -112,6 +126,146 @@ public interface SchoolTripMessages {
         return "Close registration and remove studens who are not registered.";
     }
 
+    default List<String> commonEmailContent(
+        SchoolTripMessages i18n, SchoolTrip trip, Student student) {
+
+        var questionnaire = student.getQuestionnaire().orElse(Questionnaire.empty());
+        var parts = new ArrayList<String>();
+
+        /*
+         * Discipline Selection
+         */
+        var rental = questionnaire
+            .getDisziplin()
+            .getRental()
+            .map(r -> {
+                var weight = r.getWeight() + "Kg";
+                var size = r.getHeight() + "cm";
+
+                return i18n.yes() + " (" + weight + ", " + size + ")";
+            })
+            .orElse(i18n.no());
+
+        var bootRental = questionnaire
+            .getDisziplin()
+            .getBootRental()
+            .map(r -> {
+                var size = r.getSize();
+
+                return i18n.yes() + " (" + i18n.shoeSize() + " " + size + ")";
+            })
+            .orElse(i18n.no());
+
+        if (questionnaire.getDisziplin() instanceof Ski ski) {
+            parts.add(
+                """
+                    %s möchte Ski fahren.
+                        - Erfahrung: %s
+                        - Ski-Ausleihe gewünscht: %s
+                        - Ski-Schuh-Aushleihe gewünscht: %s
+                        - Helm-Ausleihe gewünscht: %s
+                    """
+                    .stripIndent()
+                    .formatted(
+                        student.getFirstName(),
+                        experience(i18n, ski.getExperience()),
+                        rental,
+                        bootRental,
+                        "Jo - Ohne Helm kommt uns keiner auf die Piste!" // TODO
+                    )
+            );
+        } else if (questionnaire.getDisziplin() instanceof Snowboard snowboard) {
+            parts.add(
+                """
+                    %s möchte Snowboard fahren.
+                        - Erfahrung: %s
+                        - Snowboard-Ausleihe gewünscht: %s
+                        - Snowboard-Boots-Aushleihe gewünscht: %s
+                        - Helm-Ausleihe gewünscht: %s
+                    """
+                    .stripIndent()
+                    .formatted(
+                        student.getFirstName(),
+                        experience(i18n, snowboard.getExperience()),
+                        rental,
+                        bootRental,
+                        "Jo - Ohne Helm kommt uns keiner auf die Piste!" // TODO
+                    )
+            );
+        }
+
+        /*
+         * Additional information
+         */
+        var additionalInformation = new ArrayList<String>();
+
+        var nutritionNotes = new ArrayList<String>();
+        if (questionnaire.getNutrition().isHalal()) nutritionNotes.add(i18n.nutritionHalal());
+        if (questionnaire.getNutrition().isVegetarian()) nutritionNotes.add(i18n.nutritionVegetarian());
+
+        if (!nutritionNotes.isEmpty()) {
+            additionalInformation.add("- %s ernärht sich %s".formatted(
+                student.getFirstName(), String.join(" und ", nutritionNotes)
+            ));
+        }
+
+        if (questionnaire.getComment().length() > 0) {
+            additionalInformation.add("- Zusätzliche Informationen für uns:\n" + (questionnaire.getComment()
+                .indent(6)));
+        }
+
+        if (!additionalInformation.isEmpty()) {
+            parts.add(
+                """
+                    Weitere Informationen, die Sie uns mitgegeben haben:
+                    %s
+                    """
+                    .stripIndent()
+                    .formatted(
+                        String.join("\n", additionalInformation).indent(3)
+                    )
+            );
+        }
+
+        /*
+         * Pricing
+         */
+        var format = new DecimalFormat(i18n.currencyNumberFormat());
+
+        var priceLineItems = student.getPriceLineItems(Either.fromRight(trip));
+        if (priceLineItems.isPresent()) {
+            var lineItems = priceLineItems
+                .get()
+                .getItems()
+                .stream()
+                .map(item -> "- " + item.label() + ": " + format.format(item.amount()) + " €")
+                .collect(Collectors.joining("\n"));
+
+            lineItems = lineItems + "\n- " + i18n.amountSum().toUpperCase() + ": " + priceLineItems.get()
+                .getSumFormatted();
+            lineItems = lineItems.indent(3);
+
+            parts.add(
+                """
+                    Die Kosten für die Ausfahrt setzen sich wie folgt zusammen:
+                    %s
+                    """
+                    .stripIndent()
+                    .formatted(lineItems)
+            );
+        }
+
+        parts.add(
+            """
+                Wir freuen uns auf %s! Viele Grüße!
+                Das Team der Ski- und Snowboard-Freizeit 2024
+                """
+                .formatted(student.getFirstName())
+        );
+
+        return parts;
+    }
+
     @DE("Anmeldung bestätigen")
     default String confirmRegistration() {
         return "Confirm registration";
@@ -122,10 +276,19 @@ public interface SchoolTripMessages {
         return "Confirmation";
     }
 
-    @DE("Bitte verifizieren Sie die verbindliche Anmeldung. Die Angaben zu Sportart, " +
-        "Ausleihe, Körpergröße und -gewicht können bei Bedarf zu einem späteren Zeitpunkt angepasst werden.")
+    @DE("""
+        Bitte verifizieren Sie die verbindliche Anmeldung. Sie erhalten nach Absenden eine E-Mail zur Bestätigung der Anmeldung. Die Angaben zu Sportart, Ausleihe, Körpergröße und Gewicht können bei Bedarf zu einem späteren Zeitpunkt angepasst werden.
+        """)
     default String confirmationInfo() {
-        return "Please confirm the registration information.";
+        return "Please confirm the registration information by providing your email address.";
+    }
+
+    default String confirmationMailSubject(SchoolTrip schoolTrip) {
+        return schoolTrip.getTitle() + " - Registration";
+    }
+
+    default String confirmationMailSubject$DE(SchoolTrip schoolTrip) {
+        return schoolTrip.getTitle() + " - Anmeldung";
     }
 
     @DE("Kosten")
@@ -225,6 +388,14 @@ public interface SchoolTripMessages {
     @DE("Erfahrung")
     default String experience() {
         return "Experience";
+    }
+
+    default String experience(SchoolTripMessages i18n, Experience exp) {
+        return switch (exp) {
+            case BEGINNER -> i18n.beginner();
+            case INTERMEDIATE -> i18n.intermediate();
+            default -> i18n.expert();
+        };
     }
 
     @DE("Profi")
@@ -394,6 +565,11 @@ public interface SchoolTripMessages {
         return "Next >";
     }
 
+    @DE("Nein")
+    default String no() {
+        return "No";
+    }
+
     @DE("Keine Präferenz")
     default String noPreference() {
         return "No preference";
@@ -508,18 +684,71 @@ public interface SchoolTripMessages {
         return "Registration";
     }
 
-    // TODO
-    default String registrationConfirmationEmailText(Student student) {
-        return MessageFormat.format("""
-            Danke für die Registrierung `{0}`!
-                        
-            Abschließen hier Kollege: http://localhost:8080/students/confirm-registration/{1}
-            """, student.getDisplayName(), student.getConfirmationToken());
+    default String registrationConfirmationMailText(
+        SchoolTripMessages i18n, SchoolTrip trip, Student student,
+        String confirmationUrl, String updateUrl) {
+
+        var parts = new ArrayList<String>();
+
+        parts.add(
+            """
+                Anmeldung zur Ski- und Snowboard-Freizeit 2024
+                            
+                Die Anmeldung für %s für die Ski- und Snowboard-Freizeit haben wir entgegenegenommen. Bitte validieren Sie die Anmeldung in dem Sie den folgenden Link besuchen:
+                            
+                %s
+                            
+                Erst nach Besuch des Links, ist die Anmeldung vollständig abgeschlossen.
+                                
+                Einige Angaben können Sie bis eine Woche vor der Ausfahrt bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
+                                
+                %s
+                                
+                Im folgenden finden Sie die registrierten Angaben.
+                            
+                """
+                .stripIndent()
+                .formatted(
+                    student.getFirstName(),
+                    confirmationUrl,
+                    updateUrl
+                )
+        );
+
+        parts.addAll(commonEmailContent(i18n, trip, student));
+        return parts.stream().map(String::trim).collect(Collectors.joining("\n\n"));
     }
 
     @DE("Anmeldung offen bis")
     default String registrationOpenUntil() {
         return "Registration open until";
+    }
+
+    default String registrationUpdatedMailText(
+        SchoolTripMessages i18n, SchoolTrip trip,
+        Student student, String updateUrl) {
+
+        var parts = new ArrayList<String>();
+
+        parts.add(
+            """
+                Anmeldung zur Ski- und Snowboard-Freizeit 2024
+                            
+                Die Anmeldung für %s für die Ski- und Snowboard-Freizeit wurde aktualisiert. Im folgenden finden Sie die aktualisierten Angaben.
+                                
+                Sollten Sie die Angaben erneut anpassen wollen, nutzen Sie den folgenden Link:
+                                
+                %s
+                """
+                .stripIndent()
+                .formatted(
+                    student.getFirstName(),
+                    updateUrl
+                )
+        );
+
+        parts.addAll(commonEmailContent(i18n, trip, student));
+        return parts.stream().map(String::trim).collect(Collectors.joining("\n\n"));
     }
 
     @DE("Ausleihe Ski/ Board")
@@ -673,6 +902,68 @@ public interface SchoolTripMessages {
         return "Student has been registered, but confirmation link has not been called.";
     }
 
+    default String studentRegisteredText(Student student, String emailAddress) {
+        return """
+            We've sent an confirmation mail to %s, please check your mailbox and visit the link mentioned in the page.
+            """
+            .trim()
+            .stripIndent()
+            .formatted(emailAddress);
+    }
+
+    default String studentRegisteredText$DE(Student student, String emailAddress) {
+        return
+            """
+                Wir haben eine E-Mail an %s gesendet. Bitte prüfen Sie ihren Posteingang und besuchen Sie den Bestätigungs-Link aus der E-Mail.
+                """
+                .trim()
+                .stripIndent()
+                .formatted(emailAddress);
+    }
+
+    default String studentRegisteredTitle(Student student) {
+        return "Please confirm registration for %s".formatted(student.getFirstName());
+    }
+
+    default String studentRegisteredTitle$DE(Student student) {
+        return "Bitte bestätigen Sie die Registrierung für %s".formatted(student.getFirstName());
+    }
+
+    default String studentRegisteredViewHeadline(Student student) {
+        return """
+            %s has been successfully registered for the trip
+            """
+            .formatted(student.getFirstName())
+            .trim()
+            .stripIndent();
+    }
+
+    default String studentRegisteredViewHeadline$DE(Student student) {
+        return """
+            %s wurde erfolgreich für den Skikurs angemeldet
+            """
+            .formatted(student.getFirstName())
+            .trim()
+            .stripIndent();
+    }
+
+    default String studentRegisteredViewInfo(Student student) {
+        return """
+            You may change rental settings or make payments.
+            """
+            .trim()
+            .stripIndent();
+    }
+
+    default String studentRegisteredViewInfo$DE(Student student) {
+        return """
+            Sie können die Daten zur Ausleihe bis eine Woche vor Beginn des Skikurses anpassen oder Zahlungen durchführen.
+            """
+            .trim()
+            .stripIndent()
+            .formatted(student.getFirstName());
+    }
+
     @DE("Link zur Selbst-Anmeldung")
     default String studentRegistrationLink() {
         return "Student Registration Link";
@@ -782,6 +1073,27 @@ public interface SchoolTripMessages {
         return "Type";
     }
 
+    @DE("Registrierung ansehen/ bearbeiten")
+    default String updateRegistration() {
+        return "View/ Update Registration";
+    }
+
+    default String updateRegistrationDescription(Student student) {
+        return "Use the following form to update registration details for " + student.getFirstName() + ".";
+    }
+
+    default String updateRegistrationDescription$DE(Student student) {
+        return "Nutzen Sie das folgende Formular, um die Anmeldedaten für " + student.getFirstName() + " anzupassen.";
+    }
+
+    default String updateRegistrationHeadline(Student student) {
+        return "Update registration details for " + student.getFirstName();
+    }
+
+    default String updateRegistrationHeadline$DE(Student student) {
+        return "Anmeldung anpassen für " + student.getFirstName();
+    }
+
     @DE("Benutzer existiert bereits.")
     default String userAlreadyExists() {
         return "User already exists.";
@@ -810,6 +1122,11 @@ public interface SchoolTripMessages {
     @DE("Benutzername")
     default String username() {
         return "Username";
+    }
+
+    @DE("Ja")
+    default String yes() {
+        return "Yes";
     }
 
 }

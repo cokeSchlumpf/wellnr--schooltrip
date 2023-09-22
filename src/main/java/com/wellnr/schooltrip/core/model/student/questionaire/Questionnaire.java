@@ -7,7 +7,7 @@ import lombok.With;
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Questionaire {
+public class Questionnaire {
 
     Discipline disziplin;
 
@@ -15,7 +15,7 @@ public class Questionaire {
 
     String comment;
 
-    public static Questionaire empty() {
+    public static Questionnaire empty() {
         return apply(
             Ski.apply(Experience.BEGINNER),
             Nutrition.apply(false, false),

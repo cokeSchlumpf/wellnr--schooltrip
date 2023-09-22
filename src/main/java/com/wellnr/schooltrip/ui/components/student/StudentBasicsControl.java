@@ -12,7 +12,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
-import com.wellnr.schooltrip.ui.StudentRegistrationView;
+import com.wellnr.schooltrip.ui.public_app.StudentRegistrationView;
 import com.wellnr.schooltrip.ui.components.ApplicationCopyTextField;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;

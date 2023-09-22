@@ -5,7 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
-import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteOrUpdateStudentRegistrationByOrganizerCommand;
+import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationByOrganizerCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ConfirmStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;

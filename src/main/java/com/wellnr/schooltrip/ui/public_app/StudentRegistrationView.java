@@ -1,7 +1,8 @@
-package com.wellnr.schooltrip.ui;
+package com.wellnr.schooltrip.ui.public_app;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -9,48 +10,35 @@ import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.router.*;
-import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteStudentRegistrationCommand;
+import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteStudentRegistrationViewCommand;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
+import com.wellnr.schooltrip.ui.components.public_app.HeadlineWithTitle;
 import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionnaireControl;
+import com.wellnr.schooltrip.ui.layout.AbstractPublicAppView;
 
 import java.util.Arrays;
 
 @PageTitle("School Trip")
 @Route("/students/complete-registration/:token")
-public class StudentRegistrationView extends Div implements BeforeEnterObserver {
-
-    private final SchoolTripMessages i18n;
+public class StudentRegistrationView extends AbstractPublicAppView implements BeforeEnterObserver {
 
     private final ApplicationCommandRunner commandRunner;
 
-    private final Div contentContainer;
-
     private Student student;
+
+    private SchoolTrip schoolTrip;
 
     private StudentRegistrationQuestionnaireControl questionnaire;
 
+    private String emailAddress;
+
     public StudentRegistrationView(ApplicationCommandRunner commandRunner, ApplicationUserSession userSession) {
-        this.i18n = userSession.getMessages();
+        super(userSession);
         this.commandRunner = commandRunner;
-
-        this.addClassName("app__student-registration");
-
-        var logo = new Image("images/logo.png", "Ski- und Snowboard-Freizeit des GaS Merzig.");
-        logo.addClassName("app__student-registration__logo__img");
-
-        var logoContainer = new Div();
-        logoContainer.addClassName("app__student-registration__logo");
-        logoContainer.add(logo);
-
-        this.contentContainer = new Div();
-        contentContainer.addClassName("app__student-registration__content");
-
-        this.add(logoContainer);
-        this.add(contentContainer);
     }
 
     public static RouteParameters getRouteParameters(Student student) {
@@ -73,22 +61,13 @@ public class StudentRegistrationView extends Div implements BeforeEnterObserver 
             .getData();
 
         student = projection.student();
-        var schoolTrip = projection.schoolTrip();
+        schoolTrip = projection.schoolTrip();
 
         /*
          * Initialize view.
          */
 
         questionnaire = new StudentRegistrationQuestionnaireControl(i18n, schoolTrip, student);
-
-        var headlineHeaderTitle = new Span(projection.schoolTrip().getTitle());
-        headlineHeaderTitle.addClassName("app__student-registration__headline__header-title");
-
-        var headline = new H2(
-            headlineHeaderTitle,
-            new Span(i18n.registerStudentHeadline(student))
-        );
-        headline.addClassName("app__student-registration__headline");
 
         var introduction = new Div();
         introduction.addClassName("app__student-registration__introduction");
@@ -99,11 +78,42 @@ public class StudentRegistrationView extends Div implements BeforeEnterObserver 
         );
 
         var layout = new VerticalLayout();
-        layout.add(headline);
+        layout.add(new HeadlineWithTitle(
+            projection.schoolTrip().getTitle(),
+            i18n.registerStudentHeadline(student)
+        ));
         layout.add(introduction);
         layout.add(questionnaire);
         layout.add(new SubmitSection());
+        layout.setPadding(false);
+        layout.setMargin(false);
         this.contentContainer.add(layout);
+    }
+
+    private void displayConfirmation() {
+        var headline = new HeadlineWithTitle(
+            schoolTrip.getTitle(),
+            i18n.studentRegisteredTitle(student)
+        );
+
+        var infoText = new Paragraph(
+            i18n.studentRegisteredText(student, emailAddress)
+        );
+
+        var button = new Button(i18n.backToRegistration());
+        button.addClickListener(event -> {
+            this.contentContainer.removeAll();
+
+            UI.getCurrent().navigate(
+                StudentRegistrationView.class,
+                StudentRegistrationView.getRouteParameters(student)
+            );
+        });
+
+        this.contentContainer.removeAll();
+        this.contentContainer.add(headline);
+        this.contentContainer.add(infoText);
+        this.contentContainer.add(button);
     }
 
     private class SubmitSection extends VerticalLayout {
@@ -142,11 +152,13 @@ public class StudentRegistrationView extends Div implements BeforeEnterObserver 
         private void submit() {
             var questionnaire = StudentRegistrationView.this.questionnaire.getValue();
 
-            var cmd = CompleteStudentRegistrationCommand.apply(
+            var cmd = CompleteOrUpdateStudentRegistrationCommand.apply(
                 student.getToken(), questionnaire, email.getValue()
             );
 
+            emailAddress = email.getValue();
             commandRunner.run(cmd);
+            displayConfirmation();
         }
 
     }

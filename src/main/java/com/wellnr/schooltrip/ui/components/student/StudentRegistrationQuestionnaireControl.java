@@ -30,7 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class StudentRegistrationQuestionnaireControl
-    extends AbstractCompositeField<VerticalLayout, StudentRegistrationQuestionnaireControl, Questionaire> {
+    extends AbstractCompositeField<VerticalLayout, StudentRegistrationQuestionnaireControl, Questionnaire> {
 
     private final String SUM_LABEL;
     private final SchoolTripMessages i18n;
@@ -42,7 +42,7 @@ public class StudentRegistrationQuestionnaireControl
     private SchoolTrip schoolTrip;
 
     public StudentRegistrationQuestionnaireControl(SchoolTripMessages i18n, SchoolTrip schoolTrip, Student student) {
-        super(student.getQuestionaire().orElse(Questionaire.empty()));
+        super(student.getQuestionnaire().orElse(Questionnaire.empty()));
 
         this.i18n = i18n;
         this.schoolTrip = schoolTrip;
@@ -79,7 +79,7 @@ public class StudentRegistrationQuestionnaireControl
     }
 
     public void setSchoolTripAndStudent(SchoolTrip schoolTrip, Student student) {
-        var questionnaire = student.getQuestionaire().orElse(Questionaire.empty());
+        var questionnaire = student.getQuestionnaire().orElse(Questionnaire.empty());
 
         this.schoolTrip = schoolTrip;
         this.disciplinSection.setStudent(student);
@@ -89,13 +89,13 @@ public class StudentRegistrationQuestionnaireControl
     }
 
     @Override
-    public void setValue(Questionaire value) {
+    public void setValue(Questionnaire value) {
         super.setValue(value);
         this.setPresentationValue(value);
     }
 
     @Override
-    protected void setPresentationValue(Questionaire newPresentationValue) {
+    protected void setPresentationValue(Questionnaire newPresentationValue) {
         this.disciplinSection.setValue(newPresentationValue.getDisziplin());
         this.additionalInformationSection.setValue(newPresentationValue);
         this.costSection.setValue(this.schoolTrip, newPresentationValue);
@@ -370,20 +370,21 @@ public class StudentRegistrationQuestionnaireControl
     }
 
     private class AdditionalInformationSection extends AbstractCompositeField<VerticalLayout,
-        AdditionalInformationSection, Questionaire> {
+        AdditionalInformationSection, Questionnaire> {
 
         public final NutritionCheckboxes nutrition;
 
         public final TextArea comments;
 
-        public AdditionalInformationSection(Questionaire questionaire) {
-            super(questionaire);
+        public AdditionalInformationSection(Questionnaire questionnaire) {
+            super(questionnaire);
 
             nutrition = new NutritionCheckboxes();
             nutrition.addValueChangeListener(event -> {
                 var q = this.getValue().withNutrition(event.getValue());
                 setModelValue(q, true);
             });
+            nutrition.setValue(questionnaire.getNutrition());
 
             comments = new TextArea("Möchten Sie uns noch etwas mitteilen?");
             comments.setWidthFull();
@@ -391,6 +392,7 @@ public class StudentRegistrationQuestionnaireControl
                 var q = this.getValue().withComment(event.getValue());
                 setModelValue(q, true);
             });
+            comments.setValue(questionnaire.getComment());
 
             var form = new FormLayout();
             form.setResponsiveSteps(
@@ -410,13 +412,13 @@ public class StudentRegistrationQuestionnaireControl
         }
 
         @Override
-        public void setValue(Questionaire value) {
+        public void setValue(Questionnaire value) {
             super.setValue(value);
             this.setPresentationValue(value);
         }
 
         @Override
-        protected void setPresentationValue(Questionaire newPresentationValue) {
+        protected void setPresentationValue(Questionnaire newPresentationValue) {
             this.nutrition.setValue(newPresentationValue.getNutrition());
             this.comments.setValue(newPresentationValue.getComment());
         }
@@ -428,7 +430,7 @@ public class StudentRegistrationQuestionnaireControl
 
         private final DecimalFormat format;
 
-        public CostSection(SchoolTrip schoolTrip, Questionaire questionaire) {
+        public CostSection(SchoolTrip schoolTrip, Questionnaire questionnaire) {
             format = new DecimalFormat(i18n.currencyNumberFormat());
             grid = new Grid<>(PriceLineItem.class, false);
             grid.addComponentColumn(item -> {
@@ -468,11 +470,11 @@ public class StudentRegistrationQuestionnaireControl
                 grid
             );
 
-            this.setValue(schoolTrip, questionaire);
+            this.setValue(schoolTrip, questionnaire);
         }
 
-        public void setValue(SchoolTrip schoolTrip, Questionaire questionaire) {
-            var items = Student.calculatePriceLineItems(schoolTrip, questionaire);
+        public void setValue(SchoolTrip schoolTrip, Questionnaire questionnaire) {
+            var items = Student.calculatePriceLineItems(schoolTrip, questionnaire);
             var allItems = new ArrayList<>(items.getItems());
 
             allItems.add(new PriceLineItem(SUM_LABEL, items.getSum()));

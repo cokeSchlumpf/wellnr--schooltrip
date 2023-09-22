@@ -14,7 +14,7 @@ import com.wellnr.common.markup.Tuple4;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
+import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
@@ -43,10 +43,10 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         return addComponentColumnForRegisteredStudent((s, q) -> createComponent.get(s));
     }
 
-    public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function2<Student, Questionaire, Component> createComponent) {
+    public Grid.Column<Student> addComponentColumnForRegisteredStudent(Function2<Student, Questionnaire, Component> createComponent) {
         return this.getGrid().addComponentColumn(student -> {
             if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
-                return createComponent.get(student, student.getQuestionaire().orElse(Questionaire.empty()));
+                return createComponent.get(student, student.getQuestionnaire().orElse(Questionnaire.empty()));
             } else {
                 return new Span("-");
             }
@@ -88,7 +88,7 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         return this
             .getGrid()
             .addColumn(student -> student
-                .getQuestionaire()
+                .getQuestionnaire()
                 .map(q -> {
                     if (q.getDisziplin() instanceof Ski) {
                         return i18n.ski();

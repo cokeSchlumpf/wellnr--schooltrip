@@ -1,9 +1,11 @@
 package com.wellnr.schooltrip.core.model.student;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.wellnr.common.Operators;
 import com.wellnr.common.markup.Either;
 import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
+import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
@@ -14,7 +16,7 @@ import com.wellnr.schooltrip.core.model.student.payments.Payment;
 import com.wellnr.schooltrip.core.model.student.payments.Payments;
 import com.wellnr.schooltrip.core.model.student.payments.PriceLineItem;
 import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
-import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
+import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
 import com.wellnr.schooltrip.core.model.user.User;
@@ -22,9 +24,10 @@ import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import lombok.*;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +60,7 @@ public class Student extends AggregateRoot<String, Student> {
 
     String confirmationToken;
 
-    Questionaire questionaire;
+    Questionnaire questionnaire;
 
     String notificationEmail;
 
@@ -65,14 +68,14 @@ public class Student extends AggregateRoot<String, Student> {
 
     Integer tripStudentId;
 
-    public static PriceLineItems calculatePriceLineItems(SchoolTrip schoolTrip, Questionaire questionaire) {
+    public static PriceLineItems calculatePriceLineItems(SchoolTrip schoolTrip, Questionnaire questionnaire) {
         var lineItems = new ArrayList<PriceLineItem>();
 
         lineItems.add(new PriceLineItem(
             "Grundpreis", schoolTrip.getSettings().getBasePrice()
         ));
 
-        if (questionaire.getDisziplin() instanceof Ski ski) {
+        if (questionnaire.getDisziplin() instanceof Ski ski) {
             if (ski.getRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
                     "Ski-Ausleihe", schoolTrip.getSettings().getSkiRentalPrice()
@@ -86,7 +89,7 @@ public class Student extends AggregateRoot<String, Student> {
             }
         }
 
-        if (questionaire.getDisziplin() instanceof Snowboard sb) {
+        if (questionnaire.getDisziplin() instanceof Snowboard sb) {
             if (sb.getRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
                     "Snowboard-Ausleihe", schoolTrip.getSettings().getSnowboardRentalPrice()
@@ -179,37 +182,77 @@ public class Student extends AggregateRoot<String, Student> {
     }
 
     public void completeOrUpdateStudentRegistrationByOrganizer(
-        Questionaire questionaire,
+        Questionnaire questionnaire,
         StudentsRepository students
     ) {
-        this.questionaire = questionaire;
+        this.questionnaire = questionnaire;
         this.registrationState = RegistrationState.REGISTERED;
         students.insertOrUpdateStudent(this);
     }
 
     public void completeStudentRegistration(
-        Questionaire questionaire,
+        Questionnaire questionnaire,
         String notificationEmail,
         StudentsRepository students,
+        SchoolTripsReadRepository schoolTrips,
         JavaMailSender mailSender,
+        SchoolTripApplicationConfiguration config,
         SchoolTripMessages messages) {
 
-        this.questionaire = questionaire;
+        boolean isUpdate = this.registrationState.equals(
+            RegistrationState.REGISTERED
+        );
+
+        var trip = schoolTrips.getSchoolTripById(this.schoolTrip);
+
+        this.questionnaire = questionnaire;
         this.registrationState = RegistrationState.WAITING_FOR_CONFIRMATION;
         this.notificationEmail = notificationEmail;
+
         students.insertOrUpdateStudent(this);
 
         // Send E-Mail for confirmation.
-        var message = new SimpleMailMessage();
-        message.setFrom("michael.wellner@gmail.com");
-        message.setTo(notificationEmail);
-        message.setSubject("Prima Sache, dass du dabei bist.");
-        message.setText(messages.registrationConfirmationEmailText(this));
+        var message = mailSender.createMimeMessage();
+        var mimeHelper = new MimeMessageHelper(message, StandardCharsets.UTF_8.name());
+
+        var updateUrl = String
+            .format(
+                "%s/students/registered/%s", config.getUi().getBaseUrl(), confirmationToken
+            )
+            .replaceAll("([^:])//", "$1/");
+
+        String mailText;
+
+        if (isUpdate) {
+            mailText = messages.registrationUpdatedMailText(
+                messages, trip, this, updateUrl
+            );
+        } else {
+            var confirmationUrl = String
+                .format(
+                    "%s/students/confirm-registration/%s", config.getUi().getBaseUrl(), confirmationToken
+                )
+                .replaceAll("([^:])//", "$1/");
+
+            mailText = messages.registrationConfirmationMailText(
+                messages, trip, this, confirmationUrl, updateUrl
+            );
+        }
+
+        Operators.suppressExceptions(() -> {
+            mimeHelper.setFrom(config.getEmail().getUsername());
+            mimeHelper.setBcc(config.getEmail().getUsername());
+            mimeHelper.setTo(notificationEmail);
+            mimeHelper.setSubject(messages.confirmationMailSubject(trip));
+            mimeHelper.setText(mailText);
+        });
+
         mailSender.send(message);
     }
 
     public void confirmStudentRegistration(StudentsRepository students) {
         this.registrationState = RegistrationState.REGISTERED;
+        this.token = RandomStringUtils.randomAlphanumeric(8);
         students.insertOrUpdateStudent(this);
     }
 
@@ -228,7 +271,7 @@ public class Student extends AggregateRoot<String, Student> {
     }
 
     public Optional<PriceLineItems> getPriceLineItems(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips) {
-        return getQuestionaire().map(q -> {
+        return getQuestionnaire().map(q -> {
             var schoolTrip = schoolTrips
                 .map(
                     l -> l.getSchoolTripById(this.schoolTrip.schoolTripId()),
@@ -239,8 +282,8 @@ public class Student extends AggregateRoot<String, Student> {
         });
     }
 
-    public Optional<Questionaire> getQuestionaire() {
-        return Optional.ofNullable(questionaire);
+    public Optional<Questionnaire> getQuestionnaire() {
+        return Optional.ofNullable(questionnaire);
     }
 
     /**

@@ -1,0 +1,23 @@
+{#
+
+This template is used to generate E-Mail content (text/plain) for confirmation mails after student registration.
+
+Parameters
+----------
+student
+    The student object of the registered student.
+confirmationUrl
+    The URL of the confirmation page.
+#}
+Anmeldung zur Ski- und Snowboard-Freizeit 2024
+----------------------------------------------
+
+Die Anmeldung für {{ student.getFirstName() }} für die Ski- und Snowboard-Freizeit haben wir entgegenegenommen. Bitte validieren Sie die Anmeldung in dem Sie den folgenden Link besuchen:
+
+{{ confirmationUrl }}
+
+Wir haben die folgenden Anmelde-Informationen registriert:
+
+    {{ student.getFirstName() }} möchte Ski fahren.
+
+    Erfahrung:      {{ student.getLastName() }}

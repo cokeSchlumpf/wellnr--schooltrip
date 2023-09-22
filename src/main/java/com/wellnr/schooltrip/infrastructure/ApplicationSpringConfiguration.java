@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
@@ -62,8 +63,24 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public JavaMailSender getMailSender() {
-        return new FakeMailSender();
+    public JavaMailSender getMailSender(SchoolTripApplicationConfiguration config) {
+        var cfg = config.getEmail();
+
+        if (cfg.getMode().equals("fake")) {
+            return new FakeMailSender(config);
+        } else {
+            var mailSender = new JavaMailSenderImpl();
+            mailSender.setHost(cfg.getHost());
+            mailSender.setPort(cfg.getPort());
+
+            mailSender.setUsername(cfg.getUsername());
+            mailSender.setPassword(cfg.getPassword());
+
+            var props = mailSender.getJavaMailProperties();
+            props.putAll(cfg.getProperties());
+
+            return mailSender;
+        }
     }
 
     @Bean
