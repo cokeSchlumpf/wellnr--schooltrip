@@ -13,6 +13,5 @@ public @interface DomainServices {
     @AliasFor(
         annotation = Component.class
     )
-
     String value() default "";
 }

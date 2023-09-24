@@ -1,21 +1,19 @@
-package com.wellnr.schooltrip.ui;
+package com.wellnr.schooltrip.ui.views.public_app;
 
-import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ConfirmStudentRegistrationCommand;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
-import com.wellnr.schooltrip.ui.components.ApplicationContentContainer;
+import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 
 @Route("/students/confirm-registration/:token")
-@PageTitle("School Trip")
-public class StudentConfirmRegistrationView extends ApplicationContentContainer implements BeforeEnterObserver {
+public class StudentConfirmRegistrationView extends AbstractPublicAppView implements BeforeEnterObserver {
 
     private final ApplicationCommandRunner commandRunner;
 
-    public StudentConfirmRegistrationView(ApplicationCommandRunner commandRunner) {
+    public StudentConfirmRegistrationView(ApplicationUserSession userSession, ApplicationCommandRunner commandRunner) {
+        super(userSession);
         this.commandRunner = commandRunner;
     }
 
@@ -32,12 +30,10 @@ public class StudentConfirmRegistrationView extends ApplicationContentContainer 
             )
             .getData();
 
-        /*
-         * Initialize view.
-         */
-        this.add(new Paragraph(
-            "Klasse! Registrerung ist abgechlossen. Dann kann die Gaudi losgehen! Wir freuen uns auf `" + student.getDisplayName() + "`"
-        ));
+        beforeEnterEvent.forwardTo(
+            StudentRegisteredView.class,
+            StudentRegisteredView.getRouteParameters(student)
+        );
     }
 
 }

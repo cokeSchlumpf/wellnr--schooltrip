@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.wellnr.schooltrip.core.model.user.User;
 
 
-@JsonIgnoreProperties({ "command" })
+@JsonIgnoreProperties({"command"})
 public interface Command<DOMAIN_REGISTRY_TYPE> {
 
     Class<DOMAIN_REGISTRY_TYPE> getDomainRegistryType();

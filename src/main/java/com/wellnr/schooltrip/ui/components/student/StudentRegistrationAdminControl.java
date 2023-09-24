@@ -5,7 +5,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
-import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteOrUpdateStudentRegistrationByOrganizerCommand;
+import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationByOrganizerCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ConfirmStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
@@ -37,7 +37,8 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
 
     private StudentRegistrationQuestionnaireControl existingRegistration;
 
-    public StudentRegistrationAdminControl(SchoolTripMessages i18n, SchoolTrip schoolTrip, ApplicationCommandRunner commandRunner) {
+    public StudentRegistrationAdminControl(SchoolTripMessages i18n, SchoolTrip schoolTrip,
+                                           ApplicationCommandRunner commandRunner) {
         this.schoolTrip = schoolTrip;
         this.commandRunner = commandRunner;
         this.i18n = i18n;
@@ -78,6 +79,12 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
         this.setPadding(false);
     }
 
+    public Registration addRegistrationUpdatedListener(
+        ComponentEventListener<StudentRegistrationUpdatedEvent> listener) {
+
+        return addListener(StudentRegistrationUpdatedEvent.class, listener);
+    }
+
     public void setStudent(Student student) {
         this.removeAll();
 
@@ -110,13 +117,10 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
         } else if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
             this.infoText.setText(i18n.studentIsRegistered());
             this.add(infoText, existingRegistration, updateRegistration);
+        } else if (student.getRegistrationState().equals(RegistrationState.REJECTED)) {
+            this.infoText.setText(i18n.studentHasRejectedParticipation());
+            this.add(infoText);
         }
-    }
-
-    public Registration addRegistrationUpdatedListener(
-        ComponentEventListener<StudentRegistrationUpdatedEvent> listener) {
-
-        return addListener(StudentRegistrationUpdatedEvent.class, listener);
     }
 
 }

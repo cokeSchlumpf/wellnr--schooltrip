@@ -46,16 +46,16 @@ public class ApplicationCommandForm<RESULT extends CommandResult, CMD extends Ab
         });
     }
 
-    public void setGetInitialCommand(Function0<CMD> getInitialCommand) {
-        super.setGetInitialValue(getInitialCommand);
-    }
-
     @SuppressWarnings("unchecked")
     public Registration addCompletionListener(
         ComponentEventListener<ApplicationCommandFormCompletedEvent<RESULT, CMD>> listener) {
 
         var dummy = new ApplicationCommandFormCompletedEvent<RESULT, CMD>(this, null);
         return addListener((Class<ApplicationCommandFormCompletedEvent<RESULT, CMD>>) dummy.getClass(), listener);
+    }
+
+    public void setGetInitialCommand(Function0<CMD> getInitialCommand) {
+        super.setGetInitialValue(getInitialCommand);
     }
 
     public ApplicationCommandForm<RESULT, CMD> withCompletionListener(ComponentEventListener<ApplicationCommandFormCompletedEvent<RESULT, CMD>> listener) {

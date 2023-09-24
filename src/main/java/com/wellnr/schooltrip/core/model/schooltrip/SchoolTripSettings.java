@@ -14,10 +14,11 @@ public class SchoolTripSettings {
     double skiBootsRentalPrice;
     double snowboardRentalPrice;
     double snowboardBootsRentalPrice;
+    double helmetRentalPrice;
     LocalDateTime registrationOpenUntil;
 
     public static SchoolTripSettings apply() {
-        return apply(450, 60, 10, 65, 15, LocalDateTime.of(2023, 12, 16, 0, 0));
+        return apply(450, 60, 10, 65, 15, 5, LocalDateTime.of(2023, 12, 16, 0, 0));
     }
 
 }

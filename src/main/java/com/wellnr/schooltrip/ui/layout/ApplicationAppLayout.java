@@ -18,7 +18,6 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 import com.wellnr.schooltrip.SchooltripApplication;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
-import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.LoginView;
 import com.wellnr.schooltrip.ui.views.admin.ProfileView;
@@ -132,6 +131,19 @@ public class ApplicationAppLayout extends AppLayout {
 
     }
 
+    private static class NavbarComponents extends HorizontalLayout {
+
+        public NavbarComponents(Component... components) {
+            super(components);
+            this.setSizeFull();
+            this.setAlignItems(FlexComponent.Alignment.CENTER);
+            this.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
+
+            this.addClassNames("app--app-layout--navbar");
+        }
+
+    }
+
     private class UserMenu extends HorizontalLayout {
 
         public UserMenu(RegisteredUser user) {
@@ -159,19 +171,6 @@ public class ApplicationAppLayout extends AppLayout {
                 UI.getCurrent().navigate(LoginView.class);
             });
             this.add(menubar);
-        }
-
-    }
-
-    private static class NavbarComponents extends HorizontalLayout {
-
-        public NavbarComponents(Component... components) {
-            super(components);
-            this.setSizeFull();
-            this.setAlignItems(FlexComponent.Alignment.CENTER);
-            this.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-
-            this.addClassNames("app--app-layout--navbar");
         }
 
     }

@@ -19,7 +19,9 @@ public class RenameSchoolTripCommand implements AbstractSchoolTripCommand<Messag
 
     @Override
     public MessageResult<Nothing> run(User user, SchoolTripDomainRegistry domainRegistry) {
-        return MessageResult.formatted("Renamed trip to `%s`.", newTitle);
+        return MessageResult.apply(
+            user.getMessages().schoolTripRenamed(newTitle)
+        );
     }
 
 }

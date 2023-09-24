@@ -13,14 +13,11 @@ import java.util.Objects;
 
 public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView {
 
+    private final SchoolTripMessages i18n;
+    protected ApplicationGridWithControls<Student> students;
+    protected StudentDetailsControl studentDetails;
     @Value("${app.ui.base-url}")
     String appBaseUrl;
-
-    private final SchoolTripMessages i18n;
-
-    protected ApplicationGridWithControls<Student> students;
-
-    protected StudentDetailsControl studentDetails;
 
     public AbstractSchoolTripGridView(
         ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
@@ -28,6 +25,8 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
         super(commandRunner, userSession);
         this.i18n = userSession.getMessages();
     }
+
+    protected abstract ApplicationGridWithControls<Student> createStudentsGrid();
 
     @Override
     protected void updateView() {
@@ -102,7 +101,5 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
         this.removeAll();
         this.add(mainArea);
     }
-
-    protected abstract ApplicationGridWithControls<Student> createStudentsGrid();
 
 }

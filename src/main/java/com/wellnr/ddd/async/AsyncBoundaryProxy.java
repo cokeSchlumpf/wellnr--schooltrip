@@ -118,40 +118,6 @@ public final class AsyncBoundaryProxy implements MethodHandler {
         this.process();
     }
 
-    private void process() {
-        this.updateState(currentState -> {
-            if (currentState.getInbox().isEmpty()) {
-                return currentState;
-            }
-
-            var nextCall = currentState.getInbox().element();
-
-            if (
-                nextCall.getMode().value().equals(LockType.READ_ONLY) && (currentState.getMode().equals(Mode.IDLE) || currentState.getMode()
-                    .equals(Mode.PURE))
-            ) {
-                /*
-                 * Pure methods can be executed along with others.
-                 */
-                var call = currentState.getInbox().poll();
-                this.execute(call);
-
-                return currentState
-                    .withRunningCalls(currentState.runningCalls + 1)
-                    .withMode(Mode.PURE);
-            } else if (currentState.getMode().equals(Mode.IDLE)) {
-                var call = currentState.getInbox().poll();
-                this.execute(call);
-
-                return currentState
-                    .withRunningCalls(currentState.runningCalls + 1)
-                    .withMode(Mode.WRITING);
-            } else {
-                return currentState;
-            }
-        });
-    }
-
     private void execute(Call call) {
         CompletableFuture.runAsync(() -> {
             try {
@@ -192,6 +158,41 @@ public final class AsyncBoundaryProxy implements MethodHandler {
         }, this.executors);
     }
 
+    private void process() {
+        this.updateState(currentState -> {
+            if (currentState.getInbox().isEmpty()) {
+                return currentState;
+            }
+
+            var nextCall = currentState.getInbox().element();
+
+            if (
+                nextCall.getMode().value().equals(LockType.READ_ONLY) && (currentState.getMode()
+                    .equals(Mode.IDLE) || currentState.getMode()
+                    .equals(Mode.PURE))
+            ) {
+                /*
+                 * Pure methods can be executed along with others.
+                 */
+                var call = currentState.getInbox().poll();
+                this.execute(call);
+
+                return currentState
+                    .withRunningCalls(currentState.runningCalls + 1)
+                    .withMode(Mode.PURE);
+            } else if (currentState.getMode().equals(Mode.IDLE)) {
+                var call = currentState.getInbox().poll();
+                this.execute(call);
+
+                return currentState
+                    .withRunningCalls(currentState.runningCalls + 1)
+                    .withMode(Mode.WRITING);
+            } else {
+                return currentState;
+            }
+        });
+    }
+
     private void updateState(Function1<State, State> updateFn) {
         this.stateLock.writeLock().lock();
 
@@ -200,6 +201,26 @@ public final class AsyncBoundaryProxy implements MethodHandler {
         );
 
         this.stateLock.writeLock().unlock();
+    }
+
+    private enum Mode {
+        /**
+         * Nothing is currently executed.
+         */
+        IDLE,
+
+        /**
+         * A read operation is currently executing.
+         * Additional read operations may be executed.
+         * Writes are not allowed, to ensure consistent reads.
+         */
+        PURE,
+
+        /**
+         * A write operation is currently executing.
+         * Additional operations must wait.
+         */
+        WRITING
     }
 
     @Value
@@ -227,26 +248,6 @@ public final class AsyncBoundaryProxy implements MethodHandler {
 
         int runningCalls;
 
-    }
-
-    private enum Mode {
-        /**
-         * Nothing is currently executed.
-         */
-        IDLE,
-
-        /**
-         * A read operation is currently executing.
-         * Additional read operations may be executed.
-         * Writes are not allowed, to ensure consistent reads.
-         */
-        PURE,
-
-        /**
-         * A write operation is currently executing.
-         * Additional operations must wait.
-         */
-        WRITING
     }
 
 }

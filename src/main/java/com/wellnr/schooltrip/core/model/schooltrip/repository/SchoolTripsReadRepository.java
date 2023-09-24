@@ -9,12 +9,18 @@ import java.util.Optional;
 
 public interface SchoolTripsReadRepository {
 
+    Collection<SchoolTrip> findAllSchoolTrips();
+
+    Optional<SchoolTrip> findSchoolTripById(String id);
+
     /*
      * SchoolTrips
      */
     Optional<SchoolTrip> findSchoolTripByName(String name);
 
-    Optional<SchoolTrip> findSchoolTripById(String id);
+    default SchoolTrip getSchoolTripById(SchoolTripId id) {
+        return getSchoolTripById(id.schoolTripId());
+    }
 
     default SchoolTrip getSchoolTripById(String id) {
         return findSchoolTripById(id).orElseThrow(
@@ -22,16 +28,10 @@ public interface SchoolTripsReadRepository {
         );
     }
 
-    default SchoolTrip getSchoolTripById(SchoolTripId id) {
-        return getSchoolTripById(id.schoolTripId());
-    }
-
     default SchoolTrip getSchoolTripByName(String name) {
         return findSchoolTripByName(name).orElseThrow(
             () -> SchoolTripNotFoundException.withName(name)
         );
     }
-
-    Collection<SchoolTrip> findAllSchoolTrips();
 
 }

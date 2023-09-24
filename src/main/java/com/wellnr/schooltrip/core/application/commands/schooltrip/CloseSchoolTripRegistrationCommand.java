@@ -5,7 +5,6 @@ import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
-import com.wellnr.schooltrip.core.model.student.questionaire.Questionaire;
 import com.wellnr.schooltrip.core.model.user.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -29,7 +28,7 @@ public class CloseSchoolTripRegistrationCommand implements AbstractSchoolTripCom
             );
 
         return MessageResult.formatted(
-            "Closed registration and removed %d students who have not been registered yet.", removedStudents.size()
+            user.getMessages().registrationClosed(removedStudents.size())
         );
     }
 

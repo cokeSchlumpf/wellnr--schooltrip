@@ -29,7 +29,7 @@ public class CreateUserView extends AbstractApplicationAppView implements Applic
             commandRunner,
             () -> RegisterUserCommand.apply("", "", "", "", false)
         )
-            .setLabelProvider(field -> switch(field) {
+            .setLabelProvider(field -> switch (field) {
                 case "admin" -> Optional.of(i18n.userShouldBeAdmin());
                 default -> Optional.empty();
             })

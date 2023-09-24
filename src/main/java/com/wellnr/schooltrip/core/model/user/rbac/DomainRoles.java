@@ -22,12 +22,12 @@ public final class DomainRoles {
         public static final String NAME = "/app/admin";
 
         @Override
-        public String getName() {
+        public String getDisplayName(SchoolTripDomainRegistry domainRegistry) {
             return NAME;
         }
 
         @Override
-        public String getDisplayName(SchoolTripDomainRegistry domainRegistry) {
+        public String getName() {
             return NAME;
         }
 
@@ -44,10 +44,8 @@ public final class DomainRoles {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class SchoolTripManager implements DomainRole {
 
-        private static final String SCHOOL_TRIP_ID = "school-trip-id";
-
         public static final String NAME = "/app/schooltrips/manager";
-
+        private static final String SCHOOL_TRIP_ID = "school-trip-id";
         @JsonProperty(SCHOOL_TRIP_ID)
         String schoolTripId;
 
@@ -58,21 +56,20 @@ public final class DomainRoles {
             return new SchoolTripManager(schoolTripId);
         }
 
-
-        @Override
-        public String getName() {
-            return NAME;
-        }
-
         @Override
         public String getDisplayName(SchoolTripDomainRegistry domainRegistry) {
             return domainRegistry
                 .getSchoolTrips()
                 .findSchoolTripById(schoolTripId)
                 .map(trip -> {
-                   return "/app/schooltrips/" + trip.getName() + "/manager";
+                    return "/app/schooltrips/" + trip.getName() + "/manager";
                 })
                 .orElse("/app/schooltrips/" + schoolTripId + "/manager");
+        }
+
+        @Override
+        public String getName() {
+            return NAME;
         }
 
         @Override

@@ -9,16 +9,16 @@ public class ApplicationNotifications {
 
     }
 
-    public static void success(String message) {
-        var notification = Notification.show(message);
-        notification.setPosition(Notification.Position.BOTTOM_CENTER);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-    }
-
     public static void error(String message) {
         var notification = Notification.show(message);
         notification.setPosition(Notification.Position.BOTTOM_CENTER);
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+    }
+
+    public static void success(String message) {
+        var notification = Notification.show(message);
+        notification.setPosition(Notification.Position.BOTTOM_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 
 }

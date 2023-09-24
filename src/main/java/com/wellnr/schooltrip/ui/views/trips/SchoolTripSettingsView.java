@@ -63,7 +63,7 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
                 ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX,
                 ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
             )
-            .setLabelProvider(field -> switch(field) {
+            .setLabelProvider(field -> switch (field) {
                 case "basePrice" -> Optional.of(i18n.basePrice());
                 case "skiRentalPrice" -> Optional.of(i18n.skiRentalPrice());
                 case "skiBootsRentalPrice" -> Optional.of(i18n.skiBootsRentalPrice());

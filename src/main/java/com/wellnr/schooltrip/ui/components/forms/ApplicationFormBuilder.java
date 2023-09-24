@@ -360,12 +360,6 @@ public class ApplicationFormBuilder<T> {
         return this;
     }
 
-    private FormLayout createForm() {
-        var form = new FormLayout();
-        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
-        return form;
-    }
-
     protected String getLabel(String fieldName) {
         return labelProvider.get(fieldName).orElseGet(() -> {
             if (Objects.nonNull(this.i18nMessages)) {
@@ -400,6 +394,12 @@ public class ApplicationFormBuilder<T> {
                 return Operators.camelCaseToHumanReadable(fieldName);
             }
         });
+    }
+
+    private FormLayout createForm() {
+        var form = new FormLayout();
+        form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
+        return form;
     }
 
     private boolean hasVariant(Field field, FormVariant variant) {

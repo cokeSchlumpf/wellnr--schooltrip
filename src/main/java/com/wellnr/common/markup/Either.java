@@ -8,14 +8,6 @@ import java.util.Optional;
 
 public sealed abstract class Either<L, R> permits Left, Right {
 
-    public static <L, R> Either<L, R> fromLeft(L value) {
-        return Left.apply(value);
-    }
-
-    public static <L, R> Either<L, R> fromRight(R value) {
-        return Right.apply(value);
-    }
-
     public static <L, R> Either<L, R> apply(L left, R right) {
         if (!Objects.isNull(left)) {
             return Either.fromLeft(left);
@@ -26,9 +18,13 @@ public sealed abstract class Either<L, R> permits Left, Right {
         }
     }
 
-    public abstract boolean isLeft();
+    public static <L, R> Either<L, R> fromLeft(L value) {
+        return Left.apply(value);
+    }
 
-    public abstract boolean isRight();
+    public static <L, R> Either<L, R> fromRight(R value) {
+        return Right.apply(value);
+    }
 
     public abstract Optional<L> getLeft();
 
@@ -52,10 +48,14 @@ public sealed abstract class Either<L, R> permits Left, Right {
         }
     }
 
-    public abstract <T> T map(Function1<L, T> mapLeft, Function1<R, T> mapRight);
-
     public abstract Either<L, R> ifLeft(Procedure1<L> ifLeft);
 
     public abstract Either<L, R> ifRight(Procedure1<R> ifRight);
+
+    public abstract boolean isLeft();
+
+    public abstract boolean isRight();
+
+    public abstract <T> T map(Function1<L, T> mapLeft, Function1<R, T> mapRight);
 
 }

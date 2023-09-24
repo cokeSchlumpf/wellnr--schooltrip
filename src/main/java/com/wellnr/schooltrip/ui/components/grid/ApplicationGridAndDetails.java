@@ -36,6 +36,14 @@ public class ApplicationGridAndDetails<T extends AggregateRoot<?, T>> extends Ho
         this.setSizeFull();
     }
 
+    public EntityDetailsControl<T> getDetails() {
+        return details;
+    }
+
+    public ApplicationGridWithControls<T> getGrid() {
+        return grid;
+    }
+
     public void setEntities(List<T> entities) {
         // Remember the current selected student.
         var maybeSelectedEntity = this.grid
@@ -64,14 +72,6 @@ public class ApplicationGridAndDetails<T extends AggregateRoot<?, T>> extends Ho
         } else {
             this.details.close();
         }
-    }
-
-    public ApplicationGridWithControls<T> getGrid() {
-        return grid;
-    }
-
-    public EntityDetailsControl<T> getDetails() {
-        return details;
     }
 
 }

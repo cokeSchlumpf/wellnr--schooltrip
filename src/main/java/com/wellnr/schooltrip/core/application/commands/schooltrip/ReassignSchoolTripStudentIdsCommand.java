@@ -28,7 +28,7 @@ public class ReassignSchoolTripStudentIdsCommand implements AbstractSchoolTripCo
             );
 
         return MessageResult.formatted(
-            "Re-assigned school trip student ids."
+            user.getMessages().reassignedIDs()
         );
     }
 

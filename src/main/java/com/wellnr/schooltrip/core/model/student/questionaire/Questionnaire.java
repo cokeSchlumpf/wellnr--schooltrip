@@ -3,12 +3,11 @@ package com.wellnr.schooltrip.core.model.student.questionaire;
 import lombok.AllArgsConstructor;
 import lombok.Value;
 import lombok.With;
-import org.apache.commons.math3.analysis.function.Exp;
 
 @With
 @Value
 @AllArgsConstructor(staticName = "apply")
-public class Questionaire {
+public class Questionnaire {
 
     Discipline disziplin;
 
@@ -16,7 +15,7 @@ public class Questionaire {
 
     String comment;
 
-    public static Questionaire empty() {
+    public static Questionnaire empty() {
         return apply(
             Ski.apply(Experience.BEGINNER),
             Nutrition.apply(false, false),

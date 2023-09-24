@@ -43,7 +43,9 @@ public class RegisterUserCommand implements AbstractSchoolTripCommand<MessageRes
         );
 
         newUser.register(domainRegistry.getUsers());
-        return MessageResult.formatted("Successfully created user `%s`.", email).withData(newUser);
+        return MessageResult
+            .apply(user.getMessages().successfullyRegisteredUser(email))
+            .withData(newUser);
     }
 
 }

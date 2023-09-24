@@ -235,7 +235,8 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
         Function1<List<Object>, R> createObject,
         SchoolTripMessages i18n
     ) {
-        return new ExcelImportDialog<>(requiredFields, (p, nothing) -> createObject.apply(p), Nothing.getInstance(), i18n);
+        return new ExcelImportDialog<>(requiredFields, (p, nothing) -> createObject.apply(p), Nothing.getInstance(),
+            i18n);
     }
 
     @SuppressWarnings({"unchecked", "UnusedReturnValue"})
@@ -244,6 +245,11 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
     ) {
         var event = new DataImportedEvent<>(this, true, List.of());
         return addListener((Class<DataImportedEvent<RESULT_TYPE, SETTINGS_TYPE>>) event.getClass(), listener);
+    }
+
+    private void clearComponents() {
+        this.removeAll();
+        this.getFooter().removeAll();
     }
 
     private Table readTableFromXlsx(InputStream is) {
@@ -281,42 +287,6 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void clearComponents() {
-        this.removeAll();
-        this.getFooter().removeAll();
-    }
-
-    private void showUploadPage() {
-        this.clearComponents();
-
-        var buffer = new MemoryBuffer();
-        var upload = new Upload(buffer);
-        upload.setSizeFull();
-
-        upload.addSucceededListener(event -> {
-            importedData = readTableFromXlsx(buffer.getInputStream());
-
-            var columns = importedData.getColumns();
-            var mappedColumns = this.requiredFields
-                .stream()
-                .map(field -> columns
-                    .stream()
-                    .filter(t -> t._2.equalsIgnoreCase(field))
-                    .findFirst()
-                    .orElse(columns.get(0))
-                    ._1)
-                .toList();
-
-            this.mappedColumns = Lists.newArrayList();
-            this.mappedColumns.addAll(mappedColumns);
-
-            updateGrid();
-            showImportTablePage();
-        });
-
-        this.add(upload);
     }
 
     private void showImportTablePage() {
@@ -381,6 +351,37 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
         this.getFooter().add(btnBackToMapping, btnFinish);
     }
 
+    private void showUploadPage() {
+        this.clearComponents();
+
+        var buffer = new MemoryBuffer();
+        var upload = new Upload(buffer);
+        upload.setSizeFull();
+
+        upload.addSucceededListener(event -> {
+            importedData = readTableFromXlsx(buffer.getInputStream());
+
+            var columns = importedData.getColumns();
+            var mappedColumns = this.requiredFields
+                .stream()
+                .map(field -> columns
+                    .stream()
+                    .filter(t -> t._2.equalsIgnoreCase(field))
+                    .findFirst()
+                    .orElse(columns.get(0))
+                    ._1)
+                .toList();
+
+            this.mappedColumns = Lists.newArrayList();
+            this.mappedColumns.addAll(mappedColumns);
+
+            updateGrid();
+            showImportTablePage();
+        });
+
+        this.add(upload);
+    }
+
     private void updateGrid() {
         if (Objects.isNull(importedData)) {
             return;
@@ -409,6 +410,22 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
 
         public List<T> getResult() {
             return result;
+        }
+
+    }
+
+    @ToString
+    @AllArgsConstructor
+    private static class Row {
+
+        List<Object> data;
+
+        public Optional<Object> getColumn(int index) {
+            if (this.data.size() > index) {
+                return Optional.ofNullable(data.get(index));
+            } else {
+                return Optional.empty();
+            }
         }
 
     }
@@ -458,22 +475,6 @@ public class ExcelImportDialog<RESULT_TYPE, SETTINGS_TYPE> extends Dialog {
                 return List.copyOf(result);
             } else {
                 return List.copyOf(this.rows);
-            }
-        }
-
-    }
-
-    @ToString
-    @AllArgsConstructor
-    private static class Row {
-
-        List<Object> data;
-
-        public Optional<Object> getColumn(int index) {
-            if (this.data.size() > index) {
-                return Optional.ofNullable(data.get(index));
-            } else {
-                return Optional.empty();
             }
         }
 

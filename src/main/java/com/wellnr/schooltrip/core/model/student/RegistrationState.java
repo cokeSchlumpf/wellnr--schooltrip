@@ -8,6 +8,11 @@ public enum RegistrationState {
     CREATED,
 
     /**
+     * Student has confirmed to attend Out of Snow, or go to school.
+     */
+    REJECTED,
+
+    /**
      * This state is set when registation is submitted but has not been completed
      * by email notification.
      */

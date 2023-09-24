@@ -6,8 +6,8 @@ import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.user.User;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,7 +39,7 @@ public class CreateSchoolTripCommand implements AbstractSchoolTripCommand<Messag
         );
 
         return MessageResult
-            .formatted("Successfully created trip `%s`", title)
+            .apply(user.getMessages().schooTripCreated(title))
             .withData(trip);
     }
 

@@ -55,7 +55,7 @@ public final class Templates {
      * Renders a template passed as string.
      *
      * @param template The template to be rendered.
-     * @param values The values which can be used in the template.
+     * @param values   The values which can be used in the template.
      * @return The rendered template.
      */
     public static String renderTemplateFromString(String template, Map<String, Object> values) {
