@@ -38,7 +38,7 @@ public class RegisterStudentCommand implements AbstractSchoolTripCommand<Message
             .getSchoolTrips()
             .getSchoolTripByName(this.schoolTrip);
 
-        var schoolTripId =new SchoolTripId(schoolTrip.getId());
+        var schoolTripId = new SchoolTripId(schoolTrip.getId());
 
         var student = Student.createNew(
             schoolTripId, schoolClass, firstName, lastName,

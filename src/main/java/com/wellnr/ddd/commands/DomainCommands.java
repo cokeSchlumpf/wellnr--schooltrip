@@ -14,10 +14,6 @@ public class DomainCommands {
 
     public final Map<String, Class<? extends Command<?>>> commands;
 
-    public static <T> DomainCommands applyMap(Map<String, Class<? extends Command<?>>> commands) {
-        return new DomainCommands(commands);
-    }
-
     public static DomainCommands apply(Set<Class<? extends Command<?>>> commands) {
         var commandsAsMap = commands
             .stream()
@@ -27,6 +23,10 @@ public class DomainCommands {
             ));
 
         return DomainCommands.applyMap(commandsAsMap);
+    }
+
+    public static <T> DomainCommands applyMap(Map<String, Class<? extends Command<?>>> commands) {
+        return new DomainCommands(commands);
     }
 
     public Class<? extends Command<?>> getCommand(String name) {

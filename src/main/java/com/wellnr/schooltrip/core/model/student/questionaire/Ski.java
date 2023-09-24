@@ -18,8 +18,11 @@ public class Ski implements Discipline {
     @With
     SkiBootRental skiBootRental;
 
+    @With
+    boolean helmRental;
+
     public static Ski apply(Experience experience) {
-        return apply(experience, null, null);
+        return apply(experience, null, null, false);
     }
 
     public Optional<SkiBootRental> getBootRental() {
@@ -28,6 +31,11 @@ public class Ski implements Discipline {
 
     public Optional<SkiRental> getRental() {
         return Optional.ofNullable(skiRental);
+    }
+
+    @Override
+    public boolean hasHelmRental() {
+        return helmRental;
     }
 
 }

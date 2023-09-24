@@ -1,13 +1,18 @@
 package com.wellnr.schooltrip.core.model.schooltrip.exceptions;
 
 import com.wellnr.ddd.DomainException;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 
 import java.text.MessageFormat;
 
 public class SchoolTripAlreadyExistsException extends DomainException {
 
-    private SchoolTripAlreadyExistsException(String message) {
+    private final String name;
+
+    private SchoolTripAlreadyExistsException(String name, String message) {
         super(message);
+
+        this.name = name;
     }
 
     public static SchoolTripAlreadyExistsException apply(String name) {
@@ -16,7 +21,13 @@ public class SchoolTripAlreadyExistsException extends DomainException {
             name
         );
 
-        return new SchoolTripAlreadyExistsException(message);
+        return new SchoolTripAlreadyExistsException(name, message);
     }
+
+    @Override
+    public String getUserMessage(SchoolTripMessages i18n) {
+        return i18n.schoolTripAlreadyExists(name);
+    }
+
 
 }

@@ -144,6 +144,12 @@ public class RegisteredUser extends AggregateRoot<String, RegisteredUser> implem
     }
 
     @Override
+    public void setPreferredLocale(Locale locale, RegisteredUsersRepository users) {
+        this.preferredLocale = locale.toLanguageTag();
+        users.insertOrUpdate(this);
+    }
+
+    @Override
     public Optional<RegisteredUser> getRegisteredUser() {
         return Optional.of(this);
     }

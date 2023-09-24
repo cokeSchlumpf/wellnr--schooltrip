@@ -5,7 +5,10 @@ import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.User;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
@@ -32,7 +35,9 @@ public class ResetPasswordCommand implements AbstractSchoolTripCommand<MessageRe
             domainRegistry.getUsers(), domainRegistry.getPasswordEncryptionPort()
         );
 
-        return MessageResult.formatted("Successfully updated password for user `%s`.", email).withData(registeredUser);
+        return MessageResult.apply(
+            user.getMessages().sucessfullyResetPassword(email)
+        ).withData(registeredUser);
     }
 
 }

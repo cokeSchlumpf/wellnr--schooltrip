@@ -15,12 +15,9 @@ import java.util.List;
 public class ApplicationForm<T> extends VerticalLayout {
 
     private final BeanValidationBinder<T> binder;
-
-    private Function0<T> getInitialValue;
-
     private final List<FormLayout> forms;
-
     private final Button saveButton;
+    private Function0<T> getInitialValue;
 
     public ApplicationForm(
         BeanValidationBinder<T> binder,
@@ -53,6 +50,14 @@ public class ApplicationForm<T> extends VerticalLayout {
         this.setGetInitialValue(getInitialValue);
     }
 
+    public BeanValidationBinder<T> getBinder() {
+        return binder;
+    }
+
+    public List<FormLayout> getForms() {
+        return new ArrayList<>(forms);
+    }
+
     public Function0<T> getGetInitialValue() {
         return getInitialValue;
     }
@@ -66,14 +71,6 @@ public class ApplicationForm<T> extends VerticalLayout {
         if (this.saveButton != null) {
             this.saveButton.setEnabled(true);
         }
-    }
-
-    public BeanValidationBinder<T> getBinder() {
-        return binder;
-    }
-
-    public List<FormLayout> getForms() {
-        return new ArrayList<>(forms);
     }
 
     public Button getSaveButton() {

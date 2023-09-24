@@ -1,6 +1,8 @@
 package com.wellnr.ddd;
 
-public class DomainException extends RuntimeException {
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
+
+public abstract class DomainException extends RuntimeException {
 
     private final int status;
 
@@ -43,4 +45,7 @@ public class DomainException extends RuntimeException {
     public String getSummary() {
         return summary;
     }
+
+    public abstract String getUserMessage(SchoolTripMessages i18n);
+
 }

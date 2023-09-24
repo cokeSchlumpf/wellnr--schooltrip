@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
@@ -47,6 +48,42 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
     String rsaKey;
 
     @Bean
+    public BeanValidation getBeanValidation() {
+        return new BeanValidation() {
+            @Override
+            public void validateObject(Object object) {
+
+            }
+
+            @Override
+            public void validateParameters(Object object, Method method, Object... args) {
+
+            }
+        };
+    }
+
+    @Bean
+    public JavaMailSender getMailSender(SchoolTripApplicationConfiguration config) {
+        var cfg = config.getEmail();
+
+        if (cfg.getMode().equals("fake")) {
+            return new FakeMailSender(config);
+        } else {
+            var mailSender = new JavaMailSenderImpl();
+            mailSender.setHost(cfg.getHost());
+            mailSender.setPort(cfg.getPort());
+
+            mailSender.setUsername(cfg.getUsername());
+            mailSender.setPassword(cfg.getPassword());
+
+            var props = mailSender.getJavaMailProperties();
+            props.putAll(cfg.getProperties());
+
+            return mailSender;
+        }
+    }
+
+    @Bean
     public SchoolTripDomainRegistry getSchoolTripDomainRegistry(
         SchoolTripApplicationConfiguration config,
         BeanValidation beanValidation,
@@ -63,29 +100,37 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
             students,
             users,
             passwordEncryptionPort,
-            new SchoolTripMessages() { },
             mailSender
         );
     }
 
     @Bean
-    public BeanValidation getBeanValidation() {
-        return new BeanValidation() {
-            @Override
-            public void validateObject(Object object) {
-
-            }
-
-            @Override
-            public void validateParameters(Object object, Method method, Object... args) {
-
-            }
-        };
+    public JwtDecoder jwtDecoder(RSAKey key) throws JOSEException {
+        return NimbusJwtDecoder.withPublicKey(key.toRSAPublicKey()).build();
     }
 
     @Bean
-    public JavaMailSender getMailSender() {
-        return new FakeMailSender();
+    public JwtEncoder jwtEncoder(RSAKey key) {
+        return new NimbusJwtEncoder(
+            new ImmutableJWKSet<>(new JWKSet(key))
+        );
+    }
+
+    @Bean
+    public PasswordEncryptionPort passwordEncryptionPort() {
+        var encoder = new BCryptPasswordEncoder();
+
+        return new PasswordEncryptionPort() {
+            @Override
+            public String encode(String password) {
+                return encoder.encode(password);
+            }
+
+            @Override
+            public boolean matches(String password, String encodedPassword) {
+                return encoder.matches(password, encodedPassword);
+            }
+        };
     }
 
     @Bean
@@ -107,18 +152,6 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
                 .keyID("secret")
                 .build();
         }
-    }
-
-    @Bean
-    public JwtEncoder jwtEncoder(RSAKey key) {
-        return new NimbusJwtEncoder(
-            new ImmutableJWKSet<>(new JWKSet(key))
-        );
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder(RSAKey key) throws JOSEException {
-        return NimbusJwtDecoder.withPublicKey(key.toRSAPublicKey()).build();
     }
 
     @Bean
@@ -152,23 +185,6 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
             .build();
-    }
-
-    @Bean
-    public PasswordEncryptionPort passwordEncryptionPort() {
-        var encoder = new BCryptPasswordEncoder();
-
-        return new PasswordEncryptionPort() {
-            @Override
-            public String encode(String password) {
-                return encoder.encode(password);
-            }
-
-            @Override
-            public boolean matches(String password, String encodedPassword) {
-                return encoder.matches(password, encodedPassword);
-            }
-        };
     }
 
 }

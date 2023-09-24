@@ -19,20 +19,22 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Route("")
-@PageTitle("wellnr SchoolTrips")
+@PageTitle("GaS Merzig")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private final ApplicationUserSession userSession;
 
-    public LoginView(ApplicationRESTAPIController authController, SchoolTripDomainRegistry domainRegistry, ApplicationUserSession session) {
+    public LoginView(ApplicationRESTAPIController authController, SchoolTripDomainRegistry domainRegistry,
+                     ApplicationUserSession session) {
         this.userSession = session;
+        var messages = session.getMessages();
 
         var i18n = LoginI18n.createDefault();
-        i18n.getErrorMessage().setTitle(domainRegistry.getMessages().incorrectUsernameOrPassword());
-        i18n.getErrorMessage().setMessage(domainRegistry.getMessages().loginFailed());
-        i18n.getForm().setUsername(domainRegistry.getMessages().username());
-        i18n.getForm().setPassword(domainRegistry.getMessages().password());
-        i18n.getForm().setSubmit(domainRegistry.getMessages().login());
+        i18n.getErrorMessage().setTitle(messages.incorrectUsernameOrPassword());
+        i18n.getErrorMessage().setMessage(messages.loginFailed());
+        i18n.getForm().setUsername(messages.username());
+        i18n.getForm().setPassword(messages.password());
+        i18n.getForm().setSubmit(messages.login());
 
         var loginForm = new LoginForm();
         loginForm.addLoginListener(event -> {

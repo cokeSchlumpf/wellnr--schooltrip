@@ -25,51 +25,6 @@ public class SchoolTripsDomainEventHandlers {
 
     @Async
     @EventListener
-    public void onStudentRegistered(StudentRegisteredEvent event) {
-        domainRegistry
-            .getSchoolTrips()
-            .getSchoolTripById(event.getStudent().getSchoolTrip())
-            .registerStudent(
-                event.getStudent().getSchoolClass(),
-                new StudentId(event.getStudent().getId()),
-                domainRegistry.getSchoolTrips()
-            );
-    }
-
-    @Async
-    @EventListener
-    public void onStudentsSchoolClassChanged(StudentsSchoolClassChangedEvent event) {
-        domainRegistry
-            .getSchoolTrips()
-            .getSchoolTripById(event.getStudent().getSchoolTrip())
-            .updateStudentsClass(
-                event.getOldClass(),
-                event.getStudent().getSchoolClass(),
-                new StudentId(event.getStudent().getId()),
-                domainRegistry.getSchoolTrips()
-            );
-    }
-
-    @Async
-    @EventListener
-    public void onStudentIDAssigned(StudentIDAssigndEvent event) {
-        domainRegistry
-            .getStudents()
-            .getStudentById(event.getStudent().id())
-            .assignSchoolTripStudentId(event.getId(), domainRegistry.getStudents());
-    }
-
-    @Async
-    @EventListener
-    public void onStudentRemovedFromSchoolTripEvent(StudentRemovedFromSchoolTripEvent event) {
-        domainRegistry
-            .getStudents()
-            .getStudentById(event.getStudent().id())
-            .removeStudentFromSchoolTrip(domainRegistry.getStudents());
-    }
-
-    @Async
-    @EventListener
     public void onSchoolTripManagerAdded(SchoolTripManagerAddedEvent event) {
         domainRegistry
             .getUsers()
@@ -89,6 +44,51 @@ public class SchoolTripsDomainEventHandlers {
             .revokeDomainRole(
                 DomainRoles.SchoolTripManager.apply(event.getTrip().getId()),
                 domainRegistry.getUsers()
+            );
+    }
+
+    @Async
+    @EventListener
+    public void onStudentIDAssigned(StudentIDAssigndEvent event) {
+        domainRegistry
+            .getStudents()
+            .getStudentById(event.getStudent().id())
+            .assignSchoolTripStudentId(event.getId(), domainRegistry.getStudents());
+    }
+
+    @Async
+    @EventListener
+    public void onStudentRegistered(StudentRegisteredEvent event) {
+        domainRegistry
+            .getSchoolTrips()
+            .getSchoolTripById(event.getStudent().getSchoolTrip())
+            .registerStudent(
+                event.getStudent().getSchoolClass(),
+                new StudentId(event.getStudent().getId()),
+                domainRegistry.getSchoolTrips()
+            );
+    }
+
+    @Async
+    @EventListener
+    public void onStudentRemovedFromSchoolTripEvent(StudentRemovedFromSchoolTripEvent event) {
+        domainRegistry
+            .getStudents()
+            .getStudentById(event.getStudent().id())
+            .removeStudentFromSchoolTrip(domainRegistry.getStudents());
+    }
+
+    @Async
+    @EventListener
+    public void onStudentsSchoolClassChanged(StudentsSchoolClassChangedEvent event) {
+        domainRegistry
+            .getSchoolTrips()
+            .getSchoolTripById(event.getStudent().getSchoolTrip())
+            .updateStudentsClass(
+                event.getOldClass(),
+                event.getStudent().getSchoolClass(),
+                new StudentId(event.getStudent().getId()),
+                domainRegistry.getSchoolTrips()
             );
     }
 

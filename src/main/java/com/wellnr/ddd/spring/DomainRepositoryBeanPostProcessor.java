@@ -19,17 +19,6 @@ import java.util.stream.Stream;
 @Component
 public class DomainRepositoryBeanPostProcessor implements BeanPostProcessor {
 
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName)
-        throws BeansException {
-
-        if (bean instanceof DomainRepository) {
-            return createDomainRepositoryProxy(bean);
-        } else {
-            return bean;
-        }
-    }
-
     public Object createDomainRepositoryProxy(Object bean) {
         var factory = new ProxyFactory();
         factory.setSuperclass(bean.getClass());
@@ -43,13 +32,13 @@ public class DomainRepositoryBeanPostProcessor implements BeanPostProcessor {
 
             if (Objects.isNull(result)) {
                 return null;
-            } else if (result instanceof AggregateRoot<?,?> agg) {
+            } else if (result instanceof AggregateRoot<?, ?> agg) {
                 return createAggregateRootProxy(agg);
             } else if (result instanceof List<?> col) {
-               return col
-                   .stream()
-                   .map(this::createAggregateRootProxyForObject)
-                   .collect(Collectors.toList());
+                return col
+                    .stream()
+                    .map(this::createAggregateRootProxyForObject)
+                    .collect(Collectors.toList());
             } else if (result instanceof Set<?> col) {
                 return col
                     .stream()
@@ -68,17 +57,28 @@ public class DomainRepositoryBeanPostProcessor implements BeanPostProcessor {
         return proxy;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T> T createAggregateRootProxyForObject(T obj) {
-        if (obj instanceof AggregateRoot<?,?> agg) {
-            return (T) createAggregateRootProxy(agg);
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName)
+        throws BeansException {
+
+        if (bean instanceof DomainRepository) {
+            return createDomainRepositoryProxy(bean);
         } else {
-            return obj;
+            return bean;
         }
     }
 
     private <T extends AggregateRoot<?, ?>> T createAggregateRootProxy(T agg) {
         return agg;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T createAggregateRootProxyForObject(T obj) {
+        if (obj instanceof AggregateRoot<?, ?> agg) {
+            return (T) createAggregateRootProxy(agg);
+        } else {
+            return obj;
+        }
     }
 
 }

@@ -16,16 +16,6 @@ class Right<L, R> extends Either<L, R> {
     R value;
 
     @Override
-    public boolean isLeft() {
-        return false;
-    }
-
-    @Override
-    public boolean isRight() {
-        return true;
-    }
-
-    @Override
     public Optional<L> getLeft() {
         return Optional.empty();
     }
@@ -33,11 +23,6 @@ class Right<L, R> extends Either<L, R> {
     @Override
     public Optional<R> getRight() {
         return Optional.of(value);
-    }
-
-    @Override
-    public <T> T map(Function1<L, T> mapLeft, Function1<R, T> mapRight) {
-        return mapRight.get(value);
     }
 
     @Override
@@ -49,6 +34,21 @@ class Right<L, R> extends Either<L, R> {
     public Either<L, R> ifRight(Procedure1<R> ifRight) {
         ifRight.run(value);
         return this;
+    }
+
+    @Override
+    public boolean isLeft() {
+        return false;
+    }
+
+    @Override
+    public boolean isRight() {
+        return true;
+    }
+
+    @Override
+    public <T> T map(Function1<L, T> mapLeft, Function1<R, T> mapRight) {
+        return mapRight.get(value);
     }
 
 }

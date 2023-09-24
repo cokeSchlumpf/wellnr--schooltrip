@@ -13,33 +13,33 @@ public class I18N {
         var isDE = locale.equals(Locale.GERMAN) || locale.equals(Locale.GERMANY);
 
         return (T) Proxy.newProxyInstance(
-                clazz.getClassLoader(),
-                new Class[]{clazz},
-                (proxy, method, args) -> {
-                    if (method.getName().equals("getClass")) {
-                        return clazz;
-                    }
+            clazz.getClassLoader(),
+            new Class[]{clazz},
+            (proxy, method, args) -> {
+                if (method.getName().equals("getClass")) {
+                    return clazz;
+                }
 
-                    var annotation = method.getAnnotation(DE.class);
+                var annotation = method.getAnnotation(DE.class);
 
-                    if (isDE && annotation!= null) {
-                        return String.format(annotation.value(), args);
-                    } else if (isDE) {
-                        var deTemplate = Operators.ignoreExceptionsToOptional(
-                            () -> clazz.getMethod(method.getName() + "$DE", method.getParameterTypes())
-                        );
+                if (isDE && annotation != null) {
+                    return String.format(annotation.value(), args);
+                } else if (isDE) {
+                    var deTemplate = Operators.ignoreExceptionsToOptional(
+                        () -> clazz.getMethod(method.getName() + "$DE", method.getParameterTypes())
+                    );
 
-                        if (deTemplate.isPresent()) {
-                            return deTemplate.get().invoke(proxy, args);
-                        }
-                    }
-
-                    if (method.isDefault()) {
-                        return InvocationHandler.invokeDefault(proxy, method, args);
-                    } else {
-                        return method.getDefaultValue();
+                    if (deTemplate.isPresent()) {
+                        return deTemplate.get().invoke(proxy, args);
                     }
                 }
+
+                if (method.isDefault()) {
+                    return InvocationHandler.invokeDefault(proxy, method, args);
+                } else {
+                    return method.getDefaultValue();
+                }
+            }
         );
     }
 

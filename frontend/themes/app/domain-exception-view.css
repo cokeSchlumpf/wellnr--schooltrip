@@ -1,0 +1,19 @@
+.app__domain-exception-view {
+    margin: 0;
+    padding: 0;
+
+    min-width: 100vw;
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app__domain-exception-view__oops {
+    font-size: 8em;
+}
+
+.app__domain-exception-view__error-message {
+    font-size: 2em;
+}

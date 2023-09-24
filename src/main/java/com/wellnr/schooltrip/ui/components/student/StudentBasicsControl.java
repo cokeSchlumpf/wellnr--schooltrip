@@ -12,7 +12,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
-import com.wellnr.schooltrip.ui.StudentCompleteRegistrationView;
+import com.wellnr.schooltrip.ui.views.public_app.StudentRegistrationView;
 import com.wellnr.schooltrip.ui.components.ApplicationCopyTextField;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandForm;
 import com.wellnr.schooltrip.ui.components.forms.ApplicationCommandFormBuilder;
@@ -77,8 +77,8 @@ public class StudentBasicsControl extends VerticalLayout {
         );
 
         var href = new RouterLink(
-            StudentCompleteRegistrationView.class,
-            StudentCompleteRegistrationView.getRouteParameters(student)
+            StudentRegistrationView.class,
+            StudentRegistrationView.getRouteParameters(student)
         ).getHref();
 
         registrationLink.textField.setValue(appBaseUrl + href);

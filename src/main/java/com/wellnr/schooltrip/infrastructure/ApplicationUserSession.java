@@ -13,7 +13,8 @@ import com.wellnr.schooltrip.core.ports.i18n.I18N;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
@@ -21,7 +22,6 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.annotation.SessionScope;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -47,13 +47,14 @@ public class ApplicationUserSession {
 
     private final HttpServletRequest request;
 
+    private User user;
+
+    private GetUserApplicationPermissionsCommand.ApplicationPermissions permissions;
+
     private SchoolTripMessages i18n;
 
-    User user;
-
-    GetUserApplicationPermissionsCommand.ApplicationPermissions permissions;
-
-    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om, HttpServletRequest ctx) {
+    public ApplicationUserSession(SchoolTripDomainRegistry domainRegistry, JwtEncoder jwtEncoder, ObjectMapper om,
+                                  HttpServletRequest ctx) {
         this.domainRegistry = domainRegistry;
         this.users = domainRegistry.getUsers();
         this.passwordEncryption = domainRegistry.getPasswordEncryptionPort();
@@ -64,18 +65,48 @@ public class ApplicationUserSession {
 
     public SchoolTripMessages getMessages() {
         if (this.i18n == null) {
-            var locale = getRegisteredUser()
-                .flatMap(RegisteredUser::getPreferredLocale)
-                .orElse(RequestContextUtils.getLocale(request));
-
+            var locale = getPreferredLocale();
             i18n = I18N.createInstance(SchoolTripMessages.class, locale);
         }
 
         return i18n;
     }
 
-    public void setLocale(Locale locale) {
-        this.i18n = I18N.createInstance(SchoolTripMessages.class, locale);
+    public boolean isGerman() {
+        var locale = getPreferredLocale();
+        return locale.equals(Locale.GERMAN) || locale.equals(Locale.GERMANY);
+    }
+
+    public boolean isEnglish() {
+        return !isGerman();
+    }
+
+    public GetUserApplicationPermissionsCommand.ApplicationPermissions getPermissions() {
+        if (Objects.isNull(permissions)) {
+            this.permissions = GetUserApplicationPermissionsCommand
+                .apply()
+                .run(this.getUser(), domainRegistry)
+                .getData();
+        }
+
+        return permissions;
+    }
+
+    public Locale getPreferredLocale() {
+        if (Objects.isNull(user)) {
+            return request.getLocale();
+        } else {
+            return user.getPreferredLocale().orElse(request.getLocale());
+        }
+    }
+
+    public Optional<RegisteredUser> getRegisteredUser() {
+        return getUser().getRegisteredUser();
+    }
+
+    public void setRegisteredUser(RegisteredUser user) {
+        this.logout();
+        this.user = user;
     }
 
     public User getUser() {
@@ -94,24 +125,16 @@ public class ApplicationUserSession {
                         .flatMap(role -> role.getPermissions().stream())
                         .toList();
 
-                    user = new JWTUser(users, email, permissions);
+                    user = new JWTUser(users, email, permissions, request.getLocale().toLanguageTag());
                 } else {
                     user = AuthenticatedUser.apply(jwt.getTokenValue());
                 }
             } else {
-                user = AnonymousUser.apply();
+                user = AnonymousUser.apply(request.getLocale().toLanguageTag());
             }
         }
 
         return user;
-    }
-
-    public Optional<RegisteredUser> getRegisteredUser() {
-        return getUser().getRegisteredUser();
-    }
-
-    public void setRegisteredUser(RegisteredUser user) {
-        this.user = user;
     }
 
     public String login(String username, String password) {
@@ -152,7 +175,9 @@ public class ApplicationUserSession {
                     .getTokenValue();
             } else {
                 // TODO: Don't throw exception - This would roll back transactions?
-                Operators.suppressExceptions(() -> { throw loginResult.getException(); });
+                Operators.suppressExceptions(() -> {
+                    throw loginResult.getException();
+                });
                 return "";
             }
         } else {
@@ -160,31 +185,33 @@ public class ApplicationUserSession {
         }
     }
 
-    public GetUserApplicationPermissionsCommand.ApplicationPermissions getPermissions() {
-        if (Objects.isNull(permissions)) {
-            this.permissions = GetUserApplicationPermissionsCommand
-                .apply()
-                .run(this.getUser(), domainRegistry)
-                .getData();
-        }
-
-        return permissions;
-    }
-
     public void logout() {
-        this.user = AnonymousUser.apply();
+        this.user = AnonymousUser.apply(request.getLocale().toLanguageTag());
         this.i18n = null;
     }
 
-    @Value
+    public void setLocale(Locale locale) {
+        this.user.setPreferredLocale(locale, users);
+        this.i18n = I18N.createInstance(SchoolTripMessages.class, locale);
+    }
+
+    @ToString
+    @EqualsAndHashCode
     @AllArgsConstructor
     private static class JWTUser implements User {
 
-        RegisteredUsersReadRepository users;
+        private final RegisteredUsersReadRepository users;
 
-        String username;
+        private final String username;
 
-        List<DomainPermission> permissions;
+        private final List<DomainPermission> permissions;
+
+        private String locale;
+
+        @Override
+        public Optional<RegisteredUser> getRegisteredUser() {
+            return users.findOneByEmail(username);
+        }
 
         @Override
         public boolean hasSinglePermission(DomainPermission permission) {
@@ -192,8 +219,15 @@ public class ApplicationUserSession {
         }
 
         @Override
-        public Optional<RegisteredUser> getRegisteredUser() {
-            return users.findOneByEmail(username);
+        public Optional<Locale> getPreferredLocale() {
+            return Optional
+                .ofNullable(this.locale)
+                .map(Locale::forLanguageTag);
+        }
+
+        @Override
+        public void setPreferredLocale(Locale locale, RegisteredUsersRepository users) {
+            this.locale = locale.toLanguageTag();
         }
 
     }

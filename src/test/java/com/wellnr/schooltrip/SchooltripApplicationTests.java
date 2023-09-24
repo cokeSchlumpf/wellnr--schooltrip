@@ -1,11 +1,13 @@
 package com.wellnr.schooltrip;
 
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
+import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CreateSchoolTripCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.RegisterSchoolClassCommand;
 import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
+import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
 import com.wellnr.schooltrip.util.MongoContainer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -72,17 +74,45 @@ class SchooltripApplicationTests {
             Gender.Male
         ).run(user, registry);
 
+        RegisterStudentCommand.apply(
+            "skikurs-2024",
+            "8a",
+            "Edgar",
+            "Wellner",
+            LocalDate.of(2024, 9, 24),
+            Gender.Male
+        ).run(user, registry);
+
         var trip = registry
             .getSchoolTrips()
             .getSchoolTripByName("skikurs-2024");
 
-        var student = registry
+        var egon = registry
             .getStudents()
             .getStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(
                 new SchoolTripId(trip.getId()), "8a", "Egon", "Olsen"
             );
 
-        System.out.println("http://localhost:8080/students/complete-registration/" + student.getToken());
+        var edgar = registry
+            .getStudents()
+            .getStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(
+                new SchoolTripId(trip.getId()), "8a", "Edgar", "Wellner"
+            );
+
+        CompleteOrUpdateStudentRegistrationCommand
+            .apply(
+                edgar.getToken(), Questionnaire.empty(), "michael.wellner@gmail.com"
+            )
+            .run(user, registry);
+
+        edgar = registry
+            .getStudents()
+            .getStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(
+                new SchoolTripId(trip.getId()), "8a", "Edgar", "Wellner"
+            );
+
+        System.out.println("http://localhost:8080/students/response/" + egon.getToken());
+        System.out.println("http://localhost:8080/students/confirm-registration/" + edgar.getConfirmationToken());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.wellnr.schooltrip.core.model.user.exceptions;
 
 import com.wellnr.ddd.DomainException;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 
 public class PasswordsNotEqualException extends DomainException {
 
@@ -12,4 +13,8 @@ public class PasswordsNotEqualException extends DomainException {
         return new PasswordsNotEqualException();
     }
 
+    @Override
+    public String getUserMessage(SchoolTripMessages i18n) {
+        return i18n.passwordsNotEqual();
+    }
 }

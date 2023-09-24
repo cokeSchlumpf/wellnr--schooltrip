@@ -56,9 +56,16 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
         this.removeAll();
         this.add(new HorizontalLayout(
             new TaskCard(i18n.importStudents(), i18n.importStudentsDescription(), this::runExcelImport),
-            new TaskCard(i18n.invitationMailing(), i18n.invitationMailingDescription(), this::exportInvitationMailingData),
+            new TaskCard(i18n.invitationMailing(), i18n.invitationMailingDescription(),
+                this::exportInvitationMailingData),
             new TaskCard(i18n.closeRegistration(), i18n.closeRegistrationDescription(), this::closeRegistration),
             new TaskCard(i18n.reassignIDs(), i18n.reassignIDsDescription(), this::reassignStudentIDs)
+        ));
+    }
+
+    private void closeRegistration() {
+        commandRunner.runAndNotify(CloseSchoolTripRegistrationCommand.apply(
+            new SchoolTripId(this.schoolTrip.schoolTrip().getId())
         ));
     }
 
@@ -70,12 +77,6 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
 
     private void reassignStudentIDs() {
         commandRunner.runAndNotify(ReassignSchoolTripStudentIdsCommand.apply(
-            new SchoolTripId(this.schoolTrip.schoolTrip().getId())
-        ));
-    }
-
-    private void closeRegistration() {
-        commandRunner.runAndNotify(CloseSchoolTripRegistrationCommand.apply(
             new SchoolTripId(this.schoolTrip.schoolTrip().getId())
         ));
     }

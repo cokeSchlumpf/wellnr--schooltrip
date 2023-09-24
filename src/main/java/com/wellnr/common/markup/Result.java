@@ -13,20 +13,12 @@ public final class Result<T> {
 
     private Exception failure;
 
-    public static <T> Result<T> success(T value) {
-        return new Result<>(value, null);
-    }
-
     public static <T> Result<T> failure(Exception ex) {
         return new Result<>(null, ex);
     }
 
-    public boolean isFailure() {
-        return Objects.nonNull(failure);
-    }
-
-    public boolean isSuccess() {
-        return Objects.nonNull(value);
+    public static <T> Result<T> success(T value) {
+        return new Result<>(value, null);
     }
 
     public Exception getException() {
@@ -37,6 +29,14 @@ public final class Result<T> {
         return failure;
     }
 
+    public T getOrThrow() {
+        if (this.isFailure()) {
+            throw new RuntimeException(this.failure);
+        }
+
+        return value;
+    }
+
     public T getValue() {
         if (this.isFailure()) {
             throw new IllegalStateException("`getValue` is called on failed result.");
@@ -45,12 +45,12 @@ public final class Result<T> {
         return value;
     }
 
-    public T getOrThrow() {
-        if (this.isFailure()) {
-            throw new RuntimeException(this.failure);
-        }
+    public boolean isFailure() {
+        return Objects.nonNull(failure);
+    }
 
-        return value;
+    public boolean isSuccess() {
+        return Objects.nonNull(value);
     }
 
     public <TYPE> Result<TYPE> mapSuccess(Function1<T, TYPE> map) {

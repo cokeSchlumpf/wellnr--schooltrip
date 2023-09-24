@@ -4,10 +4,12 @@ import java.util.Optional;
 
 public sealed interface Discipline permits Ski, Snowboard {
 
+    Optional<? extends BootRental> getBootRental();
+
     Experience getExperience();
 
     Optional<? extends Rental> getRental();
 
-    Optional<? extends BootRental> getBootRental();
+    boolean hasHelmRental();
 
 }

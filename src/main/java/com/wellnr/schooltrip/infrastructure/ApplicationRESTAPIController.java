@@ -23,16 +23,6 @@ public class ApplicationRESTAPIController {
 
     private final SchoolTripDomainRegistry domainRegistry;
 
-    @PostMapping("/login")
-    public String login(@RequestBody LoginRequest request) {
-        return userSession.login(request.getUsername(), request.getPassword());
-    }
-
-    @GetMapping("/test")
-    public String test() {
-        return userSession.getUser().toString();
-    }
-
     @GetMapping("/api/trips/{name}/exports/invitation-mailing")
     public ResponseEntity<InputStreamResource> exportSchoolTripInivitationMailings(
         @PathVariable("name") String schoolTrip) {
@@ -56,6 +46,16 @@ public class ApplicationRESTAPIController {
             .body(new InputStreamResource(
                 Operators.suppressExceptions(() -> new FileInputStream(path.toFile()))
             ));
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestBody LoginRequest request) {
+        return userSession.login(request.getUsername(), request.getPassword());
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return userSession.getUser().toString();
     }
 
     @Value

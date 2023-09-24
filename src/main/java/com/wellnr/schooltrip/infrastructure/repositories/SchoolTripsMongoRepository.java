@@ -15,8 +15,8 @@ public class SchoolTripsMongoRepository implements SchoolTripsRepository {
     private final SchoolTripsSpringDataMongoRepository spring;
 
     @Override
-    public Optional<SchoolTrip> findSchoolTripByName(String name) {
-        return spring.findOneByName(name);
+    public Collection<SchoolTrip> findAllSchoolTrips() {
+        return spring.findAll();
     }
 
     @Override
@@ -25,8 +25,8 @@ public class SchoolTripsMongoRepository implements SchoolTripsRepository {
     }
 
     @Override
-    public Collection<SchoolTrip> findAllSchoolTrips() {
-        return spring.findAll();
+    public Optional<SchoolTrip> findSchoolTripByName(String name) {
+        return spring.findOneByName(name);
     }
 
     @Override

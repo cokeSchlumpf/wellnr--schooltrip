@@ -24,10 +24,10 @@ import java.util.Set;
 public interface DomainRole {
 
     @JsonIgnore
-    String getName();
+    String getDisplayName(SchoolTripDomainRegistry domainRegistry);
 
     @JsonIgnore
-    String getDisplayName(SchoolTripDomainRegistry domainRegistry);
+    String getName();
 
     @JsonIgnore
     Set<DomainPermission> getPermissions();

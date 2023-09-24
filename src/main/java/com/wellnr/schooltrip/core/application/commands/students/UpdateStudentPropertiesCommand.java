@@ -46,7 +46,7 @@ public class UpdateStudentPropertiesCommand implements AbstractSchoolTripCommand
         );
 
         return MessageResult
-            .formatted("Successfully updated student `%s`", student.getDisplayName())
+            .apply(user.getMessages().successfullyUpdatedStudent(student.getDisplayName()))
             .withData(student);
     }
 

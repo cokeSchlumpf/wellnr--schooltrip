@@ -9,15 +9,17 @@ import java.util.Optional;
 
 public interface StudentsSpringDataMongoRepository extends MongoRepository<Student, String> {
 
-    Optional<Student> findStudentBySchoolTripAndSchoolClassAndFirstNameAndLastName(SchoolTripId schoolTripId, String schoolClassName, String firstName, String lastName);
-
-    List<Student> findStudentsBySchoolTrip(SchoolTripId schoolTripId);
-
-    Optional<Student> findStudentByToken(String token);
-
     Optional<Student> findStudentByConfirmationToken(String token);
 
     Optional<Student> findStudentById(String id);
+
+    Optional<Student> findStudentBySchoolTripAndSchoolClassAndFirstNameAndLastName(SchoolTripId schoolTripId,
+                                                                                   String schoolClassName,
+                                                                                   String firstName, String lastName);
+
+    Optional<Student> findStudentByToken(String token);
+
+    List<Student> findStudentsBySchoolTrip(SchoolTripId schoolTripId);
 
     List<Student> findStudentsBySchoolTripAndSchoolClass(SchoolTripId schoolTripId, String schoolClassName);
 

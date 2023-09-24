@@ -6,15 +6,15 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @ComponentScan({
-	"com.wellnr.schooltrip",
-	"com.wellnr.ddd"
+    "com.wellnr.schooltrip",
+    "com.wellnr.ddd"
 })
 public class SchooltripApplication {
 
-	public static String SECURITY_COOKIE_NAME = "access_token";
+    public static String SECURITY_COOKIE_NAME = "access_token";
 
-	public static void main(String[] args) {
-		SpringApplication.run(SchooltripApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(SchooltripApplication.class, args);
+    }
 
 }

@@ -8,6 +8,7 @@ import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import com.wellnr.schooltrip.core.model.user.User;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -28,24 +29,24 @@ public class LoginCommand implements AbstractSchoolTripCommand<MessageResult<Res
     String password;
 
     @Override
-    public MessageResult<Result<RegisteredUser>> run(User ignoreUser, SchoolTripDomainRegistry domainRegistry) {
+    public MessageResult<Result<RegisteredUser>> run(User user, SchoolTripDomainRegistry domainRegistry) {
         var loginResult = domainRegistry
             .getUsers()
             .findOneByEmail(username)
-            .map(user -> user
+            .map(registeredUser -> registeredUser
                 .login(
                     password, domainRegistry.getUsers(), domainRegistry.getPasswordEncryptionPort()
                 )
                 .mapSuccess(
-                    done -> user
+                    done -> registeredUser
                 )
             )
             .orElse(Result.failure(new NotSuccessfulException()));
 
         var message = When
             .isTrue(loginResult.isFailure())
-            .then(domainRegistry.getMessages().loginFailed())
-            .otherwise("Login succeeded.");
+            .then(user.getMessages().loginFailed())
+            .otherwise(user.getMessages().loginSucceeded());
 
         return MessageResult.apply(message, loginResult);
     }
@@ -54,6 +55,11 @@ public class LoginCommand implements AbstractSchoolTripCommand<MessageResult<Res
 
         public NotSuccessfulException() {
             super("Login was not successful.");
+        }
+
+        @Override
+        public String getUserMessage(SchoolTripMessages i18n) {
+            return i18n.loginFailed();
         }
 
     }
