@@ -26,8 +26,8 @@ public class RegisterSchoolClassCommand implements AbstractSchoolTripCommand<Mes
             .getSchoolTripByName(schoolTrip)
             .registerSchoolClass(user, name, domainRegistry.getSchoolTrips());
 
-        return MessageResult.formatted(
-            "Successfully created school `%s` class.", name
+        return MessageResult.apply(
+            user.getMessages().successfullyCreatedSchoolClass(name)
         );
     }
 

@@ -30,7 +30,7 @@ public class RemoveSchoolTripManagerCommand implements AbstractSchoolTripCommand
         trip.removeManager(user, this.user, domainRegistry.getSchoolTrips());
 
         return MessageResult.formatted(
-            "Removed manager role from user."
+            user.getMessages().removedSchoolTripManager()
         );
     }
 

@@ -53,7 +53,7 @@ public class UpdateSchoolTripSettingsCommand implements AbstractSchoolTripComman
         );
 
         return MessageResult
-            .formatted("Successfully updated trip `%s`", name)
+            .apply(user.getMessages().successfullyUpdatedTrip(name))
             .withData(trip);
     }
 

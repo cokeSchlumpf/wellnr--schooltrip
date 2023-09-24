@@ -1,26 +1,29 @@
-package com.wellnr.schooltrip.core.application.commands.schooltrip;
+package com.wellnr.schooltrip.core.application.commands.students;
 
 import com.wellnr.common.markup.Nothing;
 import com.wellnr.ddd.commands.MessageResult;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.AbstractSchoolTripCommand;
+import com.wellnr.schooltrip.core.model.student.RejectionReason;
 import com.wellnr.schooltrip.core.model.user.User;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Value;
 
-@Value
+@Data
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
-public class RenameSchoolTripCommand implements AbstractSchoolTripCommand<MessageResult<Nothing>> {
+public class ResetRejectionCommand implements AbstractSchoolTripCommand<MessageResult<Nothing>> {
 
-    String newTitle;
+    String student;
 
     @Override
     public MessageResult<Nothing> run(User user, SchoolTripDomainRegistry domainRegistry) {
+        var student = domainRegistry.getStudents().getStudentById(this.student);
+        student.resetRejection(user, domainRegistry.getStudents());
         return MessageResult.apply(
-            user.getMessages().schoolTripRenamed(newTitle)
+            user.getMessages().cancellationReseted(student)
         );
     }
 

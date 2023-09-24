@@ -28,7 +28,7 @@ public class CloseSchoolTripRegistrationCommand implements AbstractSchoolTripCom
             );
 
         return MessageResult.formatted(
-            "Closed registration and removed %d students who have not been registered yet.", removedStudents.size()
+            user.getMessages().registrationClosed(removedStudents.size())
         );
     }
 

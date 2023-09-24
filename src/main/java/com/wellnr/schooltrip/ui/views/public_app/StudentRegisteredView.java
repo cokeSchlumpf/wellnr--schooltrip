@@ -1,15 +1,17 @@
-package com.wellnr.schooltrip.ui.public_app;
+package com.wellnr.schooltrip.ui.views.public_app;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.router.*;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.RegisteredStudentViewCommand;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.public_app.HeadlineWithTitle;
-import com.wellnr.schooltrip.ui.layout.AbstractPublicAppView;
+
+import java.util.Objects;
 
 @Route("/students/registered/:token")
 public class StudentRegisteredView extends AbstractPublicAppView implements BeforeEnterObserver {
@@ -39,6 +41,8 @@ public class StudentRegisteredView extends AbstractPublicAppView implements Befo
         var projection = commandRunner
             .run(RegisteredStudentViewCommand.apply(token))
             .getData();
+
+        this.schoolTrip = projection.schoolTrip();
 
         /*
          * Initialize view.

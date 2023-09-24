@@ -39,7 +39,7 @@ public class CreateSchoolTripCommand implements AbstractSchoolTripCommand<Messag
         );
 
         return MessageResult
-            .formatted("Successfully created trip `%s`", title)
+            .apply(user.getMessages().schooTripCreated(title))
             .withData(trip);
     }
 

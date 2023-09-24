@@ -111,7 +111,7 @@ class SchooltripApplicationTests {
                 new SchoolTripId(trip.getId()), "8a", "Edgar", "Wellner"
             );
 
-        System.out.println("http://localhost:8080/students/complete-registration/" + egon.getToken());
+        System.out.println("http://localhost:8080/students/response/" + egon.getToken());
         System.out.println("http://localhost:8080/students/confirm-registration/" + edgar.getConfirmationToken());
     }
 

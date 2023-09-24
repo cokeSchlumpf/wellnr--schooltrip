@@ -1,10 +1,7 @@
 package com.wellnr.schooltrip.ui.views.trips;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.HighlightConditions;
-import com.vaadin.flow.router.RouterLink;
+import com.vaadin.flow.router.*;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.GetSchoolTripDetailsCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripDetailsProjection;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
@@ -14,8 +11,9 @@ import com.wellnr.schooltrip.ui.components.ApplicationRouterLinkWithIcon;
 import com.wellnr.schooltrip.ui.layout.AbstractApplicationAppView;
 
 import java.util.List;
+import java.util.Objects;
 
-public abstract class AbstractSchoolTripView extends AbstractApplicationAppView implements BeforeEnterObserver {
+public abstract class AbstractSchoolTripView extends AbstractApplicationAppView implements BeforeEnterObserver, HasDynamicTitle {
 
     protected final ApplicationCommandRunner commandRunner;
     private final SchoolTripMessages i18n;
@@ -43,6 +41,15 @@ public abstract class AbstractSchoolTripView extends AbstractApplicationAppView 
             .getData();
 
         this.updateView();
+    }
+
+    @Override
+    public String getPageTitle() {
+        if (Objects.nonNull(schoolTrip)) {
+            return super.getPageTitle() + " - " +  schoolTrip.schoolTrip().getTitle();
+        } else {
+            return super.getPageTitle();
+        }
     }
 
     @Override

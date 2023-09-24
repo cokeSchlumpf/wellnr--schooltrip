@@ -1,15 +1,22 @@
 package com.wellnr.schooltrip.ui.components.student;
 
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.shared.Registration;
+import com.wellnr.schooltrip.core.application.commands.students.RejectParticipationCommand;
+import com.wellnr.schooltrip.core.application.commands.students.ResetRejectionCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
+import com.wellnr.schooltrip.core.model.student.RejectionReason;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
+
+import java.util.Optional;
 
 public class StudentDetailsControl extends Scroller {
 
@@ -22,6 +29,10 @@ public class StudentDetailsControl extends Scroller {
     private StudentPaymentAdminControl payments;
 
     private StudentRegistrationAdminControl registration;
+
+    private VerticalLayout cancellation;
+
+    private RadioButtonGroup<Optional<RejectionReason>> cancellationOptions;
 
     private Student student;
 
@@ -40,12 +51,14 @@ public class StudentDetailsControl extends Scroller {
         setupBasics(schoolTrip, commandRunner);
         setupPayment(commandRunner);
         setupRegistration(schoolTrip, commandRunner);
+        setupCancellation(commandRunner);
 
         // Setup layout
         var tabs = new TabSheet();
         tabs.add(new Tab(i18n.student()), basics);
         tabs.add(new Tab(i18n.registration()), this.registration);
         tabs.add(new Tab(i18n.payments()), this.payments);
+        tabs.add(new Tab(i18n.cancellation()), this.cancellation);
 
         var vl = new VerticalLayout(tabs);
         this.setContent(vl);
@@ -59,6 +72,7 @@ public class StudentDetailsControl extends Scroller {
      * @param listener The listener for the event.
      * @return An event registration.
      */
+    @SuppressWarnings("UnusedReturnValue")
     public Registration addStudentDetailsUpdatedListener(
         ComponentEventListener<StudentDetailsUpdatedEvent> listener) {
 
@@ -84,6 +98,52 @@ public class StudentDetailsControl extends Scroller {
         this.basics.setStudent(student);
         this.payments.setStudent(student);
         this.registration.setStudent(student);
+
+        this.cancellationOptions.setValue(
+            student.getRejectionReason()
+        );
+    }
+
+    @SuppressWarnings("unchecked")
+    public void setupCancellation(ApplicationCommandRunner commandRunner) {
+        this.cancellation = new VerticalLayout();
+
+        cancellationOptions = new RadioButtonGroup<>();
+        cancellationOptions.setItems(
+            Optional.empty(),
+            Optional.of(RejectionReason.OUT_OF_SNOW),
+            Optional.of(RejectionReason.GO_TO_SCHOOL)
+        );
+        cancellationOptions.setItemLabelGenerator(r -> {
+            if (r.isEmpty()) {
+                return i18n.participation();
+            } else if (r.get().equals(RejectionReason.OUT_OF_SNOW)) {
+                return i18n.cancelOutOfSnow();
+            } else {
+                return i18n.cancelSchool();
+            }
+        });
+
+        var saveButton = new Button(i18n.save());
+        saveButton.addClickListener(event -> {
+            var value = cancellationOptions.getValue();
+
+            if (value.isEmpty()) {
+                commandRunner.runAndNotify(
+                    ResetRejectionCommand.apply(student.getId())
+                );
+            } else {
+                commandRunner.runAndNotify(
+                    RejectParticipationCommand.apply(student.getToken(), value.get())
+                );
+            }
+
+            fireEvent(
+                new StudentDetailsUpdatedEvent(student, this, true)
+            );
+        });
+
+        cancellation.add(cancellationOptions, saveButton);
     }
 
     /**

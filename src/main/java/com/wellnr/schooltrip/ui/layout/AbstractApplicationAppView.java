@@ -4,6 +4,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermission;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
@@ -18,7 +19,7 @@ import java.util.List;
 
 // @JsModule("./copy-to-clipboard.js")
 public abstract class AbstractApplicationAppView extends VerticalLayout implements ApplicationAppView,
-    BeforeEnterObserver {
+    BeforeEnterObserver, HasDynamicTitle {
 
     protected final ApplicationUserSession userSession;
     protected final List<DomainPermission> minimumPermissions;
@@ -49,6 +50,11 @@ public abstract class AbstractApplicationAppView extends VerticalLayout implemen
             var user = maybeUser.get();
             user.checkPermission(minimumPermissions);
         }
+    }
+
+    @Override
+    public String getPageTitle() {
+        return "GaS Merzig";
     }
 
     @Override

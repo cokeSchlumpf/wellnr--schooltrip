@@ -27,8 +27,8 @@ public class RemovePaymentCommand implements AbstractSchoolTripCommand<MessageRe
             user, paymentId, domainRegistry.getStudents(), domainRegistry.getSchoolTrips()
         );
 
-        return MessageResult.formatted(
-            "Successfully removed payment from `%s`", student.getDisplayName()
+        return MessageResult.apply(
+            user.getMessages().successfullyRemovedPayment(student)
         );
     }
 

@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.ui.layout;
+package com.wellnr.schooltrip.ui.views.public_app;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -6,16 +6,21 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.router.HasDynamicTitle;
+import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 
 import java.util.Locale;
+import java.util.Objects;
 
-public class AbstractPublicAppView extends Div {
+public abstract class AbstractPublicAppView extends Div implements HasDynamicTitle {
 
     protected final SchoolTripMessages i18n;
 
     protected final Div contentContainer;
+
+    protected SchoolTrip schoolTrip;
 
     protected AbstractPublicAppView(
         ApplicationUserSession userSession
@@ -56,4 +61,12 @@ public class AbstractPublicAppView extends Div {
         this.add(contentContainer);
     }
 
+    @Override
+    public String getPageTitle() {
+        if (Objects.nonNull(schoolTrip)) {
+            return "GaS Merzig - " + schoolTrip.getTitle();
+        } else {
+            return "GaS Merzig";
+        }
+    }
 }

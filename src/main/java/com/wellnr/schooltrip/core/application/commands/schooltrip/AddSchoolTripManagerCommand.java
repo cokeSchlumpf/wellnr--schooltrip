@@ -40,7 +40,7 @@ public class AddSchoolTripManagerCommand implements AbstractSchoolTripCommand<Me
         );
 
         return MessageResult.formatted(
-            "Added `%s` as manager for trip.", result.getName()
+            user.getMessages().schoolTripManagerAdded(result)
         );
     }
 

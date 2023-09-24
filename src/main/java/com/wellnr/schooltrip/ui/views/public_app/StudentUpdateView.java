@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.ui.public_app;
+package com.wellnr.schooltrip.ui.views.public_app;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
@@ -17,7 +17,6 @@ import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.public_app.HeadlineWithTitle;
 import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionnaireControl;
-import com.wellnr.schooltrip.ui.layout.AbstractPublicAppView;
 
 @Route("/students/update/:token")
 public class StudentUpdateView extends AbstractPublicAppView implements BeforeEnterObserver {
@@ -56,6 +55,7 @@ public class StudentUpdateView extends AbstractPublicAppView implements BeforeEn
          * Initialize view.
          */
         student = projection.student();
+        schoolTrip = projection.schoolTrip();
 
         questionnaire = new StudentRegistrationQuestionnaireControl(
             i18n,

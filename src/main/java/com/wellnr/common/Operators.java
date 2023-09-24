@@ -64,7 +64,7 @@ public class Operators {
      */
     @SuppressWarnings("unchecked")
     public static <T> Optional<T> hasCause(Throwable exception, Class<T> exceptionClass) {
-        if (exceptionClass.isInstance(exceptionClass)) {
+        if (exceptionClass.isInstance(exception)) {
             return Optional.of((T) exception);
         } else if (Objects.isNull(exception.getCause())) {
             return Optional.empty();

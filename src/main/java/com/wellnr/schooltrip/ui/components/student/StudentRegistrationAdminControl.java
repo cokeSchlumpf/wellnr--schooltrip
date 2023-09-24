@@ -117,6 +117,9 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
         } else if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
             this.infoText.setText(i18n.studentIsRegistered());
             this.add(infoText, existingRegistration, updateRegistration);
+        } else if (student.getRegistrationState().equals(RegistrationState.REJECTED)) {
+            this.infoText.setText(i18n.studentHasRejectedParticipation());
+            this.add(infoText);
         }
     }
 

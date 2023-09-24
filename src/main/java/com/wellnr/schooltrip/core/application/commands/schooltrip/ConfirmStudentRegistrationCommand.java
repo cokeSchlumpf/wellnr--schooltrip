@@ -24,7 +24,7 @@ public class ConfirmStudentRegistrationCommand implements AbstractSchoolTripComm
 
         return MessageResult
             .formatted(
-                "Successfully confirmed registration.", student.getDisplayName()
+                user.getMessages().successfullyConfirmedRegistration(), student.getDisplayName()
             )
             .withData(student);
     }

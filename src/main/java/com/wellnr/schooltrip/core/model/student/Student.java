@@ -12,6 +12,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRep
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
 import com.wellnr.schooltrip.core.model.student.exceptions.StudentAlreadyExistsException;
+import com.wellnr.schooltrip.core.model.student.exceptions.StudentAlreadyRegisteredException;
 import com.wellnr.schooltrip.core.model.student.payments.Payment;
 import com.wellnr.schooltrip.core.model.student.payments.Payments;
 import com.wellnr.schooltrip.core.model.student.payments.PriceLineItem;
@@ -67,6 +68,8 @@ public class Student extends AggregateRoot<String, Student> {
     List<Payment> payments;
 
     Integer tripStudentId;
+
+    RejectionReason rejectionReason;
 
     public static PriceLineItems calculatePriceLineItems(
         SchoolTrip schoolTrip, Questionnaire questionnaire, SchoolTripMessages i18n
@@ -139,7 +142,7 @@ public class Student extends AggregateRoot<String, Student> {
         return new Student(
             id, schoolTrip, schoolClass, firstName, lastName, birthday, gender,
             RegistrationState.CREATED, token, confirmationToken, null, null,
-            new ArrayList<>(), null
+            new ArrayList<>(), null, null
         );
     }
 
@@ -353,6 +356,73 @@ public class Student extends AggregateRoot<String, Student> {
             this.registerEvent(StudentRegisteredEvent.apply(this));
             repository.insertOrUpdateStudent(this);
         }
+    }
+
+    public void rejectParticipation(
+        User executor, RejectionReason rejectionReason, StudentsRepository students,
+        SchoolTripsReadRepository schoolTrips, JavaMailSender mailSender, SchoolTripMessages i18n,
+        SchoolTripApplicationConfiguration config
+    ) {
+        /*
+         * Check pre-conditions.
+         *
+         * Rejection is only possible, if student is not already registered or the user
+         * updating the student is a manager of the school trip or an administrator.
+         */
+        var isAdminUser = executor.hasPermission(
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(this.schoolTrip.schoolTripId())
+        );
+
+        if (registrationState.equals(RegistrationState.REGISTERED) && !isAdminUser) {
+            throw StudentAlreadyRegisteredException.apply(this);
+        }
+
+        var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip.schoolTripId());
+
+        /*
+         * Execute action.
+         */
+        this.registrationState = RegistrationState.REJECTED;
+        this.rejectionReason = rejectionReason;
+        this.questionnaire = null;
+
+        // Send E-Mail for confirmation.
+        var message = mailSender.createMimeMessage();
+        var mimeHelper = new MimeMessageHelper(message, StandardCharsets.UTF_8.name());
+
+        Operators.suppressExceptions(() -> {
+            mimeHelper.setFrom(config.getEmail().getUsername());
+            mimeHelper.setTo(config.getEmail().getUsername());
+            mimeHelper.setSubject(
+                i18n.confirmRejectionMailSubject(schoolTrip)
+            );
+            mimeHelper.setText(
+                i18n.confirmRejectionMailText(schoolTrip, this, rejectionReason)
+            );
+        });
+
+        mailSender.send(message);
+
+        students.insertOrUpdateStudent(this);
+    }
+
+    public Optional<RejectionReason> getRejectionReason() {
+        return Optional.ofNullable(rejectionReason);
+    }
+
+    public void resetRejection(User users, StudentsRepository students) {
+        /*
+         * User needs to be administrator.
+         */
+        users.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(this.schoolTrip.schoolTripId())
+        );
+
+        this.rejectionReason = null;
+        this.registrationState = RegistrationState.CREATED;
+        students.insertOrUpdateStudent(this);
     }
 
     /**

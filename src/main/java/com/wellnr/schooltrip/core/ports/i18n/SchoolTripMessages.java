@@ -2,11 +2,14 @@ package com.wellnr.schooltrip.core.ports.i18n;
 
 import com.wellnr.common.markup.Either;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
+import com.wellnr.schooltrip.core.model.student.Gender;
+import com.wellnr.schooltrip.core.model.student.RejectionReason;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Experience;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
+import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -114,6 +117,26 @@ public interface SchoolTripMessages {
     @DE("Ausleihe Schuhe")
     default String bootRental() {
         return "Boot Rental";
+    }
+
+    @DE("Abmelden - Teilnahme Out of Snow")
+    default String cancelOutOfSnow() {
+        return "Cancel - Student joins Out of Snow";
+    }
+
+    @DE("Abmelden - Teilnahme am Unterricht")
+    default String cancelSchool() {
+        return "Cancel - Student visits school";
+    }
+
+    @DE("Abmeldung")
+    default String cancellation() {
+        return "Cancellation";
+    }
+
+    @DE("Abmeldung wurde rückgängig gemacht.")
+    default String cancellationReseted(Student student) {
+        return "Cancellation has been reset.";
     }
 
     @DE("Registrierung beenden")
@@ -410,6 +433,60 @@ public interface SchoolTripMessages {
         return "Confirm registration";
     }
 
+    default String confirmRejectionMailSubject(SchoolTrip schoolTrip) {
+        return "Response " + schoolTrip.getName();
+    }
+
+    default String confirmRejectionMailSubject$DE(SchoolTrip schoolTrip) {
+        return "Rückmeldung " + schoolTrip.getName();
+    }
+
+    default String confirmRejectionMailText(SchoolTrip trip, Student student, RejectionReason rejectionReason) {
+        String alternative;
+
+        if (rejectionReason.equals(RejectionReason.OUT_OF_SNOW)) {
+            alternative = String.format(
+                "%s will participate in the Out of Snow trip. The organizers will contact you.",
+                student.getFirstName()
+            );
+        } else {
+            alternative = String.format(
+                "%s will visit another school class instead.",
+                student.getFirstName()
+            );
+        }
+
+        return """            
+            Thank you for your feedback! %s won't participate in this year's Ski and Snowboard trip to Hinterglemm, as an alternative %s
+            """
+            .formatted(
+                student.getFirstName(),
+                alternative
+            )
+            .stripIndent()
+            .trim();
+    }
+
+    default String confirmRejectionMailText$DE(SchoolTrip trip, Student student, RejectionReason rejectionReason) {
+        String alternative;
+
+        if (rejectionReason.equals(RejectionReason.OUT_OF_SNOW)) {
+            alternative = "bei der Out of Snow Fahrt teilnehmen. Die Organisatoren werden sich an Sie wenden.";
+        } else {
+            alternative = "am Schulunterricht in einer anderen Klasse teilnehmen.";
+        }
+
+        return """
+            Vielen Dank für Ihre Rückmeldung! %s wird nicht an der Ski- und Snowboard-Freizeit teilnehmen und stattdessen %s
+            """
+            .formatted(
+                student.getFirstName(),
+                alternative
+            )
+            .stripIndent()
+            .trim();
+    }
+
     @DE("Bestätigung")
     default String confirmation() {
         return "Confirmation";
@@ -487,6 +564,35 @@ public interface SchoolTripMessages {
     @DE("Disziplinen")
     default String disciplines() {
         return "Disciplines";
+    }
+
+    default String dontParticipateOutOfSnow(Student student) {
+        return String.format(
+            "%s will not participate in the Out of Snow trip. The organizers will contact you.",
+            student.getFirstName()
+        );
+    }
+
+    default String dontParticipateOutOfSnow$DE(Student student) {
+        return String.format(
+            "%s möchte an der Out of Snow Fahrt teilnehmen. Die Organisatoren werden sich an Sie wenden.",
+            student.getFirstName()
+        );
+    }
+
+    default String dontParticipateSchool(Student student) {
+        return String.format(
+            "%s will not participate. %s will visit another school class instead.",
+            student.getFirstName(),
+            student.getGender().equals(Gender.Male) ? "He" : "She"
+        );
+    }
+
+    default String dontParticipateSchool$DE(Student student) {
+        return String.format(
+            "%s wird an keiner Ausfahrt teinehmen und während der Ausfahrten die Schule besuchen.",
+            student.getFirstName()
+        );
     }
 
     @DE("Klasse bearbeiten")
@@ -754,6 +860,19 @@ public interface SchoolTripMessages {
         return "Paid";
     }
 
+    default String participate(Student student) {
+        return "Register " + student.getFirstName() + " to attend the Ski- and Snowboard trip.";
+    }
+
+    default String participate$DE(Student student) {
+        return student.getFirstName() + " für die Ski- und Snowboard-Freizeit anmelden.";
+    }
+
+    @DE("Potentielle Teilnahme am Skikurs.")
+    default String participation() {
+        return "Student will (potentially) participate.";
+    }
+
     @DE("Passwort")
     default String password() {
         return "Password";
@@ -794,6 +913,11 @@ public interface SchoolTripMessages {
         return "Re-assign increasing ID to registered students.";
     }
 
+    @DE("IDs wurden neu generiert.")
+    default String reassignedIDs() {
+        return "Re-assigned school trip student ids.";
+    }
+
     @DE("Zahlung eingeben")
     default String recordPayment() {
         return "Record payment";
@@ -826,6 +950,17 @@ public interface SchoolTripMessages {
     @DE("Anmeldung")
     default String registration() {
         return "Registration";
+    }
+
+    default String registrationClosed(int size) {
+        return "Closed registration and removed %d students who have not been registered yet.".formatted(size);
+    }
+
+    default String registrationClosed$DE(int size) {
+        return ("Die Registrierung wurde geschlossen. %d nicht registrierte Schüler wurden aus der Datenbank entfernt" +
+            ".").formatted(
+            size
+        );
     }
 
     default String registrationConfirmationMailText(
@@ -914,7 +1049,7 @@ public interface SchoolTripMessages {
                 Registration for Ski- und Snowboard-Freizeit 2024
                             
                 The registration of %s has been updated.
-                
+                                
                 If you wish to change some of the registration options again, please follow the link below:
                                 
                 %s
@@ -957,6 +1092,11 @@ public interface SchoolTripMessages {
         return parts.stream().map(String::trim).collect(Collectors.joining("\n\n"));
     }
 
+    @DE("Manager Rolle wurde entzogen")
+    default String removedSchoolTripManager() {
+        return "Removed manager role from user.";
+    }
+
     @DE("Ausleihe Ski/ Board")
     default String rental() {
         return "Ski and snowboard rental";
@@ -975,6 +1115,11 @@ public interface SchoolTripMessages {
     @DE("Speichern")
     default String save() {
         return "Save";
+    }
+
+    @DE("Fahrt erfolgreich angelegt.")
+    default String schooTripCreated(String title) {
+        return "Successfully created trip `%s`".formatted(title);
     }
 
     @DE("Klasse")
@@ -1010,6 +1155,14 @@ public interface SchoolTripMessages {
         return "A school trip with this name already exists.";
     }
 
+    default String schoolTripManagerAdded(RegisteredUser user) {
+        return "Added `%s` as manager for trip.".formatted(user.getName());
+    }
+
+    default String schoolTripManagerAdded$DE(RegisteredUser user) {
+        return "`%s` wurde als Manager hinzugefügt.".formatted(user.getName());
+    }
+
     @DE("Fahrt Administratoren")
     default String schoolTripManagers() {
         return "Trip Managers";
@@ -1021,6 +1174,11 @@ public interface SchoolTripMessages {
 
     default String schoolTripNotFound$DE(String name) {
         return "Keine Fahrt `%s` gefunden.".formatted(name);
+    }
+
+    @DE("Fahrt umbennant zu `%s`")
+    default String schoolTripRenamed(String newTitle) {
+        return "Renamed trip to `%s`.".formatted(newTitle);
     }
 
     @DE("Fahrt Einstellungen")
@@ -1108,6 +1266,19 @@ public interface SchoolTripMessages {
         return "Student already exists.";
     }
 
+    @DE("Schüler hat sich abgemeldet.")
+    default String studentHasRejectedParticipation() {
+        return "Student rejected participation.";
+    }
+
+    default String studentIsAlreadyRegistered(Student student) {
+        return "Rejection is not possible. %s is already registered.".formatted(student.getFirstName());
+    }
+
+    default String studentIsAlreadyRegistered$DE(Student student) {
+        return "Leider ist eine Abmeldung nicht möglich. %s wurde bereits für den Ski-Kurs verbindlich angemeldet.".formatted(student.getFirstName());
+    }
+
     @DE("SchülerIn ist nicht angemeldet. Die Anmeldung kann manuell durchgeführt werden.")
     default String studentIsNotRegisteredYet() {
         return "Student is not registered yet. You may register the student manually.";
@@ -1188,6 +1359,15 @@ public interface SchoolTripMessages {
     @DE("Link zur Selbst-Anmeldung")
     default String studentRegistrationLink() {
         return "Student Registration Link";
+    }
+
+    default String studentResponseInfoText(Student student) {
+        return "Please tell us, whether " + student.getFirstName() + " is interested to participate in the trip.";
+    }
+
+    default String studentResponseInfoText$DE(Student student) {
+        return "Bitte geben Sie an, ob " + student.getFirstName() + " an der Ski- und Snowboard-Freizeit teilnehmen " +
+            "wird.";
     }
 
     @DE("Mein Kind möchte teilnehmen:")
@@ -1271,6 +1451,49 @@ public interface SchoolTripMessages {
         return "Submit";
     }
 
+    default String successfullyAddedPaymentForUser(Student student) {
+        return String.format("Successfully added payment for `%s`", student.getDisplayName());
+    }
+
+    default String successfullyAddedPaymentForUser$DE(Student student) {
+        return String.format("Eingegangene Zahlung registriert für `%s`", student.getDisplayName());
+    }
+
+    @DE("Registrierung bestätigt")
+    default String successfullyConfirmedRegistration() {
+        return "Succssefully confirmed registration";
+    }
+
+    @DE("Klasse '%s' wurde erfolgreich hinzugefügt.")
+    default String successfullyCreatedSchoolClass(String name) {
+        return "Successfully created school `%s` class.".formatted(name);
+    }
+
+    @DE("Benutzer `%s` erfolgreich hinzugefügt.")
+    default String successfullyRegisteredUser(String email) {
+        return "Successfully added user `%s`".formatted(email);
+    }
+
+    @DE("Zahlung wurde erfolgreich entfernt.")
+    default String successfullyRemovedPayment(Student student) {
+        return "Successfully removed payment from `%s`".formatted(student.getDisplayName());
+    }
+
+    @DE("Schüler `%s` erfolgreich aktualisiert.")
+    default String successfullyUpdatedStudent(String displayName) {
+        return "Successfully updated student `%s`".formatted(displayName);
+    }
+
+    @DE("Fahrt `%s` wurde erfolgreich aktualisiert.")
+    default String successfullyUpdatedTrip(String name) {
+        return "Successfully updated school trip `%s`".formatted(name);
+    }
+
+    @DE("Passwort zurückgesetzt für Benutzer `%s`")
+    default String sucessfullyResetPassword(String email) {
+        return "Successfully updated password for user `%s`.".formatted(email);
+    }
+
     @DE("English version")
     default String switchLanguage() {
         return "Deutsche Version";
@@ -1284,6 +1507,11 @@ public interface SchoolTripMessages {
     @DE("Aufgaben")
     default String tasks() {
         return "Tasks";
+    }
+
+    @DE("Danke!")
+    default String thankYou() {
+        return "Thank you!";
     }
 
     @DE("Titel")

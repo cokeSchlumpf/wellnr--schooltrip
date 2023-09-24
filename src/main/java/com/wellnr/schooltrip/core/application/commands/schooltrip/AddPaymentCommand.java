@@ -51,7 +51,7 @@ public class AddPaymentCommand implements AbstractSchoolTripCommand<MessageResul
             );
 
         return MessageResult.formatted(
-            "Successfully added payment for `%s`", student.getDisplayName()
+            user.getMessages().successfullyAddedPaymentForUser(student)
         );
     }
 

@@ -1,4 +1,4 @@
-package com.wellnr.schooltrip.ui.public_app;
+package com.wellnr.schooltrip.ui.views.public_app;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
@@ -6,31 +6,32 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.router.*;
-import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationCommand;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteParameters;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CompleteStudentRegistrationViewCommand;
+import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
 import com.wellnr.schooltrip.ui.components.public_app.HeadlineWithTitle;
 import com.wellnr.schooltrip.ui.components.student.StudentRegistrationQuestionnaireControl;
-import com.wellnr.schooltrip.ui.layout.AbstractPublicAppView;
 
 import java.util.Arrays;
 
-@PageTitle("School Trip")
 @Route("/students/complete-registration/:token")
 public class StudentRegistrationView extends AbstractPublicAppView implements BeforeEnterObserver {
 
     private final ApplicationCommandRunner commandRunner;
 
     private Student student;
-
-    private SchoolTrip schoolTrip;
 
     private StudentRegistrationQuestionnaireControl questionnaire;
 

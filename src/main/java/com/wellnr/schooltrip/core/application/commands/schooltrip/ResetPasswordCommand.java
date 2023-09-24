@@ -35,7 +35,9 @@ public class ResetPasswordCommand implements AbstractSchoolTripCommand<MessageRe
             domainRegistry.getUsers(), domainRegistry.getPasswordEncryptionPort()
         );
 
-        return MessageResult.formatted("Successfully updated password for user `%s`.", email).withData(registeredUser);
+        return MessageResult.apply(
+            user.getMessages().sucessfullyResetPassword(email)
+        ).withData(registeredUser);
     }
 
 }
