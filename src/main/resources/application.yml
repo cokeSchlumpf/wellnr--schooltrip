@@ -37,7 +37,7 @@ app:
       last-name: Wellner
 
   default-teachers:
-    - email: marcus.ortenau@gas.de
+    - email: marcus.ortinau@gas.de
       password: secret
       first-name: Marcus
       last-name: Ortenau
