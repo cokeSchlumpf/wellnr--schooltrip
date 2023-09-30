@@ -3,9 +3,12 @@ package com.wellnr.schooltrip.core.application;
 import com.wellnr.ddd.events.DomainServices;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.model.schooltrip.events.*;
+import com.wellnr.schooltrip.core.model.stripe.PaymentReceivedEvent;
 import com.wellnr.schooltrip.core.model.student.StudentId;
 import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
+import com.wellnr.schooltrip.core.model.student.payments.Payment;
+import com.wellnr.schooltrip.core.model.student.payments.PaymentType;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainRoles;
 import lombok.AllArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -92,4 +95,24 @@ public class SchoolTripsDomainEventHandlers {
             );
     }
 
+    @Async
+    @EventListener
+    public void onPaymentReceivedEvent(PaymentReceivedEvent event) {
+        System.out.println(event);
+
+
+        domainRegistry
+            .getStudents()
+            .findStudentByPaymentToken(event.getPaymentToken())
+            .ifPresent(student -> {
+                var payment = Payment.createNew(
+                    event.getCreated(), PaymentType.ONLINE, "Online payment.", event.getAmount()
+                );
+
+                student.receivedPayment(
+                    payment, domainRegistry.getStudents()
+                );
+            });
+
+    }
 }

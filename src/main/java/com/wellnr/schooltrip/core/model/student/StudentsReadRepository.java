@@ -14,6 +14,8 @@ public interface StudentsReadRepository extends DomainRepository {
 
     Optional<Student> findStudentById(String id);
 
+    Optional<Student> findStudentByPaymentToken(String paymentToken);
+
     Optional<Student> findStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(
         SchoolTripId schoolTripId, String schoolClassName, String firstName, String lastName);
 
@@ -35,6 +37,12 @@ public interface StudentsReadRepository extends DomainRepository {
 
     default Student getStudentById(String id) {
         return findStudentById(id).orElseThrow();
+    }
+
+    default Student getStudentByPaymentToken(String paymentToken) {
+        return findStudentByPaymentToken(paymentToken).orElseThrow(
+            () -> TokenNotFoundException.apply(paymentToken)
+        );
     }
 
     default Student getStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(

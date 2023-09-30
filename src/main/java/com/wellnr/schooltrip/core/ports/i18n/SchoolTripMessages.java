@@ -14,6 +14,7 @@ import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public interface SchoolTripMessages {
@@ -428,6 +429,11 @@ public interface SchoolTripMessages {
         return parts;
     }
 
+    @DE("Komplette Zahlung")
+    default String completePayment() {
+        return "Complete Payment";
+    }
+
     @DE("Anmeldung bestätigen")
     default String confirmRegistration() {
         return "Confirm registration";
@@ -718,6 +724,11 @@ public interface SchoolTripMessages {
         return "Incorrect username or password";
     }
 
+    @DE("Anzahlung")
+    default String initialPayment() {
+        return "Initial payment";
+    }
+
     @DE("Fortgeschritten")
     default String intermediate() {
         return "Fortgeschritten/ Erste Erfahrungen gesammelt.";
@@ -965,9 +976,15 @@ public interface SchoolTripMessages {
 
     default String registrationConfirmationMailText(
         SchoolTripMessages i18n, SchoolTrip trip, Student student,
-        String confirmationUrl, String updateUrl) {
+        String confirmationUrl, String updateUrl, Map<String, String> paymentLinks) {
 
         var parts = new ArrayList<String>();
+
+        var paymentLinksLines = paymentLinks
+            .entrySet()
+            .stream()
+            .map(e -> e.getKey() + "\n" + e.getValue())
+            .collect(Collectors.joining("\n\n"));
 
         parts.add(
             """
@@ -983,6 +1000,20 @@ public interface SchoolTripMessages {
                                 
                 %s
                                 
+                You may pay the trip via online payment, to do so, follow the links below:
+                                
+                %s
+                
+                You may also pay via SEPA payment. In this case please send the money to the following account:
+                
+                Account owner: Marcus Ortinau
+                IBAN: DE32 5935 1040 0000 2374 12
+                BIC: MERZDE55XXX (Kreissparkasse Merzig)
+                
+                Please ensure, that initial payment must be paid until November 17th, and remaining payment until December 15th. You may also make the whole payment at once.
+                
+                ---
+                                
                 Below you find the registered options.
                             
                 """
@@ -990,7 +1021,8 @@ public interface SchoolTripMessages {
                 .formatted(
                     student.getFirstName(),
                     confirmationUrl,
-                    updateUrl
+                    updateUrl,
+                    paymentLinksLines
                 )
         );
 
@@ -1000,9 +1032,15 @@ public interface SchoolTripMessages {
 
     default String registrationConfirmationMailText$DE(
         SchoolTripMessages i18n, SchoolTrip trip, Student student,
-        String confirmationUrl, String updateUrl) {
+        String confirmationUrl, String updateUrl, Map<String, String> paymentLinks) {
 
         var parts = new ArrayList<String>();
+
+        var paymentLinksLines = paymentLinks
+            .entrySet()
+            .stream()
+            .map(e -> e.getKey() + "\n" + e.getValue())
+            .collect(Collectors.joining("\n\n"));
 
         parts.add(
             """
@@ -1017,6 +1055,20 @@ public interface SchoolTripMessages {
                 Einige Angaben können Sie bis eine Woche vor der Ausfahrt bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
                                 
                 %s
+                
+                Gerne können Sie die Zahlung online vornehmen. Nutzen Sie dafür die folgenden Links:
+                
+                %s
+                
+                Sie können die Zahlung auch via Überweisung durchführen:
+                
+                Kontoinhaber: Marcus Ortinau
+                IBAN: DE32 5935 1040 0000 2374 12
+                BIC: MERZDE55XXX (Kreissparkasse Merzig)
+                
+                Bitte beachten Sie, dass die erste Zahlung bis 17. November und die zweite Zahlung am 15. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchühfen.
+                
+                ---
                                 
                 Im folgenden finden Sie die registrierten Angaben.
                             
@@ -1025,7 +1077,8 @@ public interface SchoolTripMessages {
                 .formatted(
                     student.getFirstName(),
                     confirmationUrl,
-                    updateUrl
+                    updateUrl,
+                    paymentLinksLines
                 )
         );
 
@@ -1090,6 +1143,11 @@ public interface SchoolTripMessages {
 
         parts.addAll(commonEmailContent(i18n, trip, student));
         return parts.stream().map(String::trim).collect(Collectors.joining("\n\n"));
+    }
+
+    @DE("Restzahlung")
+    default String remainingPayment() {
+        return "Remaining payment";
     }
 
     @DE("Manager Rolle wurde entzogen")
@@ -1377,7 +1435,7 @@ public interface SchoolTripMessages {
 
     @DE("Mein Kind benötigt einen Helm.")
     default String studentWantsToRentHelmet() {
-        return "My child want to rent a helmet.";
+        return "My child wants to rent a helmet.";
     }
 
     @DE("Mein Kind möchte Ski und Zubehör ausleihen.")

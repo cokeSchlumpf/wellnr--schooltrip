@@ -13,9 +13,11 @@ public interface StudentsSpringDataMongoRepository extends MongoRepository<Stude
 
     Optional<Student> findStudentById(String id);
 
-    Optional<Student> findStudentBySchoolTripAndSchoolClassAndFirstNameAndLastName(SchoolTripId schoolTripId,
-                                                                                   String schoolClassName,
-                                                                                   String firstName, String lastName);
+    Optional<Student> findStudentByPaymentToken(String paymentToken);
+
+    Optional<Student> findStudentBySchoolTripAndSchoolClassAndFirstNameAndLastName(
+        SchoolTripId schoolTripId, String schoolClassName, String firstName, String lastName
+    );
 
     Optional<Student> findStudentByToken(String token);
 

@@ -30,10 +30,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 @ToString
@@ -60,6 +57,8 @@ public class Student extends AggregateRoot<String, Student> {
     String token;
 
     String confirmationToken;
+
+    String paymentToken;
 
     Questionnaire questionnaire;
 
@@ -138,10 +137,11 @@ public class Student extends AggregateRoot<String, Student> {
         var id = UUID.randomUUID().toString();
         var token = RandomStringUtils.randomAlphanumeric(8);
         var confirmationToken = RandomStringUtils.randomAlphanumeric(8);
+        var paymentToken = RandomStringUtils.randomAlphanumeric(8);
 
         return new Student(
             id, schoolTrip, schoolClass, firstName, lastName, birthday, gender,
-            RegistrationState.CREATED, token, confirmationToken, null, null,
+            RegistrationState.CREATED, token, confirmationToken, paymentToken, null, null,
             new ArrayList<>(), null, null
         );
     }
@@ -149,8 +149,10 @@ public class Student extends AggregateRoot<String, Student> {
     /**
      * Registers a mad payment for the student.
      *
-     * @param payment  The payment which has been made.
-     * @param students The repository to persist the changes.
+     * @param executor    The user who entered the payment.
+     * @param payment     The payment which has been made.
+     * @param students    The repository to persist the changes.
+     * @param schoolTrips The repository to read/ write the information.
      */
     public void addPayment(
         User executor, Payment payment, StudentsRepository students, SchoolTripsReadRepository schoolTrips
@@ -165,6 +167,18 @@ public class Student extends AggregateRoot<String, Student> {
             DomainPermissions.ManageSchoolTrip.apply(schoolTrip.getId())
         );
 
+        receivedPayment(payment, students);
+    }
+
+    /**
+     * Registers a mad payment for the student (received from a system, not entered manually).
+     *
+     * @param payment  The payment which has been made.
+     * @param students The repository to persist the changes.
+     */
+    public void receivedPayment(
+        Payment payment, StudentsRepository students
+    ) {
         /*
          * Avoid duplicate payments (idempotence)
          */
@@ -244,7 +258,7 @@ public class Student extends AggregateRoot<String, Student> {
                 .replaceAll("([^:])//", "$1/");
 
             mailText = messages.registrationConfirmationMailText(
-                messages, trip, this, confirmationUrl, updateUrl
+                messages, trip, this, confirmationUrl, updateUrl, getPaymentLinks(config, messages)
             );
         }
 
@@ -261,7 +275,7 @@ public class Student extends AggregateRoot<String, Student> {
 
     public void confirmStudentRegistration(StudentsRepository students) {
         this.registrationState = RegistrationState.REGISTERED;
-        this.token = RandomStringUtils.randomAlphanumeric(8);
+        this.token = RandomStringUtils.randomAlphanumeric(32);
         students.insertOrUpdateStudent(this);
     }
 
@@ -275,8 +289,33 @@ public class Student extends AggregateRoot<String, Student> {
         return id;
     }
 
+    public Optional<String> getNotificationEmail() {
+        return Optional.ofNullable(notificationEmail);
+    }
+
     public Payments getPayments() {
         return Payments.apply(payments);
+    }
+
+    public Map<String, String> getPaymentLinks(SchoolTripApplicationConfiguration config, SchoolTripMessages i18n) {
+        var links = new HashMap<String, String>();
+
+        links.put(
+            i18n.initialPayment(),
+            config.getStripe().getInitialPaymentLink().replace(":paymentToken", this.paymentToken)
+        );
+
+        links.put(
+            i18n.remainingPayment(),
+            config.getStripe().getRemainingPaymentLink().replace(":paymentToken", this.paymentToken)
+        );
+
+        links.put(
+            i18n.completePayment(),
+            config.getStripe().getCompletePaymentLink().replace(":paymentToken", this.paymentToken)
+        );
+
+        return Map.copyOf(links);
     }
 
     public Optional<PriceLineItems> getPriceLineItems(
@@ -296,6 +335,10 @@ public class Student extends AggregateRoot<String, Student> {
 
     public Optional<Questionnaire> getQuestionnaire() {
         return Optional.ofNullable(questionnaire);
+    }
+
+    public Optional<RejectionReason> getRejectionReason() {
+        return Optional.ofNullable(rejectionReason);
     }
 
     /**
@@ -345,6 +388,11 @@ public class Student extends AggregateRoot<String, Student> {
         validation.validateObject(this);
 
         /*
+         * Ensure that tokens are unique.
+         */
+
+
+        /*
          * Actual logic:
          * - Check whether trip already exists (from a different entity).
          * - If it does not exist, create.
@@ -353,6 +401,26 @@ public class Student extends AggregateRoot<String, Student> {
         if (existing.isPresent() && !existing.get().id.equals(this.id)) {
             throw StudentAlreadyExistsException.apply();
         } else if (existing.isEmpty()) {
+            /*
+             * Ensure tokens are not duplicated.
+             */
+            var duplicatedTokens = true;
+            do {
+                this.token = RandomStringUtils.randomAlphanumeric(8);
+                this.confirmationToken = RandomStringUtils.randomAlphanumeric(8);
+                this.paymentToken = RandomStringUtils.randomAlphanumeric(8);
+
+                var maybExistingToken = repository.findStudentByToken(this.token);
+                var maybExistingConfirmationToken = repository.findStudentByConfirmationToken(this.confirmationToken);
+                var maybExistingPaymentToken = repository.findStudentByPaymentToken(this.paymentToken);
+
+                duplicatedTokens =
+                    maybExistingToken.isPresent() && maybExistingConfirmationToken.isPresent() && maybExistingPaymentToken.isPresent();
+            } while (duplicatedTokens);
+
+            /*
+             * Save student.
+             */
             this.registerEvent(StudentRegisteredEvent.apply(this));
             repository.insertOrUpdateStudent(this);
         }
@@ -407,24 +475,6 @@ public class Student extends AggregateRoot<String, Student> {
         students.insertOrUpdateStudent(this);
     }
 
-    public Optional<RejectionReason> getRejectionReason() {
-        return Optional.ofNullable(rejectionReason);
-    }
-
-    public void resetRejection(User users, StudentsRepository students) {
-        /*
-         * User needs to be administrator.
-         */
-        users.checkPermission(
-            DomainPermissions.ManageSchoolTrips.apply(),
-            DomainPermissions.ManageSchoolTrip.apply(this.schoolTrip.schoolTripId())
-        );
-
-        this.rejectionReason = null;
-        this.registrationState = RegistrationState.CREATED;
-        students.insertOrUpdateStudent(this);
-    }
-
     /**
      * Remove an existing payment.
      *
@@ -459,6 +509,20 @@ public class Student extends AggregateRoot<String, Student> {
     public void removeStudentFromSchoolTrip(StudentsRepository students) {
         // As of now we delete students compeltely.
         students.remove(this);
+    }
+
+    public void resetRejection(User users, StudentsRepository students) {
+        /*
+         * User needs to be administrator.
+         */
+        users.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(this.schoolTrip.schoolTripId())
+        );
+
+        this.rejectionReason = null;
+        this.registrationState = RegistrationState.CREATED;
+        students.insertOrUpdateStudent(this);
     }
 
     public void updateStudentProperties(

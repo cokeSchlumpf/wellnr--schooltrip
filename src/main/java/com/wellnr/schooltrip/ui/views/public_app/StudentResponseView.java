@@ -8,6 +8,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
@@ -69,8 +70,11 @@ public class StudentResponseView extends AbstractPublicAppView implements Before
             .map(p -> (Component) new Paragraph(p))
             .toList()
         );
+        introduction.setWidthFull();
 
-        this.registrationOptions = new RadioButtonGroup<>();
+        registrationOptions = new RadioButtonGroup<>();
+        registrationOptions.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
+
         registrationOptions.setItems(
             PARTICIPATE,
             DONT_PARTICIPATE__OUT_OF_SNOW,

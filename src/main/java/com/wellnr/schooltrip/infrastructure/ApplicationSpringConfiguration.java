@@ -10,6 +10,7 @@ import com.wellnr.ddd.BeanValidation;
 import com.wellnr.schooltrip.SchooltripApplication;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
+import com.wellnr.schooltrip.core.model.stripe.StripePaymentsRepository;
 import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
@@ -89,6 +90,7 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
         BeanValidation beanValidation,
         SchoolTripsMongoRepository schoolTrips,
         StudentsRepository students,
+        StripePaymentsRepository payments,
         RegisteredUsersRepository users,
         PasswordEncryptionPort passwordEncryptionPort,
         JavaMailSender mailSender
@@ -98,6 +100,7 @@ public class ApplicationSpringConfiguration implements WebMvcConfigurer {
             beanValidation,
             schoolTrips,
             students,
+            payments,
             users,
             passwordEncryptionPort,
             mailSender

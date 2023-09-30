@@ -59,6 +59,13 @@ app:
       "[mail.smtp.starttls.enable]": "true"
       "[mail.debug]": "false"
 
+  stripe:
+    webhook-signing-secret: whsec_b5e1392198d0667d3ffdc3244f171d9039b729dd1e1a3a51fbeb63498afa30ad
+
+    initial-payment-link: https://book.stripe.com/test_fZe5mD3688BN7aE3cc?client_reference_id=:paymentToken
+    remaining-payment-link: https://book.stripe.com/test_fZe5mD3688BN7aE3cc?client_reference_id=:paymentToken
+    complete-payment-link: https://book.stripe.com/test_fZe5mD3688BN7aE3cc?client_reference_id=:paymentToken
+
 #
 # Vaadin
 #

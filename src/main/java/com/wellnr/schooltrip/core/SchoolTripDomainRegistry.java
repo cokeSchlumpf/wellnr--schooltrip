@@ -4,10 +4,10 @@ import com.wellnr.ddd.BeanValidation;
 import com.wellnr.ddd.DomainRegistry;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsRepository;
+import com.wellnr.schooltrip.core.model.stripe.StripePaymentsRepository;
 import com.wellnr.schooltrip.core.model.student.StudentsRepository;
 import com.wellnr.schooltrip.core.model.user.RegisteredUsersRepository;
 import com.wellnr.schooltrip.core.ports.PasswordEncryptionPort;
-import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,6 +23,8 @@ public class SchoolTripDomainRegistry implements DomainRegistry {
     SchoolTripsRepository schoolTrips;
 
     StudentsRepository students;
+
+    StripePaymentsRepository payments;
 
     RegisteredUsersRepository users;
 

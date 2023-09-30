@@ -59,6 +59,7 @@ public class StudentDetailsControl extends Scroller {
         tabs.add(new Tab(i18n.registration()), this.registration);
         tabs.add(new Tab(i18n.payments()), this.payments);
         tabs.add(new Tab(i18n.cancellation()), this.cancellation);
+        tabs.setWidthFull();
 
         var vl = new VerticalLayout(tabs);
         this.setContent(vl);
