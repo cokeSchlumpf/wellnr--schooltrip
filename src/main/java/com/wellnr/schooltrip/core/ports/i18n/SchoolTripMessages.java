@@ -12,8 +12,10 @@ import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -68,6 +70,11 @@ public interface SchoolTripMessages {
     @DE("Gesamt")
     default String amountSum() {
         return "Sum";
+    }
+
+    @DE("Möchten Sie uns noch etwas mitteilen? (Allergien, Medikamente, ...)")
+    default String anyAdditionalInformation() {
+        return "Do you want to give us any additional information? E.g., allergies, medications, etc..";
     }
 
     @DE("Anwendungs-Einstelltungen")
@@ -138,6 +145,11 @@ public interface SchoolTripMessages {
     @DE("Abmeldung wurde rückgängig gemacht.")
     default String cancellationReseted(Student student) {
         return "Cancellation has been reset.";
+    }
+
+    @DE("bar vor Ort")
+    default String cash() {
+        return "cash at the trip";
     }
 
     @DE("Registrierung beenden")
@@ -254,7 +266,7 @@ public interface SchoolTripMessages {
         /*
          * Pricing
          */
-        var format = new DecimalFormat(i18n.currencyNumberFormat());
+        var format = i18n.currencyNumberFormat();
 
         var priceLineItems = student.getPriceLineItems(Either.fromRight(trip), i18n);
         if (priceLineItems.isPresent()) {
@@ -393,7 +405,7 @@ public interface SchoolTripMessages {
         /*
          * Pricing
          */
-        var format = new DecimalFormat(i18n.currencyNumberFormat());
+        var format = i18n.currencyNumberFormat();
 
         var priceLineItems = student.getPriceLineItems(Either.fromRight(trip), i18n);
         if (priceLineItems.isPresent()) {
@@ -528,13 +540,26 @@ public interface SchoolTripMessages {
         return "Create trip";
     }
 
+    @DE("Vorauszahlung")
+    default String credit() {
+        return "credit";
+    }
+
     @DE("Betrag")
     default String currencyAmount() {
         return "Amount";
     }
 
-    default String currencyNumberFormat() {
-        return "#.00";
+    default DecimalFormat currencyNumberFormat() {
+        var format = new DecimalFormat("#.00");
+        format.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.ENGLISH));
+        return format;
+    }
+
+    default DecimalFormat currencyNumberFormat$DE() {
+        var format = new DecimalFormat("#.00");
+        format.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.GERMAN));
+        return format;
     }
 
     @DE("Datum")
@@ -542,7 +567,7 @@ public interface SchoolTripMessages {
         return "Date";
     }
 
-    @DE("Geburtstadatum")
+    @DE("Geburtsdatum")
     default String dateOfBirth() {
         return "Date of Birth";
     }
@@ -699,12 +724,17 @@ public interface SchoolTripMessages {
         return "Everyone is required to wear a helmet on the pist.";
     }
 
+    @DE("Preis Helm-Ausleihe")
+    default String helmetRentalPrice() {
+        return "Hemlet rental price";
+    }
+
     @DE("Daten importieren")
     default String importData() {
         return "Import data";
     }
 
-    @DE("Excel Datei importtieren")
+    @DE("Excel Datei importieren")
     default String importExcelFile() {
         return "Import Excel file";
     }
@@ -781,6 +811,36 @@ public interface SchoolTripMessages {
     @DE("Abmelden")
     default String logout() {
         return "Logout";
+    }
+
+    default String makeCompletePayment(double expectedPaymentAmount, SchoolTripMessages i18n) {
+        var format = i18n.currencyNumberFormat();
+        return String.format("Pay %s €", format.format(expectedPaymentAmount));
+    }
+
+    default String makeCompletePayment$DE(double expectedPaymentAmount, SchoolTripMessages i18n) {
+        var format = i18n.currencyNumberFormat();
+        return String.format("Gesamte Vorauszahlung %s €", format.format(expectedPaymentAmount));
+    }
+
+    default String makeInitialPayment(double v, SchoolTripMessages i18n) {
+        var format = i18n.currencyNumberFormat();
+        return String.format("Pay %s €", format.format(v));
+    }
+
+    default String makeInitialPayment$DE(double v, SchoolTripMessages i18n) {
+        var format = i18n.currencyNumberFormat();
+        return String.format("Anzahlung %s €", format.format(v));
+    }
+
+    default String makeRemainingPayment(double v, SchoolTripMessages i18n) {
+        var format = i18n.currencyNumberFormat();
+        return String.format("Remaining payment: %s €", format.format(v));
+    }
+
+    default String makeRemainingPayment$DE(double v, SchoolTripMessages i18n) {
+        var format = i18n.currencyNumberFormat();
+        return String.format("Verbleibende Vorauszahlung %s €", format.format(v));
     }
 
     @DE("Material-Ausleihe")
@@ -899,6 +959,152 @@ public interface SchoolTripMessages {
         return "Payments";
     }
 
+    default List<String> paymentsInfo(
+        Student student, double expectedPaymentAmount, double alreadyPaidAmount, double rentalPaymentAmount,
+        double expectedInitialPaymentAmount, double expectedRemainingPaymentAmount,
+        SchoolTripMessages i18n) {
+
+        var parts = new ArrayList<String>();
+        var decimalFormat = i18n.currencyNumberFormat();
+
+        if (expectedPaymentAmount <= alreadyPaidAmount) {
+            parts.add(String.format(
+                """
+                    We received you payments of %s €. Thank you!
+                    """,
+                decimalFormat.format(expectedPaymentAmount)
+            ));
+        } else if (alreadyPaidAmount > 0) {
+            parts.add(String.format("""
+                    We received you payments of **%s €**. Thank you!
+                    """,
+                decimalFormat.format(alreadyPaidAmount)
+            ));
+
+            parts.add(String.format("""
+                    To pay the remaining amount via online payment, use the payment button below.
+                                    
+                    If you want to pay the remaining amount of **%s €** manually, please send the money to the following account:
+                                    
+                    Marcus Ortinau<br>
+                    IBAN DE32 5935 1040 0000 2374 12<br>
+                    BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
+                                    
+                    The remaining payment is expected until **December 15th**.
+                    """,
+                decimalFormat.format(expectedPaymentAmount - alreadyPaidAmount)
+            ));
+        } else {
+            parts.add("""
+                We haven't received any payments yet. Please be advised, that it may take a few working days until an payment is recorded.
+                """
+            );
+
+            parts.add(String.format("""
+                    You may use the buttons below to send us the money via online payment. If you prefer to transfer the money manually, please send it to:
+                                        
+                    Marcus Ortinau<br>
+                    IBAN DE32 5935 1040 0000 2374 12<br>
+                    BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
+                                        
+                    The initial payment of **%s €** is expected to be paid until **November 17th**, the remaining payment of **%s €** is expected until **December 15th**.
+                    """,
+                decimalFormat.format(expectedInitialPaymentAmount),
+                decimalFormat.format(expectedRemainingPaymentAmount)
+            ));
+        }
+
+        if (rentalPaymentAmount > 0) {
+            // Rental fees section.
+            parts.add(String.format(
+                """
+                    The rental fees of **%s €** will be collected in cash at Hinterglemm. Please ensure that %s has an envelope containing the money and the amount written on the envelope when travelling to Hinterglemm. We'll collect the money on the first evening.
+
+                    We also collect the money for the T-Shirts at Hinterglemm. Please sparate the money for the T-Shirt from the money for the rental fees (use two envelops).""",
+                decimalFormat.format(rentalPaymentAmount),
+                student.getFirstName()
+            ));
+        }
+
+        return parts
+            .stream()
+            .map(s -> s.stripIndent().trim())
+            .toList();
+    }
+
+    default List<String> paymentsInfo$DE(
+        Student student, double expectedPaymentAmount, double alreadyPaidAmount, double rentalPaymentAmount,
+        double expectedInitialPaymentAmount, double expectedRemainingPaymentAmount,
+        SchoolTripMessages i18n) {
+
+        var parts = new ArrayList<String>();
+        var decimalFormat = i18n.currencyNumberFormat();
+
+        if (expectedPaymentAmount <= alreadyPaidAmount) {
+            parts.add(String.format(
+                """
+                    Wir haben Ihre Vorauszahlung von %s € erhalten. Danke!
+                    """,
+                decimalFormat.format(expectedPaymentAmount)
+            ));
+        } else if (alreadyPaidAmount > 0) {
+            parts.add(String.format("""
+                    Wir haben Ihre Anzahlung von **%s €** erhalten. Danke!
+                    """,
+                decimalFormat.format(alreadyPaidAmount)
+            ));
+
+            parts.add(String.format("""
+                    Um die Zahlung online durchzuführen, nutzen Sie bitte die untenstehenden Links.
+                                    
+                    Falls Sie es bevorzugen via Überweisung zu zahlen, senden Sie das Geld bitte an:
+                                    
+                    Marcus Ortinau<br>
+                    IBAN DE32 5935 1040 0000 2374 12<br>
+                    BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
+                                    
+                    Die verbleibende Zahlung von **%s €** ist am **15. Dezember** fällig.
+                    """,
+                decimalFormat.format(expectedPaymentAmount - alreadyPaidAmount)
+            ));
+        } else {
+            parts.add("""
+                Bisher haben wir noch keine Zahlung erhalten. Bitte beachten Sie, dass es einige Tage in Anspruch nehmen kann, bis wir Ihre Zahlungen buchen.
+                """
+            );
+
+            parts.add(String.format("""
+                    Sie können die unten stehenden Links nutzen, um Ihre Zahlung online durchzuführen. Falls Sie das Geld lieber überweisen möchten, senden Sie es bitte an:
+                                        
+                    Marcus Ortinau<br>
+                    IBAN DE32 5935 1040 0000 2374 12<br>
+                    BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
+                                        
+                    Die Anzahlung von **%s €** ist am **17. November** fällig. Die verbleibende Vorauszahlung von **%s €** am **15. Dezember**.
+                    """,
+                decimalFormat.format(expectedInitialPaymentAmount),
+                decimalFormat.format(expectedRemainingPaymentAmount)
+            ));
+        }
+
+        if (rentalPaymentAmount > 0) {
+            // Rental fees section.
+            parts.add(String.format("""
+                    Die Leih-Gebühren von %s € für Ski- oder Snowboard-Equipment werden in bar in Hinterglemm eingesaammelt. Wir bitten Sie, %s einen Umschlag mit dem Betrag mitzugeben. Bitte vermerken Sie den Betrag auf dem Umschlag. Wir sammeln die Leih-Gebühren am ersten Abend in Hinterglemm ein.
+                                        
+                    Ebenfalls sammeln wir die Kosten für das T-Shirt (falls bestellt) vor Ort ein. Bitte sparieren Sie den Betrag für das T-Shirt von der Leih-Gebühr. Ggf. zwei Brief-Umschläge.
+                    """,
+                decimalFormat.format(rentalPaymentAmount),
+                student.getFirstName()
+            ));
+        }
+
+        return parts
+            .stream()
+            .map(s -> s.stripIndent().trim())
+            .toList();
+    }
+
     @DE("Eingegangene Zahlungen")
     default String paymentsMade() {
         return "Payments made";
@@ -976,6 +1182,7 @@ public interface SchoolTripMessages {
 
     default String registrationConfirmationMailText(
         SchoolTripMessages i18n, SchoolTrip trip, Student student,
+        double initialPayment, double remainingPayment,
         String confirmationUrl, String updateUrl, Map<String, String> paymentLinks) {
 
         var parts = new ArrayList<String>();
@@ -1003,15 +1210,15 @@ public interface SchoolTripMessages {
                 You may pay the trip via online payment, to do so, follow the links below:
                                 
                 %s
-                
+                                
                 You may also pay via SEPA payment. In this case please send the money to the following account:
-                
+                                
                 Account owner: Marcus Ortinau
                 IBAN: DE32 5935 1040 0000 2374 12
                 BIC: MERZDE55XXX (Kreissparkasse Merzig)
-                
-                Please ensure, that initial payment must be paid until November 17th, and remaining payment until December 15th. You may also make the whole payment at once.
-                
+                                
+                Please ensure, that initial payment of %s € must be paid until November 17th, and remaining payment of %s € until December 15th. You may also make the whole payment at once. The remaining costs are collected in cash at Hinterglemm.
+                                
                 ---
                                 
                 Below you find the registered options.
@@ -1022,7 +1229,9 @@ public interface SchoolTripMessages {
                     student.getFirstName(),
                     confirmationUrl,
                     updateUrl,
-                    paymentLinksLines
+                    paymentLinksLines,
+                    i18n.currencyNumberFormat().format(initialPayment),
+                    i18n.currencyNumberFormat().format(remainingPayment)
                 )
         );
 
@@ -1032,6 +1241,7 @@ public interface SchoolTripMessages {
 
     default String registrationConfirmationMailText$DE(
         SchoolTripMessages i18n, SchoolTrip trip, Student student,
+        double initialPayment, double remainingPayment,
         String confirmationUrl, String updateUrl, Map<String, String> paymentLinks) {
 
         var parts = new ArrayList<String>();
@@ -1055,19 +1265,21 @@ public interface SchoolTripMessages {
                 Einige Angaben können Sie bis eine Woche vor der Ausfahrt bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
                                 
                 %s
-                
+                                
                 Gerne können Sie die Zahlung online vornehmen. Nutzen Sie dafür die folgenden Links:
-                
+                                
                 %s
-                
+                                
                 Sie können die Zahlung auch via Überweisung durchführen:
-                
+                                
                 Kontoinhaber: Marcus Ortinau
                 IBAN: DE32 5935 1040 0000 2374 12
                 BIC: MERZDE55XXX (Kreissparkasse Merzig)
+                                
+                Bitte beachten Sie, dass die erste Zahlung von %s € bis 17. November und die zweite Zahlung über %s € am 15. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchühfen.
                 
-                Bitte beachten Sie, dass die erste Zahlung bis 17. November und die zweite Zahlung am 15. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchühfen.
-                
+                Die restlichen Kosten für Ausleihe und T-Shirt (falls bestellt) werden in Hinterglemm in bar eingesammelt. Bitte geben Sie die Leihgebühren in einem beschriebenen Umschlag (Name und Betrag) ihrem Kind mit.
+                                
                 ---
                                 
                 Im folgenden finden Sie die registrierten Angaben.
@@ -1078,7 +1290,9 @@ public interface SchoolTripMessages {
                     student.getFirstName(),
                     confirmationUrl,
                     updateUrl,
-                    paymentLinksLines
+                    paymentLinksLines.stripIndent(),
+                    i18n.currencyNumberFormat().format(initialPayment),
+                    i18n.currencyNumberFormat().format(remainingPayment)
                 )
         );
 
@@ -1509,6 +1723,14 @@ public interface SchoolTripMessages {
         return "Submit";
     }
 
+    default String submitRegistration(Student student) {
+        return String.format("Register %s", student.getFirstName());
+    }
+
+    default String submitRegistration$DE(Student student) {
+        return String.format("%s anmelden", student.getFirstName());
+    }
+
     default String successfullyAddedPaymentForUser(Student student) {
         return String.format("Successfully added payment for `%s`", student.getDisplayName());
     }
@@ -1557,6 +1779,19 @@ public interface SchoolTripMessages {
         return "Deutsche Version";
     }
 
+    default String tShirtDescription(Student student) {
+        return "Should " + student.getFirstName() + " get a T-Shirt?";
+    }
+
+    default String tShirtDescription$DE(Student student) {
+        return "Soll " + student.getFirstName() + " ein Ski-Kurs T-Shirt erhalten?";
+    }
+
+    @DE("T-Shirt Preis")
+    default String tShirtPrice() {
+        return "T-Shirt price";
+    }
+
     @DE("Spalte")
     default String tableColumn() {
         return "column";
@@ -1583,6 +1818,11 @@ public interface SchoolTripMessages {
 
     default String tokenNotFound$DE(String token) {
         return "Token `%s` nicht gefunden.".formatted(token);
+    }
+
+    @DE("GaS Ski-Kurs T-Shirt")
+    default String tripTShirt() {
+        return "Official T-Shirt";
     }
 
     @DE("Typ")

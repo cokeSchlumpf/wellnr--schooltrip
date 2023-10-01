@@ -98,9 +98,6 @@ public class SchoolTripsDomainEventHandlers {
     @Async
     @EventListener
     public void onPaymentReceivedEvent(PaymentReceivedEvent event) {
-        System.out.println(event);
-
-
         domainRegistry
             .getStudents()
             .findStudentByPaymentToken(event.getPaymentToken())

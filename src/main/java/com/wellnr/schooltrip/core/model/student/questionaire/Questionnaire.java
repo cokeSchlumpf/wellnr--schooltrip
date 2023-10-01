@@ -15,11 +15,14 @@ public class Questionnaire {
 
     String comment;
 
+    TShirtSelection tShirtSelection;
+
     public static Questionnaire empty() {
         return apply(
             Ski.apply(Experience.BEGINNER),
             Nutrition.apply(false, false),
-            ""
+            "",
+            TShirtSelection.NONE
         );
     }
 

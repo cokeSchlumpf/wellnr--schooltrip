@@ -11,7 +11,7 @@ public abstract class AbstractLineItems<T> {
 
     private final Function1<T, Double> getAmount;
 
-    private final DecimalFormat format;
+    protected final DecimalFormat format;
 
     protected AbstractLineItems(List<T> items, Function1<T, Double> getAmount) {
         this.items = List.copyOf(items);

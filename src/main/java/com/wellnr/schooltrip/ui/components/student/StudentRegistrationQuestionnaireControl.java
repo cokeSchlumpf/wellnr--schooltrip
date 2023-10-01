@@ -6,6 +6,7 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -50,7 +51,7 @@ public class StudentRegistrationQuestionnaireControl
         this.SUM_LABEL = i18n.amountSum();
 
         disciplinSection = new DisciplinSection(student, this.getEmptyValue().getDisziplin());
-        additionalInformationSection = new AdditionalInformationSection(this.getEmptyValue());
+        additionalInformationSection = new AdditionalInformationSection(this.getEmptyValue(), student);
         costSection = new CostSection(schoolTrip, this.getEmptyValue());
 
         disciplinSection.addValueChangeListener(event -> {
@@ -66,7 +67,8 @@ public class StudentRegistrationQuestionnaireControl
             var questionnaire = this
                 .getValue()
                 .withNutrition(event.getValue().getNutrition())
-                .withComment(event.getValue().getComment());
+                .withComment(event.getValue().getComment())
+                .withTShirtSelection(event.getValue().getTShirtSelection());
 
             this.setModelValue(questionnaire, true);
             this.costSection.setValue(this.schoolTrip, questionnaire);
@@ -85,6 +87,7 @@ public class StudentRegistrationQuestionnaireControl
         this.schoolTrip = schoolTrip;
         this.disciplinSection.setStudent(student);
         this.costSection.setValue(this.schoolTrip, questionnaire);
+        this.additionalInformationSection.setStudent(student);
 
         this.setValue(questionnaire);
     }
@@ -394,7 +397,9 @@ public class StudentRegistrationQuestionnaireControl
 
         public final TextArea comments;
 
-        public AdditionalInformationSection(Questionnaire questionnaire) {
+        public final ComboBox<TShirtSelection> tShirtSelection;
+
+        public AdditionalInformationSection(Questionnaire questionnaire, Student student) {
             super(questionnaire);
 
             nutrition = new NutritionCheckboxes();
@@ -404,7 +409,7 @@ public class StudentRegistrationQuestionnaireControl
             });
             nutrition.setValue(questionnaire.getNutrition());
 
-            comments = new TextArea("Möchten Sie uns noch etwas mitteilen?");
+            comments = new TextArea(i18n.anyAdditionalInformation());
             comments.setWidthFull();
             comments.addValueChangeListener(event -> {
                 var q = this.getValue().withComment(event.getValue());
@@ -412,12 +417,31 @@ public class StudentRegistrationQuestionnaireControl
             });
             comments.setValue(questionnaire.getComment());
 
+            tShirtSelection = new ComboBox<>();
+            tShirtSelection.setLabel("");
+            tShirtSelection.setItems(TShirtSelection.values());
+            tShirtSelection.setValue(questionnaire.getTShirtSelection());
+            tShirtSelection.addValueChangeListener(event -> {
+                var q = this.getValue().withTShirtSelection(event.getValue());
+                setModelValue(q, true);
+            });
+            tShirtSelection.setItemLabelGenerator(selected -> {
+                if (selected.equals(TShirtSelection.NONE)) {
+                    return i18n.no();
+                } else {
+                    return i18n.yes() + ", " + selected.name().toUpperCase();
+                }
+            });
+
             var form = new FormLayout();
             form.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1),
                 new FormLayout.ResponsiveStep("650px", 2)
             );
             form.add(comments);
+            form.add(tShirtSelection);
+            form.setColspan(comments, 2);
+
 
             this.getContent().setMargin(false);
             this.getContent().setPadding(false);
@@ -427,6 +451,8 @@ public class StudentRegistrationQuestionnaireControl
                 nutrition,
                 form
             );
+
+            this.setStudent(student);
         }
 
         @Override
@@ -435,10 +461,15 @@ public class StudentRegistrationQuestionnaireControl
             this.setPresentationValue(value);
         }
 
+        public void setStudent(Student student) {
+            tShirtSelection.setLabel(i18n.tShirtDescription(student));
+        }
+
         @Override
         protected void setPresentationValue(Questionnaire newPresentationValue) {
             this.nutrition.setValue(newPresentationValue.getNutrition());
             this.comments.setValue(newPresentationValue.getComment());
+            this.tShirtSelection.setValue(newPresentationValue.getTShirtSelection());
         }
     }
 
@@ -449,7 +480,7 @@ public class StudentRegistrationQuestionnaireControl
         private final DecimalFormat format;
 
         public CostSection(SchoolTrip schoolTrip, Questionnaire questionnaire) {
-            format = new DecimalFormat(i18n.currencyNumberFormat());
+            format = i18n.currencyNumberFormat();
             grid = new Grid<>(PriceLineItem.class, false);
             grid.addComponentColumn(item -> {
                 if (item.label().equals(SUM_LABEL)) {
@@ -495,7 +526,7 @@ public class StudentRegistrationQuestionnaireControl
             var items = Student.calculatePriceLineItems(schoolTrip, questionnaire, i18n);
             var allItems = new ArrayList<>(items.getItems());
 
-            allItems.add(new PriceLineItem(SUM_LABEL, items.getSum()));
+            allItems.add(new PriceLineItem(SUM_LABEL, items.getSum(), false));
             grid.setItems(allItems);
         }
 

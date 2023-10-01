@@ -12,4 +12,24 @@ public class PriceLineItems extends AbstractLineItems<PriceLineItem> {
         return new PriceLineItems(items);
     }
 
+    public double getAmountPaymentsBeforeTrip() {
+        return getItems()
+            .stream()
+            .filter(p -> !p.cash())
+            .map(PriceLineItem::amount)
+            .reduce(Double::sum)
+            .map(d -> Double.valueOf(format.format(d)))
+            .orElse(0d);
+    }
+
+    public double getRentalFees() {
+        return getItems()
+            .stream()
+            .filter(PriceLineItem::cash)
+            .map(PriceLineItem::amount)
+            .reduce(Double::sum)
+            .map(d -> Double.valueOf(format.format(d)))
+            .orElse(0d);
+    }
+
 }

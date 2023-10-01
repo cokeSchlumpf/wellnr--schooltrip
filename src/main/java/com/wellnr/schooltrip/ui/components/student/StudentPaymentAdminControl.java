@@ -34,7 +34,7 @@ public class StudentPaymentAdminControl extends VerticalLayout {
         this.setPadding(false);
         this.setMargin(false);
 
-        var format = new DecimalFormat(i18n.currencyNumberFormat());
+        var format = i18n.currencyNumberFormat();
 
         this.payments = new Grid<>(Payment.class, false);
         this.payments

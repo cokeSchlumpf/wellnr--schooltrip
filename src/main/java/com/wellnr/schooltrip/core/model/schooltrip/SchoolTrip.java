@@ -44,8 +44,8 @@ import java.util.stream.Collectors;
 public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
 
     private static final String ID = "id";
-    private static final String NAME = "name";
     private static final String TITLE = "title";
+    private static final String NAME = "name";
     private static final String SETTINGS = "settings";
     private static final String SCHOOL_CLASSES = "schoolClasses";
     private static final String ID_ASSIGNMENTS = "idAssignments";

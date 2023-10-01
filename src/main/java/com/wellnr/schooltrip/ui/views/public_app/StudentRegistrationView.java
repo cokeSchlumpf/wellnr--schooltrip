@@ -137,7 +137,7 @@ public class StudentRegistrationView extends AbstractPublicAppView implements Be
             form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 2));
             form.add(email);
 
-            var submit = new Button(i18n.submit());
+            var submit = new Button(i18n.submitRegistration(student));
             submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
             submit.addClickShortcut(Key.ENTER);
             submit.setEnabled(false);

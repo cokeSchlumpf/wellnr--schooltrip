@@ -20,6 +20,7 @@ import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
+import com.wellnr.schooltrip.core.model.student.questionaire.TShirtSelection;
 import com.wellnr.schooltrip.core.model.user.User;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
@@ -37,6 +38,8 @@ import java.util.*;
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Student extends AggregateRoot<String, Student> {
+
+    public static final double INITIAL_PAYMENT_AMOUNT = 150.00;
 
     private final String id;
 
@@ -76,19 +79,19 @@ public class Student extends AggregateRoot<String, Student> {
         var lineItems = new ArrayList<PriceLineItem>();
 
         lineItems.add(new PriceLineItem(
-            i18n.basePrice(), schoolTrip.getSettings().getBasePrice()
+            i18n.basePrice(), schoolTrip.getSettings().getBasePrice(), false
         ));
 
         if (questionnaire.getDisziplin() instanceof Ski ski) {
             if (ski.getRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    i18n.skiRental(), schoolTrip.getSettings().getSkiRentalPrice()
+                    i18n.skiRental(), schoolTrip.getSettings().getSkiRentalPrice(), true
                 ));
             }
 
             if (ski.getBootRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    i18n.skiBootRental(), schoolTrip.getSettings().getSkiBootsRentalPrice()
+                    i18n.skiBootRental(), schoolTrip.getSettings().getSkiBootsRentalPrice(), true
                 ));
             }
         }
@@ -96,20 +99,26 @@ public class Student extends AggregateRoot<String, Student> {
         if (questionnaire.getDisziplin() instanceof Snowboard sb) {
             if (sb.getRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    i18n.snowboardRental(), schoolTrip.getSettings().getSnowboardRentalPrice()
+                    i18n.snowboardRental(), schoolTrip.getSettings().getSnowboardRentalPrice(), true
                 ));
             }
 
             if (sb.getBootRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    i18n.snowboardBootRental(), schoolTrip.getSettings().getSnowboardBootsRentalPrice()
+                    i18n.snowboardBootRental(), schoolTrip.getSettings().getSnowboardBootsRentalPrice(), true
                 ));
             }
         }
 
         if (questionnaire.getDisziplin().hasHelmRental()) {
             lineItems.add(new PriceLineItem(
-                i18n.helmetRental(), schoolTrip.getSettings().getHelmetRentalPrice()
+                i18n.helmetRental(), schoolTrip.getSettings().getHelmetRentalPrice(), true
+            ));
+        }
+
+        if (!questionnaire.getTShirtSelection().equals(TShirtSelection.NONE)) {
+            lineItems.add(new PriceLineItem(
+                i18n.tripTShirt(), schoolTrip.getSettings().getTShirtPrice(), true
             ));
         }
 
@@ -171,29 +180,6 @@ public class Student extends AggregateRoot<String, Student> {
     }
 
     /**
-     * Registers a mad payment for the student (received from a system, not entered manually).
-     *
-     * @param payment  The payment which has been made.
-     * @param students The repository to persist the changes.
-     */
-    public void receivedPayment(
-        Payment payment, StudentsRepository students
-    ) {
-        /*
-         * Avoid duplicate payments (idempotence)
-         */
-        this.payments = new ArrayList<>(
-            this.payments.stream().filter(p -> !p.equals(payment)).toList()
-        );
-
-        /*
-         * Make changes.
-         */
-        this.payments.add(payment);
-        students.insertOrUpdateStudent(this);
-    }
-
-    /**
      * Assigns a student id for a school trip.
      *
      * @param id       The assigned id.
@@ -246,6 +232,11 @@ public class Student extends AggregateRoot<String, Student> {
 
         String mailText;
 
+        var toBePaid = this
+            .getPriceLineItems(Either.fromRight(trip), messages)
+            .map(PriceLineItems::getAmountPaymentsBeforeTrip)
+            .orElse(0.0);
+
         if (isUpdate) {
             mailText = messages.registrationUpdatedMailText(
                 messages, trip, this, updateUrl
@@ -258,7 +249,9 @@ public class Student extends AggregateRoot<String, Student> {
                 .replaceAll("([^:])//", "$1/");
 
             mailText = messages.registrationConfirmationMailText(
-                messages, trip, this, confirmationUrl, updateUrl, getPaymentLinks(config, messages)
+                messages, trip, this,
+                INITIAL_PAYMENT_AMOUNT, toBePaid - INITIAL_PAYMENT_AMOUNT,
+                confirmationUrl, updateUrl, getPaymentLinks(schoolTrips, messages)
             );
         }
 
@@ -293,29 +286,43 @@ public class Student extends AggregateRoot<String, Student> {
         return Optional.ofNullable(notificationEmail);
     }
 
-    public Payments getPayments() {
-        return Payments.apply(payments);
+    public String getInitialPaymentUrl(SchoolTrip schoolTrip) {
+        return schoolTrip.getSettings().getInitialPaymentUrl().replace(":paymentToken", this.paymentToken);
     }
 
-    public Map<String, String> getPaymentLinks(SchoolTripApplicationConfiguration config, SchoolTripMessages i18n) {
+    public String getRemainingPaymentUrl(SchoolTrip schoolTrip) {
+        return schoolTrip.getSettings().getRemainingPaymentUrl().replace(":paymentToken", this.paymentToken);
+    }
+
+    public String getCompletePaymentUrl(SchoolTrip schoolTrip) {
+        return schoolTrip.getSettings().getCompletePaymentUrl().replace(":paymentToken", this.paymentToken);
+    }
+
+    public Map<String, String> getPaymentLinks(SchoolTripsReadRepository schoolTrips, SchoolTripMessages i18n) {
+        var schoolTrip = schoolTrips.getSchoolTripById(this.schoolTrip.schoolTripId());
+
         var links = new HashMap<String, String>();
 
         links.put(
             i18n.initialPayment(),
-            config.getStripe().getInitialPaymentLink().replace(":paymentToken", this.paymentToken)
+            getInitialPaymentUrl(schoolTrip)
         );
 
         links.put(
             i18n.remainingPayment(),
-            config.getStripe().getRemainingPaymentLink().replace(":paymentToken", this.paymentToken)
+            getRemainingPaymentUrl(schoolTrip)
         );
 
         links.put(
             i18n.completePayment(),
-            config.getStripe().getCompletePaymentLink().replace(":paymentToken", this.paymentToken)
+            getCompletePaymentUrl(schoolTrip)
         );
 
         return Map.copyOf(links);
+    }
+
+    public Payments getPayments() {
+        return Payments.apply(payments);
     }
 
     public Optional<PriceLineItems> getPriceLineItems(
@@ -349,6 +356,29 @@ public class Student extends AggregateRoot<String, Student> {
      */
     public Optional<Integer> getSchoolTripStudentId() {
         return Optional.ofNullable(tripStudentId);
+    }
+
+    /**
+     * Registers a mad payment for the student (received from a system, not entered manually).
+     *
+     * @param payment  The payment which has been made.
+     * @param students The repository to persist the changes.
+     */
+    public void receivedPayment(
+        Payment payment, StudentsRepository students
+    ) {
+        /*
+         * Avoid duplicate payments (idempotence)
+         */
+        this.payments = new ArrayList<>(
+            this.payments.stream().filter(p -> !p.equals(payment)).toList()
+        );
+
+        /*
+         * Make changes.
+         */
+        this.payments.add(payment);
+        students.insertOrUpdateStudent(this);
     }
 
     /**

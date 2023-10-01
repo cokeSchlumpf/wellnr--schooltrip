@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @AllArgsConstructor(staticName = "apply")
 @NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
@@ -22,14 +24,19 @@ public class RegisteredStudentViewCommand implements AbstractSchoolTripCommand<D
     public DataResult<StudentProjection> run(User user, SchoolTripDomainRegistry domainRegistry) {
 
         var student = domainRegistry.getStudents().getStudentByConfirmationToken(token);
+
         var schoolTrip = domainRegistry
             .getSchoolTrips()
             .getSchoolTripById(student.getSchoolTrip().schoolTripId());
 
-        return DataResult.apply(new StudentProjection(student, schoolTrip));
+        var paymentLinks = student.getPaymentLinks(
+            domainRegistry.getSchoolTrips(), user.getMessages()
+        );
+
+        return DataResult.apply(new StudentProjection(student, schoolTrip, paymentLinks));
     }
 
-    public record StudentProjection(Student student, SchoolTrip schoolTrip) {
+    public record StudentProjection(Student student, SchoolTrip schoolTrip, Map<String, String> paymentLinks) {
 
     }
 

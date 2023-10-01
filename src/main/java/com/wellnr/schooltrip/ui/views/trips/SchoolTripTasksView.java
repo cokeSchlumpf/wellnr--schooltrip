@@ -22,6 +22,7 @@ import com.wellnr.schooltrip.ui.components.ApplicationCard;
 import com.wellnr.schooltrip.ui.components.ExcelImportDialog;
 import com.wellnr.schooltrip.ui.layout.ApplicationAppLayout;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.commons.lang3.time.DateUtils;
 
 import java.time.LocalDate;
@@ -70,7 +71,7 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
     }
 
     private void exportInvitationMailingData() {
-        UI.getCurrent().navigate(
+        UI.getCurrent().getPage().setLocation(
             "/api/trips/" + schoolTrip.schoolTrip().getName() + "/exports/invitation-mailing"
         );
     }
@@ -145,6 +146,7 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
 
     }
 
+    @Data
     @AllArgsConstructor(staticName = "apply")
     public static class ExcelImportSettings {
 

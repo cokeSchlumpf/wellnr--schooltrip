@@ -63,6 +63,22 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
                 ApplicationCommandFormBuilder.FormVariant.EURO_SUFFIX,
                 ApplicationCommandFormBuilder.FormVariant.LINE_BREAK_AFTER
             )
+            .addVariant(
+                "helmetRentalPrice",
+                ApplicationFormBuilder.FormVariant.LINE_BREAK_AFTER
+            )
+            .addVariant(
+                "initialPaymentUrl",
+                ApplicationFormBuilder.FormVariant.FULL_WIDTH
+            )
+            .addVariant(
+                "remainingPaymentUrl",
+                ApplicationFormBuilder.FormVariant.FULL_WIDTH
+            )
+            .addVariant(
+                "completePaymentUrl",
+                ApplicationFormBuilder.FormVariant.FULL_WIDTH
+            )
             .setLabelProvider(field -> switch (field) {
                 case "basePrice" -> Optional.of(i18n.basePrice());
                 case "skiRentalPrice" -> Optional.of(i18n.skiRentalPrice());
@@ -70,6 +86,10 @@ public class SchoolTripSettingsView extends AbstractSchoolTripView {
                 case "snowboardRentalPrice" -> Optional.of(i18n.snowboardRentalPrice());
                 case "snowboardBootsRentalPrice" -> Optional.of(i18n.snowboardBootsRentalPrice());
                 case "registrationOpenUntil" -> Optional.of(i18n.registrationOpenUntil());
+                case "helmetRentalPrice" -> Optional.of(i18n.helmetRentalPrice());
+                case "initialPaymentUrl" -> Optional.of(i18n.initialPayment());
+                case "remainingPaymentUrl" -> Optional.of(i18n.remainingPayment());
+                case "completePaymentUrl" -> Optional.of(i18n.completePayment());
                 default -> Optional.empty();
             })
             .build();

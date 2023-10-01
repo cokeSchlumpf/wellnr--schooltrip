@@ -1,9 +1,10 @@
 package com.wellnr.schooltrip;
 
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
-import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CreateSchoolTripCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.RegisterSchoolClassCommand;
+import com.wellnr.schooltrip.core.application.commands.schooltrip.UpdateSchoolTripSettingsCommand;
+import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdateStudentRegistrationCommand;
 import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
@@ -48,13 +49,31 @@ class SchooltripApplicationTests {
         /*
          * Register new school trip.
          */
-        CreateSchoolTripCommand
+        var schoolTrip = CreateSchoolTripCommand
             .apply(
                 "Skikurs 2024", "skikurs-2024"
             )
             .run(
                 user, registry
-            );
+            )
+            .getData();
+
+        UpdateSchoolTripSettingsCommand
+            .apply(
+                schoolTrip.getName(),
+                schoolTrip
+                    .getSettings()
+                    .withInitialPaymentUrl(
+                        "https://book.stripe.com/test_fZe5mD3688BN7aE3cc?client_reference_id=:paymentToken"
+                    )
+                    .withRemainingPaymentUrl(
+                        "https://book.stripe.com/test_fZe5mD3688BN7aE3cc?client_reference_id=:paymentToken"
+                    )
+                    .withCompletePaymentUrl(
+                        "https://book.stripe.com/test_fZe5mD3688BN7aE3cc?client_reference_id=:paymentToken"
+                    )
+            )
+            .run(user, registry);
 
         RegisterSchoolClassCommand
             .apply(
