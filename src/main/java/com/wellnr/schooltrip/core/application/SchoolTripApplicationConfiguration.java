@@ -25,4 +25,6 @@ public class SchoolTripApplicationConfiguration {
 
     StripeConfiguration stripe;
 
+    int qrCodeSize;
+
 }

@@ -12,6 +12,8 @@ spring.jpa.defer-datasource-initialization: true
 # UI
 #
 app:
+  qr-code-size: 200
+
   jwt.rsa: |
     {
       "p": "vTfmzY7-0NNdnBVgK-E7usrLKLWV2uLjoKMLaCr2oVn-fzTdTruG-MuJPu0ye7mkqFicfuegSbKLNLwBtetgOsYytVSXPOSgj4iNZlDTRO8ILn2YjQGNqzMT9dUJhxDRj1Zn7UB4KJbll724x2cXaSR6BR4bCVHP-2AD6L46VvE",
