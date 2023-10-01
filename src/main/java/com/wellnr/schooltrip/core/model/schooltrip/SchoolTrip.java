@@ -331,7 +331,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
                 .from(qrCodeLink)
                 .withSize(100, 100)
                 .to(ImageType.PNG)
-                .withHint(EncodeHintType.MARGIN, "1")
+                .withHint(EncodeHintType.MARGIN, "0")
                 .file();
 
             Operators.suppressExceptions(
