@@ -10,10 +10,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.events.*;
 import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolClassNotFoundException;
 import com.wellnr.schooltrip.core.model.schooltrip.exceptions.SchoolTripAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsRepository;
-import com.wellnr.schooltrip.core.model.student.RegistrationState;
-import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.core.model.student.StudentId;
-import com.wellnr.schooltrip.core.model.student.StudentsReadRepository;
+import com.wellnr.schooltrip.core.model.student.*;
 import com.wellnr.schooltrip.core.model.user.*;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
 import com.wellnr.schooltrip.core.utils.FileZipper;
@@ -307,6 +304,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
         row.createCell(3).setCellValue("Token");
         row.createCell(4).setCellValue("Registration Link");
         row.createCell(5).setCellValue("Registration QR-Code");
+        row.createCell(6).setCellValue("Anrede");
 
         var allStudents = students
             .findStudentsBySchoolTrip(new SchoolTripId(this.id))
@@ -326,7 +324,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             var qrCodeFileName =
                 student.getSchoolClass() + "--" + Operators.stringToKebabCase(student.getLastName()) + "--" + Operators.stringToKebabCase(student.getFirstName()) + ".png";
 
-            var qrCodeLink = config.getUi().getBaseUrl() + "students/complete-registration/" + student.getToken();
+            var qrCodeLink = config.getUi().getBaseUrl() + "students/response/" + student.getToken();
 
             var qrCodeFile = QRCode
                 .from(qrCodeLink)
@@ -346,6 +344,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
             row.createCell(3).setCellValue(student.getToken());
             row.createCell(4).setCellValue(qrCodeLink);
             row.createCell(5).setCellValue(qrCodeFileName);
+            row.createCell(6).setCellValue(student.getGender().equals(Gender.Male)? "lieber" : "liebe");
         }
 
         // Save Excel Workbook
