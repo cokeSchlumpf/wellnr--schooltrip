@@ -820,7 +820,7 @@ public interface SchoolTripMessages {
 
     default String makeCompletePayment$DE(double expectedPaymentAmount, SchoolTripMessages i18n) {
         var format = i18n.currencyNumberFormat();
-        return String.format("Gesamte Vorauszahlung %s €", format.format(expectedPaymentAmount));
+        return String.format("%s € zahlen", format.format(expectedPaymentAmount));
     }
 
     default String makeInitialPayment(double v, SchoolTripMessages i18n) {
@@ -835,12 +835,12 @@ public interface SchoolTripMessages {
 
     default String makeRemainingPayment(double v, SchoolTripMessages i18n) {
         var format = i18n.currencyNumberFormat();
-        return String.format("Remaining payment: %s €", format.format(v));
+        return String.format("Pay %s €", format.format(v));
     }
 
     default String makeRemainingPayment$DE(double v, SchoolTripMessages i18n) {
         var format = i18n.currencyNumberFormat();
-        return String.format("Verbleibende Vorauszahlung %s €", format.format(v));
+        return String.format("%s € zahlen", format.format(v));
     }
 
     @DE("Material-Ausleihe")
