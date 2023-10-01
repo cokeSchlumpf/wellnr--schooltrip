@@ -848,8 +848,7 @@ public interface SchoolTripMessages {
         return "Rental Options";
     }
 
-    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne können aber auch eigene Geräte mit " +
-        "gebracht und genutzt werden.")
+    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne können aber auch eigenes Material genutzt werden.")
     default String materialRentalInfo() {
         return "Please indicate whether materials should be rented by us at Hinterglemm, or own materials should be " +
             "used.";
@@ -1090,9 +1089,9 @@ public interface SchoolTripMessages {
         if (rentalPaymentAmount > 0) {
             // Rental fees section.
             parts.add(String.format("""
-                    Die Leih-Gebühren von %s € für Ski- oder Snowboard-Equipment werden in bar in Hinterglemm eingesaammelt. Wir bitten Sie, %s einen Umschlag mit dem Betrag mitzugeben. Bitte vermerken Sie den Betrag auf dem Umschlag. Wir sammeln die Leih-Gebühren am ersten Abend in Hinterglemm ein.
+                    Die Leihgebühren von %s € für Ski- oder Snowboard-Equipment werden in bar in Hinterglemm eingesammelt. Wir bitten Sie, %s einen Umschlag mit dem Betrag mitzugeben. Bitte vermerken Sie den Betrag auf dem Umschlag. Wir sammeln die Leihgebühren am ersten Abend in Hinterglemm ein.
                                         
-                    Ebenfalls sammeln wir die Kosten für das T-Shirt (falls bestellt) vor Ort ein. Bitte sparieren Sie den Betrag für das T-Shirt von der Leih-Gebühr. Ggf. zwei Brief-Umschläge.
+                    Ebenfalls sammeln wir die Kosten für das T-Shirt (falls bestellt) vor Ort ein. Bitte separieren Sie den Betrag für das T-Shirt von der Leihgebühr. Gegebenenfalls zwei Brief-Umschläge.
                     """,
                 decimalFormat.format(rentalPaymentAmount),
                 student.getFirstName()
@@ -1672,7 +1671,7 @@ public interface SchoolTripMessages {
         return "My child wants to rent snowboard boots.";
     }
 
-    @DE("Mein Kind möchte eiegne Ski mitbringen und nutzen.")
+    @DE("Mein Kind möchte eigne Ski mitbringen und nutzen.")
     default String studentWantsToUseOwnSki() {
         return "My child wants to use own ski.";
     }
@@ -1708,7 +1707,7 @@ public interface SchoolTripMessages {
             .formatted(student.getDisplayName());
     }
 
-    @DE("Mein Kind nutzt die eigenen Ski-Schuhe.")
+    @DE("Mein Kind nutzt eigene Ski-Schuhe.")
     default String studentsWantsToUseOwnSkiBoots() {
         return "My child wants to use own ski boots.";
     }
