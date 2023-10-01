@@ -94,25 +94,22 @@ public class StudentRegisteredView extends AbstractPublicAppView implements Befo
 
         var initialPaymentButton = new Button(i18n.makeInitialPayment(initialPaymentAmount, i18n));
         initialPaymentButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        initialPaymentButton.addClickListener(event -> UI.getCurrent().getPage().executeJs(String.format(
-            "window.open(\"%s\", \"_blank\");",
-            projection.student().getInitialPaymentUrl(schoolTrip)
-        )));
+        initialPaymentButton.addClickListener(event ->
+            UI.getCurrent().getPage().setLocation(projection.student().getInitialPaymentUrl(schoolTrip))
+        );
 
         var remainingPaymentButton =
             new Button(i18n.makeRemainingPayment(expectedPaymentAmount - initialPaymentAmount, i18n));
         remainingPaymentButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        remainingPaymentButton.addClickListener(event -> UI.getCurrent().getPage().executeJs(String.format(
-            "window.open(\"%s\", \"_blank\");",
-            projection.student().getRemainingPaymentUrl(schoolTrip)
-        )));
+        remainingPaymentButton.addClickListener(event ->
+            UI.getCurrent().getPage().setLocation(projection.student().getRemainingPaymentUrl(schoolTrip))
+        );
 
         var completePaymentButton = new Button(i18n.makeCompletePayment(expectedPaymentAmount, i18n));
         completePaymentButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        completePaymentButton.addClickListener(event -> UI.getCurrent().getPage().executeJs(String.format(
-            "window.open(\"%s\", \"_blank\");",
-            projection.student().getCompletePaymentUrl(schoolTrip)
-        )));
+        completePaymentButton.addClickListener(event ->
+            UI.getCurrent().getPage().setLocation(projection.student().getCompletePaymentUrl(schoolTrip))
+        );
 
 
         var paymentButtons = new FormLayout();

@@ -48,11 +48,11 @@ app:
     base-url: http://localhost:8080/
 
   email:
-    mode: "fake"
+    mode: "smtp"
 
     host: smtp.strato.de
     port: 587
-    username: info@ski.gas-merzig.digital
+    username: info@gas-merzig.digital
     password: xxx
 
     properties:
