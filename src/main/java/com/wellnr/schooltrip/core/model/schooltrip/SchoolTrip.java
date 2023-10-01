@@ -2,6 +2,7 @@ package com.wellnr.schooltrip.core.model.schooltrip;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.zxing.EncodeHintType;
 import com.wellnr.common.Operators;
 import com.wellnr.ddd.AggregateRoot;
 import com.wellnr.ddd.BeanValidation;
@@ -328,8 +329,9 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
 
             var qrCodeFile = QRCode
                 .from(qrCodeLink)
-                .withSize(500, 500)
+                .withSize(100, 100)
                 .to(ImageType.PNG)
+                .withHint(EncodeHintType.MARGIN, "1")
                 .file();
 
             Operators.suppressExceptions(
