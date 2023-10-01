@@ -48,7 +48,7 @@ app:
     base-url: http://localhost:8080/
 
   email:
-    mode: "smtp"
+    mode: "fake"
 
     host: smtp.strato.de
     port: 587

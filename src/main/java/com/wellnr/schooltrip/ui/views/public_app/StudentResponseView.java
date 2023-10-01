@@ -62,6 +62,7 @@ public class StudentResponseView extends AbstractPublicAppView implements Before
             .getData();
 
         student = projection.student();
+        schoolTrip = projection.schoolTrip();
 
         var introduction = new Div();
         introduction.addClassName("app__student-registration__introduction");

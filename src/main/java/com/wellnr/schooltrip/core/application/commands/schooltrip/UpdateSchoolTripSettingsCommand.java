@@ -25,7 +25,7 @@ public class UpdateSchoolTripSettingsCommand implements AbstractSchoolTripComman
     double snowboardRentalPrice;
     double snowboardBootsRentalPrice;
     double helmetRentalPrice;
-    double tShirtPrice;
+    double shirtPrice;
 
     String initialPaymentUrl;
     String remainingPaymentUrl;
@@ -57,7 +57,7 @@ public class UpdateSchoolTripSettingsCommand implements AbstractSchoolTripComman
         trip.updateSettings(
             SchoolTripSettings.apply(
                 basePrice, skiRentalPrice, skiBootsRentalPrice,
-                snowboardRentalPrice, snowboardBootsRentalPrice, helmetRentalPrice, tShirtPrice,
+                snowboardRentalPrice, snowboardBootsRentalPrice, helmetRentalPrice, shirtPrice,
                 initialPaymentUrl, remainingPaymentUrl, completePaymentUrl,
                 registrationOpenUntil
             ),
