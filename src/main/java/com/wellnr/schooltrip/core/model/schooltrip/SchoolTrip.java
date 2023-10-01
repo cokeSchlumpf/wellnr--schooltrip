@@ -329,7 +329,7 @@ public class SchoolTrip extends AggregateRoot<String, SchoolTrip> {
 
             var qrCodeFile = QRCode
                 .from(qrCodeLink)
-                .withSize(100, 100)
+                .withSize(200, 200)
                 .to(ImageType.PNG)
                 .withHint(EncodeHintType.MARGIN, "0")
                 .file();
