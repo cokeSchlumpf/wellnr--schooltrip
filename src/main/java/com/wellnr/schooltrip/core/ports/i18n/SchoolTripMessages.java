@@ -587,7 +587,7 @@ public interface SchoolTripMessages {
         return "Discipline";
     }
 
-    @DE("Ein, oder zwei Bretter?")
+    @DE("Ein oder zwei Bretter?")
     default String disciplineSelection() {
         return "One or two boards?";
     }
