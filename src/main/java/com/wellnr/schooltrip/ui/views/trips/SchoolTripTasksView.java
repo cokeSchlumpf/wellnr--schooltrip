@@ -27,6 +27,7 @@ import org.apache.commons.lang3.time.DateUtils;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -99,6 +100,11 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
                 var genderStr = parameters.get(4).toString();
                 var dateOfBirth = LocalDate.now();
                 var gender = Gender.NotSpecified;
+
+                firstName = Arrays
+                    .stream(firstName.split("\\s"))
+                    .findFirst()
+                    .orElse(firstName);
 
                 if (dateOfBirthDate instanceof Date dt) {
                     var instant = DateUtils.toCalendar(dt).toInstant();

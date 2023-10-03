@@ -8,7 +8,9 @@ import com.wellnr.schooltrip.core.application.commands.students.CompleteOrUpdate
 import com.wellnr.schooltrip.core.application.commands.students.RegisterStudentCommand;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTripId;
 import com.wellnr.schooltrip.core.model.student.Gender;
+import com.wellnr.schooltrip.core.model.student.questionaire.Experience;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
+import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.util.MongoContainer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -120,7 +122,7 @@ class SchooltripApplicationTests {
 
         CompleteOrUpdateStudentRegistrationCommand
             .apply(
-                edgar.getToken(), Questionnaire.empty(), "michael.wellner@gmail.com"
+                edgar.getToken(), Questionnaire.empty().withDisziplin(Ski.apply(Experience.EXPERT)), "michael.wellner@gmail.com"
             )
             .run(user, registry);
 

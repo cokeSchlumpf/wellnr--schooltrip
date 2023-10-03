@@ -79,6 +79,8 @@ public class StudentRegistrationQuestionnaireControl
         getContent().add(disciplinSection);
         getContent().add(new Section(additionalInformationSection));
         getContent().add(new Section(costSection));
+
+        this.setValue(student.getQuestionnaire().orElse(Questionnaire.empty()));
     }
 
     public void setSchoolTripAndStudent(SchoolTrip schoolTrip, Student student) {
@@ -180,6 +182,7 @@ public class StudentRegistrationQuestionnaireControl
         @Override
         protected void setPresentationValue(Discipline newPresentationValue) {
             this.discipline.setValue(newPresentationValue.getClass());
+            this.experienceSection.setValue(newPresentationValue.getExperience());
             this.rentalSection.setValue(Tuple3.apply(
                 newPresentationValue.getRental().map(r -> new RentalDetails(r.getHeight(), r.getWeight())),
                 newPresentationValue.getBootRental().map(r -> new BootRentalDetails(r.getSize())),
