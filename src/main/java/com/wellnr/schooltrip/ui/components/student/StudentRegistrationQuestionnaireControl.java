@@ -68,7 +68,8 @@ public class StudentRegistrationQuestionnaireControl
                 .getValue()
                 .withNutrition(event.getValue().getNutrition())
                 .withComment(event.getValue().getComment())
-                .withTShirtSelection(event.getValue().getTShirtSelection());
+                .withTShirtSelection(event.getValue().getTShirtSelection())
+                .withCityTripAllowance(event.getValue().isCityTripAllowance());
 
             this.setModelValue(questionnaire, true);
             this.costSection.setValue(this.schoolTrip, questionnaire);
@@ -402,6 +403,8 @@ public class StudentRegistrationQuestionnaireControl
 
         public final ComboBox<TShirtSelection> tShirtSelection;
 
+        private final Checkbox cityTripAllowance;
+
         public AdditionalInformationSection(Questionnaire questionnaire, Student student) {
             super(questionnaire);
 
@@ -436,6 +439,18 @@ public class StudentRegistrationQuestionnaireControl
                 }
             });
 
+            var cityTripAllowanceWrapper = new VerticalLayout();
+            cityTripAllowanceWrapper.add(new H5("Frei bewegen in Hinterglemm"));
+            cityTripAllowanceWrapper.setPadding(false);
+            cityTripAllowanceWrapper.setMargin(true);
+
+            cityTripAllowance = new Checkbox(i18n.cityTripAllowanceText(student), questionnaire.isCityTripAllowance());
+            cityTripAllowance.addValueChangeListener(event -> {
+                var q = this.getValue().withCityTripAllowance(event.getValue());
+                setModelValue(q, true);
+            });
+            cityTripAllowanceWrapper.add(cityTripAllowance);
+
             var form = new FormLayout();
             form.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1),
@@ -443,8 +458,11 @@ public class StudentRegistrationQuestionnaireControl
             );
             form.add(comments);
             form.add(tShirtSelection);
-            form.setColspan(comments, 2);
+            form.add(cityTripAllowanceWrapper);
 
+            form.setColspan(comments, 2);
+            form.setColspan(tShirtSelection, 2);
+            form.setColspan(cityTripAllowanceWrapper, 2);
 
             this.getContent().setMargin(false);
             this.getContent().setPadding(false);
@@ -466,6 +484,7 @@ public class StudentRegistrationQuestionnaireControl
 
         public void setStudent(Student student) {
             tShirtSelection.setLabel(i18n.tShirtDescription(student));
+            cityTripAllowance.setLabel(i18n.cityTripAllowanceText(student));
         }
 
         @Override

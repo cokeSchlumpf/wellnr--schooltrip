@@ -55,7 +55,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
             this
                 .addComponentColumnForRegisteredStudent(student -> student
                     .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
-                    .map(items -> new Span(items.getSumFormatted()))
+                    .map(items -> new Span(items.getSumFormatted(i18n.currencyNumberFormat())))
                     .orElse(new Span("-"))
                 )
                 .setTextAlign(ColumnTextAlign.END)
@@ -63,7 +63,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
 
             this
                 .addComponentColumnForRegisteredStudent(
-                    student -> new Span(student.getPayments().getSumFormatted())
+                    student -> new Span(student.getPayments().getSumFormatted(i18n.currencyNumberFormat()))
                 )
                 .setTextAlign(ColumnTextAlign.END)
                 .setHeader(i18n.paidAmount());

@@ -11,12 +11,9 @@ public abstract class AbstractLineItems<T> {
 
     private final Function1<T, Double> getAmount;
 
-    protected final DecimalFormat format;
-
     protected AbstractLineItems(List<T> items, Function1<T, Double> getAmount) {
         this.items = List.copyOf(items);
         this.getAmount = getAmount;
-        this.format = new DecimalFormat("0.00");
     }
 
     public List<T> getItems() {
@@ -28,11 +25,10 @@ public abstract class AbstractLineItems<T> {
             .stream()
             .map(getAmount::get)
             .reduce(Double::sum)
-            .map(d -> Double.valueOf(format.format(d)))
             .orElse(0d);
     }
 
-    public String getSumFormatted() {
+    public String getSumFormatted(DecimalFormat format) {
         return format.format(getSum()) + " €";
     }
 

@@ -5,10 +5,7 @@ import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Gender;
 import com.wellnr.schooltrip.core.model.student.RejectionReason;
 import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.core.model.student.questionaire.Experience;
-import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
-import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
-import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
+import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.core.model.user.RegisteredUser;
 
 import java.text.DecimalFormat;
@@ -152,6 +149,14 @@ public interface SchoolTripMessages {
         return "cash at the trip";
     }
 
+    default  String cityTripAllowanceText(Student student) {
+        return "We agree, that " + student.getFirstName() + " can visit in agroup of three or more students the village Hinterglemm after finishing the daily courses and go back to the hostel by bus individually.";
+    }
+
+    default  String cityTripAllowanceText$DE(Student student) {
+        return "Wir sind damit einverstanden, dass sich " + student.getFirstName() + " nach dem täglichen Ski-Kurs in einer Gruppe von mindestens 3 SchülerInnen in der Ortschaft Hinterglemm frei bewegen und anschließend mit dem Bus in das Jugendgästehaus zurück fahren darf.";
+    }
+
     @DE("Registrierung beenden")
     default String closeRegistration() {
         return "Close registration";
@@ -250,6 +255,14 @@ public interface SchoolTripMessages {
                 .indent(6)));
         }
 
+        if (questionnaire.isCityTripAllowance()) {
+            additionalInformation.add("- " + student.getFirstName() + " is allowed to visit in a group of three or more students the village Hinterglemm and go back to the hostel by bus individually.");
+        }
+
+        if (!questionnaire.getTShirtSelection().equals(TShirtSelection.NONE)) {
+            additionalInformation.add("- " + student.getFirstName() + " wants to have a T-Shirt of the trip of size " + questionnaire.getTShirtSelection().name().toUpperCase());
+        }
+
         if (!additionalInformation.isEmpty()) {
             parts.add(
                 """
@@ -278,7 +291,7 @@ public interface SchoolTripMessages {
                 .collect(Collectors.joining("\n"));
 
             lineItems = lineItems + "\n- " + i18n.amountSum().toUpperCase() + ": " + priceLineItems.get()
-                .getSumFormatted();
+                .getSumFormatted(format);
             lineItems = lineItems.indent(3);
 
             parts.add(
@@ -381,12 +394,20 @@ public interface SchoolTripMessages {
         if (!nutritionNotes.isEmpty()) {
             additionalInformation.add("- %s ernärht sich %s".formatted(
                 student.getFirstName(), String.join(" und ", nutritionNotes)
-            ));
+            ) + ".");
         }
 
         if (questionnaire.getComment().length() > 0) {
             additionalInformation.add("- Zusätzliche Informationen für uns:\n" + (questionnaire.getComment()
                 .indent(6)));
+        }
+
+        if (questionnaire.isCityTripAllowance()) {
+            additionalInformation.add("- " + student.getFirstName() + " darf nach dem Kursen in Gruppen von mindestens 3 SchülerInnen den Ort Hinterglemm besuchen und alleine mit den Bus in die Unterkunft fahren.");
+        }
+
+        if (!questionnaire.getTShirtSelection().equals(TShirtSelection.NONE)) {
+            additionalInformation.add("- " + student.getFirstName() + " möchte ein Ski-Kurs T-Shirt in der Größe " + questionnaire.getTShirtSelection().name().toUpperCase() + ".");
         }
 
         if (!additionalInformation.isEmpty()) {
@@ -417,12 +438,12 @@ public interface SchoolTripMessages {
                 .collect(Collectors.joining("\n"));
 
             lineItems = lineItems + "\n- " + i18n.amountSum().toUpperCase() + ": " + priceLineItems.get()
-                .getSumFormatted();
+                .getSumFormatted(format);
             lineItems = lineItems.indent(3);
 
             parts.add(
                 """
-                    Die Kosten für die Ausfahrt setzen sich wie folgt zusammen:
+                    Die Kosten für den Ski-Kurs setzen sich wie folgt zusammen:
                     %s
                     """
                     .stripIndent()
@@ -621,7 +642,7 @@ public interface SchoolTripMessages {
 
     default String dontParticipateSchool$DE(Student student) {
         return String.format(
-            "%s wird an keiner Ausfahrt teinehmen und während der Ausfahrten die Schule besuchen.",
+            "%s wird an keiner Veranstaltung teinehmen und während der Zeit die Schule besuchen.",
             student.getFirstName()
         );
     }
@@ -848,7 +869,7 @@ public interface SchoolTripMessages {
         return "Rental Options";
     }
 
-    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne können aber auch eigenes Material genutzt werden.")
+    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne kann aber auch eigenes Material genutzt werden.")
     default String materialRentalInfo() {
         return "Please indicate whether materials should be rented by us at Hinterglemm, or own materials should be " +
             "used.";
@@ -980,10 +1001,8 @@ public interface SchoolTripMessages {
                 decimalFormat.format(alreadyPaidAmount)
             ));
 
-            parts.add(String.format("""
-                    To pay the remaining amount via online payment, use the payment button below.
-                                    
-                    If you want to pay the remaining amount of **%s €** manually, please send the money to the following account:
+            parts.add(String.format("""                                    
+                    Please send the remaining amount of **%s €** to the following account:
                                     
                     Marcus Ortinau<br>
                     IBAN DE32 5935 1040 0000 2374 12<br>
@@ -1000,7 +1019,7 @@ public interface SchoolTripMessages {
             );
 
             parts.add(String.format("""
-                    You may use the buttons below to send us the money via online payment. If you prefer to transfer the money manually, please send it to:
+                    Please send the money to:
                                         
                     Marcus Ortinau<br>
                     IBAN DE32 5935 1040 0000 2374 12<br>
@@ -1053,10 +1072,8 @@ public interface SchoolTripMessages {
                 decimalFormat.format(alreadyPaidAmount)
             ));
 
-            parts.add(String.format("""
-                    Um die Zahlung online durchzuführen, nutzen Sie bitte die untenstehenden Links.
-                                    
-                    Falls Sie es bevorzugen via Überweisung zu zahlen, senden Sie das Geld bitte an:
+            parts.add(String.format("""                                    
+                    Bitte überweisen Sie die verbleibende Zahlung an:
                                     
                     Marcus Ortinau<br>
                     IBAN DE32 5935 1040 0000 2374 12<br>
@@ -1073,7 +1090,7 @@ public interface SchoolTripMessages {
             );
 
             parts.add(String.format("""
-                    Sie können die unten stehenden Links nutzen, um Ihre Zahlung online durchzuführen. Falls Sie das Geld lieber überweisen möchten, senden Sie es bitte an:
+                    Bitte überweisen Sie die Anzahlung an:
                                         
                     Marcus Ortinau<br>
                     IBAN DE32 5935 1040 0000 2374 12<br>
@@ -1154,9 +1171,6 @@ public interface SchoolTripMessages {
     default String registerStudentInfo$DE(Student student) {
         var msg = """
             Bitte nutzen Sie das folgende Formular, um %s für die Ski- und Snowboard-Lehrfahrt anzumelden.
-            Falls Ihr Kind nicht an der Ski- und Snowboard-Lehrfahrt teilnimmt, melden Sie es bitte für die Ausfahrt "Out of Snow" an, oder bestätigen Sie, dass %s am Schulunterricht teilnimmt.
-            <p>
-            Gerne können Sie die Anmeldung bzw. Rückmeldung auch schriftlich über Ihr ausgehändigtes Formular bei Frau Wellner oder Herrn Ortinau abgeben.
             """
             .stripIndent();
 
@@ -1186,12 +1200,6 @@ public interface SchoolTripMessages {
 
         var parts = new ArrayList<String>();
 
-        var paymentLinksLines = paymentLinks
-            .entrySet()
-            .stream()
-            .map(e -> e.getKey() + "\n" + e.getValue())
-            .collect(Collectors.joining("\n\n"));
-
         parts.add(
             """
                 Registration Ski- und Snowboard-Freizeit 2024
@@ -1206,11 +1214,7 @@ public interface SchoolTripMessages {
                                 
                 %s
                                 
-                You may pay the trip via online payment, to do so, follow the links below:
-                                
-                %s
-                                
-                You may also pay via SEPA payment. In this case please send the money to the following account:
+                To pay via SEPA payment, please send the money to the following account:
                                 
                 Account owner: Marcus Ortinau
                 IBAN: DE32 5935 1040 0000 2374 12
@@ -1228,7 +1232,6 @@ public interface SchoolTripMessages {
                     student.getFirstName(),
                     confirmationUrl,
                     updateUrl,
-                    paymentLinksLines,
                     i18n.currencyNumberFormat().format(initialPayment),
                     i18n.currencyNumberFormat().format(remainingPayment)
                 )
@@ -1245,12 +1248,6 @@ public interface SchoolTripMessages {
 
         var parts = new ArrayList<String>();
 
-        var paymentLinksLines = paymentLinks
-            .entrySet()
-            .stream()
-            .map(e -> e.getKey() + "\n" + e.getValue())
-            .collect(Collectors.joining("\n\n"));
-
         parts.add(
             """
                 Anmeldung zur Ski- und Snowboard-Freizeit 2024
@@ -1261,11 +1258,7 @@ public interface SchoolTripMessages {
                             
                 Erst nach Besuch des Links, ist die Anmeldung vollständig abgeschlossen.
                                 
-                Einige Angaben können Sie bis eine Woche vor der Ausfahrt bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
-                                
-                %s
-                                
-                Gerne können Sie die Zahlung online vornehmen. Nutzen Sie dafür die folgenden Links:
+                Einige Angaben können Sie bis eine Woche vor dem Ski-Kurs bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
                                 
                 %s
                                 
@@ -1289,7 +1282,6 @@ public interface SchoolTripMessages {
                     student.getFirstName(),
                     confirmationUrl,
                     updateUrl,
-                    paymentLinksLines.stripIndent(),
                     i18n.currencyNumberFormat().format(initialPayment),
                     i18n.currencyNumberFormat().format(remainingPayment)
                 )
@@ -1637,8 +1629,15 @@ public interface SchoolTripMessages {
     }
 
     default String studentResponseInfoText$DE(Student student) {
-        return "Bitte geben Sie an, ob " + student.getFirstName() + " an der Ski- und Snowboard-Freizeit teilnehmen " +
-            "wird.";
+        var msg = """
+            Bitte nutzen Sie das folgende Formular, um %s für die Ski- und Snowboard-Lehrfahrt anzumelden.
+            Falls Ihr Kind nicht an der Ski- und Snowboard-Lehrfahrt teilnimmt, melden Sie es bitte für "Out of Snow" an, oder bestätigen Sie, dass %s am Schulunterricht teilnimmt.
+            <p>
+            Gerne können Sie die Anmeldung bzw. Rückmeldung auch schriftlich über Ihr ausgehändigtes Formular bei Frau Wellner oder Herrn Ortinau abgeben.
+            """
+            .stripIndent();
+
+        return String.format(msg, student.getDisplayName(), student.getDisplayName());
     }
 
     @DE("Mein Kind möchte teilnehmen:")
@@ -1671,7 +1670,7 @@ public interface SchoolTripMessages {
         return "My child wants to rent snowboard boots.";
     }
 
-    @DE("Mein Kind möchte eigne Ski mitbringen und nutzen.")
+    @DE("Mein Kind möchte eigene Ski mitbringen und nutzen.")
     default String studentWantsToUseOwnSki() {
         return "My child wants to use own ski.";
     }

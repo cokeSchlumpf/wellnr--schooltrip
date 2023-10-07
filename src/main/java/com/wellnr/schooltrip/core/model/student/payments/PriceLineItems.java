@@ -18,7 +18,6 @@ public class PriceLineItems extends AbstractLineItems<PriceLineItem> {
             .filter(p -> !p.cash())
             .map(PriceLineItem::amount)
             .reduce(Double::sum)
-            .map(d -> Double.valueOf(format.format(d)))
             .orElse(0d);
     }
 
@@ -28,7 +27,6 @@ public class PriceLineItems extends AbstractLineItems<PriceLineItem> {
             .filter(PriceLineItem::cash)
             .map(PriceLineItem::amount)
             .reduce(Double::sum)
-            .map(d -> Double.valueOf(format.format(d)))
             .orElse(0d);
     }
 

@@ -3,8 +3,6 @@ package com.wellnr.schooltrip.ui.views.public_app;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
@@ -92,38 +90,6 @@ public class StudentRegisteredView extends AbstractPublicAppView implements Befo
             .map(p -> (Component) Markdown.apply(p))
             .toList();
 
-        var initialPaymentButton = new Button(i18n.makeInitialPayment(initialPaymentAmount, i18n));
-        initialPaymentButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        initialPaymentButton.addClickListener(event ->
-            UI.getCurrent().getPage().setLocation(projection.student().getInitialPaymentUrl(schoolTrip))
-        );
-
-        var remainingPaymentButton =
-            new Button(i18n.makeRemainingPayment(expectedPaymentAmount - initialPaymentAmount, i18n));
-        remainingPaymentButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        remainingPaymentButton.addClickListener(event ->
-            UI.getCurrent().getPage().setLocation(projection.student().getRemainingPaymentUrl(schoolTrip))
-        );
-
-        var completePaymentButton = new Button(i18n.makeCompletePayment(expectedPaymentAmount, i18n));
-        completePaymentButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        completePaymentButton.addClickListener(event ->
-            UI.getCurrent().getPage().setLocation(projection.student().getCompletePaymentUrl(schoolTrip))
-        );
-
-
-        var paymentButtons = new FormLayout();
-        paymentButtons.setResponsiveSteps(
-            new FormLayout.ResponsiveStep("0", 1),
-            new FormLayout.ResponsiveStep("650px", 3)
-        );
-
-        if (alreadyPaidAmount == 0) {
-            paymentButtons.add(initialPaymentButton, completePaymentButton);
-        } else if (alreadyPaidAmount < expectedPaymentAmount) {
-            paymentButtons.add(remainingPaymentButton);
-        }
-
         var introduction = new Div();
         introduction.addClassName("app__student-registered-view__introduction");
         introduction.add(headline, introductionInfo, gotoUpdate);
@@ -139,7 +105,6 @@ public class StudentRegisteredView extends AbstractPublicAppView implements Befo
         );
 
         this.contentContainer.add(paymentInfo);
-        this.contentContainer.add(paymentButtons);
     }
 
 }

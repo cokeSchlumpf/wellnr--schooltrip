@@ -39,7 +39,7 @@ import java.util.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Student extends AggregateRoot<String, Student> {
 
-    public static final double INITIAL_PAYMENT_AMOUNT = 150.00;
+    public static final double INITIAL_PAYMENT_AMOUNT = 160.00;
 
     private final String id;
 

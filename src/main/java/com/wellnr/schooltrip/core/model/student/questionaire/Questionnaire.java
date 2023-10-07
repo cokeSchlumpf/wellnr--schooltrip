@@ -17,12 +17,15 @@ public class Questionnaire {
 
     TShirtSelection tShirtSelection;
 
+    boolean cityTripAllowance;
+
     public static Questionnaire empty() {
         return apply(
             Ski.apply(Experience.BEGINNER),
             Nutrition.apply(false, false),
             "",
-            TShirtSelection.NONE
+            TShirtSelection.NONE,
+            false
         );
     }
 
