@@ -83,30 +83,42 @@ public class Student extends AggregateRoot<String, Student> {
         ));
 
         if (questionnaire.getDisziplin() instanceof Ski ski) {
-            if (ski.getRental().isPresent()) {
+            if (ski.getRental().isPresent() && ski.getBootRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    i18n.skiRental(), schoolTrip.getSettings().getSkiRentalPrice(), true
+                    i18n.skiAndBootRental(), schoolTrip.getSettings().getSkiAndBootsRentalPrice(), true
                 ));
-            }
+            } else {
+                if (ski.getRental().isPresent()) {
+                    lineItems.add(new PriceLineItem(
+                        i18n.skiRental(), schoolTrip.getSettings().getSkiRentalPrice(), true
+                    ));
+                }
 
-            if (ski.getBootRental().isPresent()) {
-                lineItems.add(new PriceLineItem(
-                    i18n.skiBootRental(), schoolTrip.getSettings().getSkiBootsRentalPrice(), true
-                ));
+                if (ski.getBootRental().isPresent()) {
+                    lineItems.add(new PriceLineItem(
+                        i18n.skiBootRental(), schoolTrip.getSettings().getSkiBootsRentalPrice(), true
+                    ));
+                }
             }
         }
 
         if (questionnaire.getDisziplin() instanceof Snowboard sb) {
-            if (sb.getRental().isPresent()) {
+            if (sb.getRental().isPresent() && sb.getBootRental().isPresent()) {
                 lineItems.add(new PriceLineItem(
-                    i18n.snowboardRental(), schoolTrip.getSettings().getSnowboardRentalPrice(), true
+                    i18n.snowboardAndBootRental(), schoolTrip.getSettings().getSnowboardAndBootsRentalPrice(), true
                 ));
-            }
+            } else {
+                if (sb.getRental().isPresent()) {
+                    lineItems.add(new PriceLineItem(
+                        i18n.snowboardRental(), schoolTrip.getSettings().getSnowboardRentalPrice(), true
+                    ));
+                }
 
-            if (sb.getBootRental().isPresent()) {
-                lineItems.add(new PriceLineItem(
-                    i18n.snowboardBootRental(), schoolTrip.getSettings().getSnowboardBootsRentalPrice(), true
-                ));
+                if (sb.getBootRental().isPresent()) {
+                    lineItems.add(new PriceLineItem(
+                        i18n.snowboardBootRental(), schoolTrip.getSettings().getSnowboardBootsRentalPrice(), true
+                    ));
+                }
             }
         }
 

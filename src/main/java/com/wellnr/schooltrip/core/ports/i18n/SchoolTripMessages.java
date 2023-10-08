@@ -1262,15 +1262,15 @@ public interface SchoolTripMessages {
                                 
                 %s
                                 
-                Sie können die Zahlung auch via Überweisung durchführen:
+                Die Zahlung können Sie via Überweisung an das folgende Konto durchführen:
                                 
                 Kontoinhaber: Marcus Ortinau
                 IBAN: DE32 5935 1040 0000 2374 12
                 BIC: MERZDE55XXX (Kreissparkasse Merzig)
                                 
-                Bitte beachten Sie, dass die erste Zahlung von %s € bis 17. November und die zweite Zahlung über %s € am 15. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchühfen.
+                Bitte beachten Sie, dass die erste Zahlung von %s € bis 17. November und die zweite Zahlung über %s € am 15. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchführen.
                 
-                Die restlichen Kosten für Ausleihe und T-Shirt (falls bestellt) werden in Hinterglemm in bar eingesammelt. Bitte geben Sie die Leihgebühren in einem beschriebenen Umschlag (Name und Betrag) ihrem Kind mit.
+                Die restlichen Kosten für Ausleihe und T-Shirt (falls bestellt) werden in Hinterglemm in bar eingesammelt. Bitte geben Sie die Leihgebühren (ohne T-Shirt Betrag) in einem beschriebenen Umschlag (Name, Betrag und Klasse) ihrem Kind mit. Der finale T-Shirt Preis kann sich je nach Bestellmenge leicht verändern, auch dieser Betrag wird vor Ort in bar eingesammelt. 
                                 
                 ---
                                 
@@ -1469,6 +1469,11 @@ public interface SchoolTripMessages {
         return "Ski";
     }
 
+    @DE("Ausleihe Ski mit Stöcke und Schuhen")
+    default String skiAndBootRental() {
+        return "Ski and boot rental";
+    }
+
     @DE("Ausleihe Ski-Schuhe")
     default String skiBootRental() {
         return "Ski Boot Rental";
@@ -1479,7 +1484,7 @@ public interface SchoolTripMessages {
         return "Ski boots rental price";
     }
 
-    @DE("Ausleihe Ski")
+    @DE("Ausleihe Ski mit Stöcken")
     default String skiRental() {
         return "Ski rental";
     }
@@ -1492,6 +1497,11 @@ public interface SchoolTripMessages {
     @DE("Snowboard")
     default String snowboard() {
         return "Snowboard";
+    }
+
+    @DE("Ausleihe Snowboard mit Boots")
+    default String snowboardAndBootRental() {
+        return "Snowboard and boots rental";
     }
 
     @DE("Ausleihe Snowboard-Boots")

@@ -20,10 +20,14 @@ public class UpdateSchoolTripSettingsCommand implements AbstractSchoolTripComman
 
     final String name;
     double basePrice;
+
     double skiRentalPrice;
     double skiBootsRentalPrice;
+    double skiAndBootsRentalPrice;
+
     double snowboardRentalPrice;
     double snowboardBootsRentalPrice;
+    double snowboardAndBootsRentalPrice;
     double helmetRentalPrice;
     double shirtPrice;
 
@@ -39,8 +43,10 @@ public class UpdateSchoolTripSettingsCommand implements AbstractSchoolTripComman
             settings.getBasePrice(),
             settings.getSkiRentalPrice(),
             settings.getSkiBootsRentalPrice(),
+            settings.getSkiAndBootsRentalPrice(),
             settings.getSnowboardRentalPrice(),
             settings.getSnowboardBootsRentalPrice(),
+            settings.getSnowboardAndBootsRentalPrice(),
             settings.getHelmetRentalPrice(),
             settings.getTShirtPrice(),
             settings.getInitialPaymentUrl(),
@@ -56,10 +62,10 @@ public class UpdateSchoolTripSettingsCommand implements AbstractSchoolTripComman
 
         trip.updateSettings(
             SchoolTripSettings.apply(
-                basePrice, skiRentalPrice, skiBootsRentalPrice,
-                snowboardRentalPrice, snowboardBootsRentalPrice, helmetRentalPrice, shirtPrice,
-                initialPaymentUrl, remainingPaymentUrl, completePaymentUrl,
-                registrationOpenUntil
+                basePrice, skiRentalPrice, skiBootsRentalPrice, skiAndBootsRentalPrice,
+                snowboardRentalPrice, snowboardBootsRentalPrice, snowboardAndBootsRentalPrice,
+                helmetRentalPrice, shirtPrice,
+                initialPaymentUrl, remainingPaymentUrl, completePaymentUrl, registrationOpenUntil
             ),
             domainRegistry.getSchoolTrips()
         );
