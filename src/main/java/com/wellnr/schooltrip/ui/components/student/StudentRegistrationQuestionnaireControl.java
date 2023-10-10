@@ -320,6 +320,8 @@ public class StudentRegistrationQuestionnaireControl
                 updateModelValue(true);
             });
 
+            rentalDetails.addValueChangeListener(event -> updateModelValue(true));
+            bootRentalDetails.addValueChangeListener(event -> updateModelValue(true));
             helmetRentalForm.addValueChangeListener(event -> updateModelValue(true));
 
             this.getContent().setMargin(false);
