@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip.core.ports.i18n;
 
+import com.vaadin.flow.component.Component;
 import com.wellnr.common.markup.Either;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Gender;
@@ -735,6 +736,11 @@ public interface SchoolTripMessages {
         return "German";
     }
 
+    @DE("Schulbesuch")
+    default String goToSchool() {
+        return "Go to school";
+    }
+
     @DE("Ausleihe Helm")
     default String helmetRental() {
         return "Helmet rental";
@@ -914,6 +920,11 @@ public interface SchoolTripMessages {
     @DE("Keine Präferenz")
     default String noPreference() {
         return "No preference";
+    }
+
+    @DE("Keine Antwort")
+    default String noResponse() {
+        return "No response";
     }
 
     @DE("Leider nicht authorisiert.")
@@ -1175,6 +1186,11 @@ public interface SchoolTripMessages {
             .stripIndent();
 
         return String.format(msg, student.getDisplayName(), student.getDisplayName());
+    }
+
+    @DE("Registriert")
+    default String registered() {
+        return "Registered";
     }
 
     @DE("Anmeldung")
@@ -1887,6 +1903,11 @@ public interface SchoolTripMessages {
     @DE("Benutzername")
     default String username() {
         return "Username";
+    }
+
+    @DE("Bestätigung ausstehend")
+    default String waitingForConfirmation() {
+        return "Awaiting confirmation";
     }
 
     @DE("Ja")

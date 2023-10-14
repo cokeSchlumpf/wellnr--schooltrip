@@ -13,6 +13,7 @@ import com.wellnr.common.markup.Tuple2;
 import com.wellnr.common.markup.Tuple4;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.RegistrationState;
+import com.wellnr.schooltrip.core.model.student.RejectionReason;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
@@ -125,10 +126,25 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
         return this
             .getGrid()
             .addComponentColumn(student -> {
-                var span = new Span();
-                span.setClassName("app--trip--registration-state--created");
-                span.add(VaadinIcon.CHECK.create());
-                return span;
+                if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
+                    return new Span(i18n.registered());
+                } else if (student.getRegistrationState().equals(RegistrationState.WAITING_FOR_CONFIRMATION)) {
+                    return new Span(i18n.waitingForConfirmation());
+                } else if (student.getRegistrationState().equals(RegistrationState.CREATED)) {
+                    return new Span(i18n.noResponse());
+                } else if (student.getRegistrationState().equals(RegistrationState.REJECTED)) {
+                    if (student.getRejectionReason().isPresent()) {
+                        var reason = student.getRejectionReason().get();
+
+                        if (reason.equals(RejectionReason.OUT_OF_SNOW)) {
+                            return new Span("Out of Snow");
+                        } else if (reason.equals(RejectionReason.GO_TO_SCHOOL)) {
+                            return new Span(i18n.goToSchool());
+                        }
+                    }
+                }
+
+                return new Span("n/a");
             }).setHeader(i18n.status());
     }
 
