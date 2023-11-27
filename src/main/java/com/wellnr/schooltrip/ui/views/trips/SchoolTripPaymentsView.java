@@ -23,7 +23,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
     private final SchoolTripMessages i18n;
 
     public SchoolTripPaymentsView(
-        ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
+            ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
         this.i18n = userSession.getMessages();
@@ -37,7 +37,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
      */
     public static RouteParameters getRouteParameters(String name) {
         return new RouteParameters(
-            new RouteParam("name", name)
+                new RouteParam("name", name)
         );
     }
 
@@ -53,47 +53,50 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
             this.addDefaultColumnsWithSorting(schoolTrip.schoolTrip());
 
             this
-                .addComponentColumnForRegisteredStudent(student -> student
-                    .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
-                    .map(items -> new Span(items.getSumFormatted(i18n.currencyNumberFormat())))
-                    .orElse(new Span("-"))
-                )
-                .setTextAlign(ColumnTextAlign.END)
-                .setHeader(i18n.expectedAmount());
+                    .addComponentColumnForRegisteredStudent(student -> student
+                            .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
+                            .map(items -> new Span(items.getSumFormatted(i18n.currencyNumberFormat())))
+                            .orElse(new Span("-"))
+                    )
+                    .setTextAlign(ColumnTextAlign.END)
+                    .setHeader(i18n.expectedAmount())
+                    .setSortable(true);
 
             this
-                .addComponentColumnForRegisteredStudent(
-                    student -> new Span(student.getPayments().getSumFormatted(i18n.currencyNumberFormat()))
-                )
-                .setTextAlign(ColumnTextAlign.END)
-                .setHeader(i18n.paidAmount());
+                    .addComponentColumnForRegisteredStudent(
+                            student -> new Span(student.getPayments().getSumFormatted(i18n.currencyNumberFormat()))
+                    )
+                    .setTextAlign(ColumnTextAlign.END)
+                    .setHeader(i18n.paidAmount())
+                    .setSortable(true);
 
             this
-                .addComponentColumnForRegisteredStudent(student -> {
-                    var expected = student
-                        .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
-                        .map(AbstractLineItems::getSum)
-                        .orElse(0d);
+                    .addComponentColumnForRegisteredStudent(student -> {
+                        var expected = student
+                                .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
+                                .map(AbstractLineItems::getSum)
+                                .orElse(0d);
 
-                    var paid = student
-                        .getPayments()
-                        .getSum();
+                        var paid = student
+                                .getPayments()
+                                .getSum();
 
-                    var diff = expected - paid;
+                        var diff = expected - paid;
 
-                    return ApplicationAmountLabelBuilder
-                        .apply(diff, "€")
-                        .withInverted(true)
-                        .build();
-                })
-                .setTextAlign(ColumnTextAlign.END)
-                .setHeader(i18n.diffAmount());
+                        return ApplicationAmountLabelBuilder
+                                .apply(diff, "€")
+                                .withInverted(true)
+                                .build();
+                    })
+                    .setTextAlign(ColumnTextAlign.END)
+                    .setHeader(i18n.diffAmount())
+                    .setSortable(true);
 
             var bttNew = this.getMenuBar().addItem(i18n.enterPayments());
             bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
-                SchoolTripAddStudentView.class, SchoolTripAddStudentView.getRouteParameters(
-                    schoolTrip.schoolTrip().getName()
-                )
+                    SchoolTripAddStudentView.class, SchoolTripAddStudentView.getRouteParameters(
+                            schoolTrip.schoolTrip().getName()
+                    )
             ));
         }
 
