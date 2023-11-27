@@ -60,6 +60,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
                     )
                     .setTextAlign(ColumnTextAlign.END)
                     .setHeader(i18n.expectedAmount())
+                    .setComparator(student -> student.getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n).map(AbstractLineItems::getSum).orElse(0d))
                     .setSortable(true);
 
             this
@@ -68,20 +69,12 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
                     )
                     .setTextAlign(ColumnTextAlign.END)
                     .setHeader(i18n.paidAmount())
+                    .setComparator(student -> student.getPayments().getSum())
                     .setSortable(true);
 
             this
                     .addComponentColumnForRegisteredStudent(student -> {
-                        var expected = student
-                                .getPriceLineItems(Either.fromRight(schoolTrip.schoolTrip()), i18n)
-                                .map(AbstractLineItems::getSum)
-                                .orElse(0d);
-
-                        var paid = student
-                                .getPayments()
-                                .getSum();
-
-                        var diff = expected - paid;
+                        var diff = student.getOpenPaymentAmount(Either.fromRight(schoolTrip.schoolTrip()), i18n);
 
                         return ApplicationAmountLabelBuilder
                                 .apply(diff, "€")
@@ -90,6 +83,7 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
                     })
                     .setTextAlign(ColumnTextAlign.END)
                     .setHeader(i18n.diffAmount())
+                    .setComparator(student -> student.getOpenPaymentAmount(Either.fromRight(schoolTrip.schoolTrip()), i18n))
                     .setSortable(true);
 
             var bttNew = this.getMenuBar().addItem(i18n.enterPayments());

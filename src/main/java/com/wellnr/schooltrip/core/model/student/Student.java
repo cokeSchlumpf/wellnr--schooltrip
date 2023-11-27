@@ -13,10 +13,7 @@ import com.wellnr.schooltrip.core.model.student.events.StudentRegisteredEvent;
 import com.wellnr.schooltrip.core.model.student.events.StudentsSchoolClassChangedEvent;
 import com.wellnr.schooltrip.core.model.student.exceptions.StudentAlreadyExistsException;
 import com.wellnr.schooltrip.core.model.student.exceptions.StudentAlreadyRegisteredException;
-import com.wellnr.schooltrip.core.model.student.payments.Payment;
-import com.wellnr.schooltrip.core.model.student.payments.Payments;
-import com.wellnr.schooltrip.core.model.student.payments.PriceLineItem;
-import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
+import com.wellnr.schooltrip.core.model.student.payments.*;
 import com.wellnr.schooltrip.core.model.student.questionaire.Questionnaire;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.model.student.questionaire.Snowboard;
@@ -350,6 +347,19 @@ public class Student extends AggregateRoot<String, Student> {
 
             return Student.calculatePriceLineItems(schoolTrip, q, i18n);
         });
+    }
+
+    public double getOpenPaymentAmount(Either<SchoolTripsReadRepository, SchoolTrip> schoolTrips, SchoolTripMessages i18n) {
+        var expected = this
+                .getPriceLineItems(schoolTrips, i18n)
+                .map(AbstractLineItems::getSum)
+                .orElse(0d);
+
+        var paid = this
+                .getPayments()
+                .getSum();
+
+        return expected - paid;
     }
 
     public Optional<Questionnaire> getQuestionnaire() {

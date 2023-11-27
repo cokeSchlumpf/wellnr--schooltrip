@@ -8,6 +8,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.wellnr.common.functions.Function2;
+import lombok.Getter;
 
 /**
  * A composed Grid component which offers a menu bar and a query field to filter items in the grid.
@@ -16,10 +17,19 @@ import com.wellnr.common.functions.Function2;
  */
 public class ApplicationGridWithControls<T> extends VerticalLayout {
 
+    /**
+     *  Access the underlying grid component.
+     */
+    @Getter
     private final ApplicationGrid<T> grid;
 
+    @Getter
     private final MenuBar menuBar;
 
+    /**
+     *  Gets the filter query input field of the control.
+     */
+    @Getter
     private final TextField filterQuery;
 
     private Function2<String, T, Boolean> filterFunction;
@@ -52,28 +62,6 @@ public class ApplicationGridWithControls<T> extends VerticalLayout {
 
         this.add(controls, grid);
         this.setPadding(false);
-    }
-
-    /**
-     * Gets the filter query input field of the control.
-     *
-     * @return The component.
-     */
-    public TextField getFilterQuery() {
-        return filterQuery;
-    }
-
-    /**
-     * Access the underlying grid component.
-     *
-     * @return the grid component.
-     */
-    public ApplicationGrid<T> getGrid() {
-        return grid;
-    }
-
-    public MenuBar getMenuBar() {
-        return menuBar;
     }
 
     /**
