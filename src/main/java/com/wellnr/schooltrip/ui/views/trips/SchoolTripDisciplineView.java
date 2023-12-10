@@ -5,6 +5,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteParam;
 import com.vaadin.flow.router.RouteParameters;
+import com.wellnr.schooltrip.core.model.student.RegistrationState;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.model.student.questionaire.Ski;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
@@ -24,6 +25,7 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
     ) {
         super(commandRunner, userSession);
         this.i18n = userSession.getMessages();
+        this.filterStudents = student -> student.getRegistrationState().equals(RegistrationState.REGISTERED);
     }
 
     /**

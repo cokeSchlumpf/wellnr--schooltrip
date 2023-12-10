@@ -1,6 +1,7 @@
 package com.wellnr.schooltrip.ui.views.trips;
 
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.wellnr.common.functions.Function1;
 import com.wellnr.schooltrip.core.model.student.Student;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
@@ -14,8 +15,13 @@ import java.util.Objects;
 public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView {
 
     private final SchoolTripMessages i18n;
+
     protected ApplicationGridWithControls<Student> students;
+
     protected StudentDetailsControl studentDetails;
+
+    protected Function1<Student, Boolean> filterStudents;
+
     @Value("${app.ui.base-url}")
     String appBaseUrl;
 
@@ -24,6 +30,7 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
     ) {
         super(commandRunner, userSession);
         this.i18n = userSession.getMessages();
+        this.filterStudents = student -> true;
     }
 
     protected abstract ApplicationGridWithControls<Student> createStudentsGrid();
