@@ -73,7 +73,7 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
                         var rental = questionnaire.getDisziplin().getRental().get();
                         return new Span(rental.getHeight() + "cm / " + rental.getWeight() + "kg");
                     } else {
-                        return new Span("-");
+                        return new Span(i18n.noRental());
                     }
                 })
                 .setTextAlign(ColumnTextAlign.CENTER)
@@ -86,7 +86,7 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
                             questionnaire.getDisziplin().getBootRental().get().getSize()
                         ));
                     } else {
-                        return new Span("-");
+                        return new Span(i18n.noRental());
                     }
                 })
                 .setTextAlign(ColumnTextAlign.CENTER)
@@ -98,7 +98,7 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
                     if (questionnaire.getDisziplin().hasHelmRental()) {
                         return new Span(i18n.yes());
                     } else {
-                        return new Span(i18n.no());
+                        return new Span(i18n.noRental());
                     }
                 })
                 .setHeader(i18n.helmetRental());

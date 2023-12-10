@@ -1915,4 +1915,8 @@ public interface SchoolTripMessages {
         return "Yes";
     }
 
+    @DE("Keine Ausleihe")
+    default String noRental() {
+        return "No rental";
+    }
 }
