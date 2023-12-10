@@ -11,6 +11,7 @@ import com.wellnr.schooltrip.ui.components.student.StudentDetailsControl;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView {
 
@@ -70,15 +71,17 @@ public abstract class AbstractSchoolTripGridView extends AbstractSchoolTripView 
             .stream()
             .findFirst();
 
-        // Updte the grid. This will remove selection.
-        this.students.getGrid().setItems(schoolTrip.students());
+        // Update the grid. This will remove selection.
+        var allStudents = schoolTrip.students().stream().filter(s -> filterStudents.get(s)).collect(Collectors.toList());
+        this.students
+                .getGrid()
+                .setItems(allStudents);
 
         // Check whether previously selected student is still present, if yes, select.
         if (selectedStudent.isPresent()) {
             var s = selectedStudent.get();
 
-            var newSelectedStudent = schoolTrip
-                .students()
+            var newSelectedStudent = allStudents
                 .stream()
                 .filter(student -> student.getId().equals(s.getId()))
                 .findFirst();
