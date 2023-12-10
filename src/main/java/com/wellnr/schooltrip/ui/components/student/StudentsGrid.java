@@ -28,6 +28,10 @@ public class StudentsGrid extends ApplicationGridWithControls<Student> {
 
     public StudentsGrid(SchoolTripMessages i18n) {
         this.i18n = i18n;
+        super.setFilterFunction((query, student) -> {
+            var searchString = String.format("%s %s %s", student.getSchoolClass(), student.getFirstName(), student.getLastName());
+            return searchString.toLowerCase().contains(query.toLowerCase());
+        });
     }
 
     public Grid.Column<Student> addClassColumn() {

@@ -60,7 +60,7 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
                     if (questionnaire.getDisziplin() instanceof Ski) {
                         return new Span(i18n.ski());
                     } else {
-                        return new Span(i18n.snowboardRentalPrice());
+                        return new Span(i18n.snowboard());
                     }
                 })
                 .setHeader(i18n.discipline());
@@ -92,8 +92,12 @@ public class SchoolTripDisciplineView extends AbstractSchoolTripGridView {
 
             this
                 .addComponentColumnForRegisteredStudent((student, questionnaire) -> {
-                    // TODO: Add field as soon as present.
-                    return new Span("-");
+
+                    if (questionnaire.getDisziplin().hasHelmRental()) {
+                        return new Span(i18n.yes());
+                    } else {
+                        return new Span(i18n.no());
+                    }
                 })
                 .setHeader(i18n.helmetRental());
         }

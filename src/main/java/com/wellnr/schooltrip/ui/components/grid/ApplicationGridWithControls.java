@@ -9,6 +9,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.wellnr.common.functions.Function2;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A composed Grid component which offers a menu bar and a query field to filter items in the grid.
@@ -32,6 +33,11 @@ public class ApplicationGridWithControls<T> extends VerticalLayout {
     @Getter
     private final TextField filterQuery;
 
+    /**
+     *  Sets the filter function. The function is used to filter items in the grid when a query
+     *  is entered into `filterQuery`.
+     */
+    @Setter
     private Function2<String, T, Boolean> filterFunction;
 
     public ApplicationGridWithControls() {
@@ -62,17 +68,6 @@ public class ApplicationGridWithControls<T> extends VerticalLayout {
 
         this.add(controls, grid);
         this.setPadding(false);
-    }
-
-    /**
-     * Sets the filter function. The function is used to filter items in the grid when a query
-     * is entered into `filterQuery`.
-     *
-     * @param filterFunction A function which receives the query and the object to test and should return true if
-     *                       item should be shown in grid.
-     */
-    public void setFilterFunction(Function2<String, T, Boolean> filterFunction) {
-        this.filterFunction = filterFunction;
     }
 
 }
