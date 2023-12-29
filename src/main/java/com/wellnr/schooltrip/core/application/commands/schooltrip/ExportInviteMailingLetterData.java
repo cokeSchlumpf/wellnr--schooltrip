@@ -23,6 +23,7 @@ public class ExportInviteMailingLetterData implements AbstractSchoolTripCommand<
         var path = domainRegistry
             .getSchoolTrips()
             .getSchoolTripByName(schoolTrip)
+            .getExports()
             .exportInviteLetterMailingData(user, domainRegistry.getStudents(), domainRegistry.getConfig());
 
         return DataResult.apply(path);

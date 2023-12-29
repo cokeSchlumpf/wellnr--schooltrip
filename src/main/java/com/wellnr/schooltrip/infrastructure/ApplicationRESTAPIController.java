@@ -1,17 +1,15 @@
 package com.wellnr.schooltrip.infrastructure;
 
-import com.jayway.jsonpath.JsonPath;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.model.Event;
 import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.StripeObject;
-import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
-import com.stripe.service.CheckoutService;
 import com.wellnr.common.Operators;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ExportInviteMailingLetterData;
+import com.wellnr.schooltrip.core.utils.ExcelExport;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -21,11 +19,12 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.RequestContext;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -62,11 +61,34 @@ public class ApplicationRESTAPIController {
             ));
     }
 
+    @GetMapping("/api/trips/{name}/exports/rentals")
+    public ResponseEntity<InputStreamResource> exportSchoolTripRentals(
+        @PathVariable("name") String schoolTrip) {
+
+        var outputFile = domainRegistry
+            .getSchoolTrips()
+            .getSchoolTripByName(schoolTrip)
+            .getExports()
+            .exportRentals(userSession.getUser(), domainRegistry.getStudents());
+
+        var contentDisposition = ContentDisposition
+            .builder("inline")
+            .filename(schoolTrip + "--rentals.zip")
+            .build();
+
+        return ResponseEntity
+            .ok()
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .headers(headers -> {
+                headers.setContentDisposition(contentDisposition);
+            })
+            .body(new InputStreamResource(
+                Operators.suppressExceptions(() -> new FileInputStream(outputFile.toFile()))
+            ));
+    }
+
     @PostMapping("/api/payments/processed")
     public ResponseEntity<String> paymentProcessedWebhool(@RequestBody String payload, @RequestHeader("stripe-signature") String sigHeader) {
-        var json = JsonPath.parse(payload);
-        var type = json.read("$.type", String.class);
-
         // Read and validate event.
         Event event;
         try {
@@ -94,12 +116,6 @@ public class ApplicationRESTAPIController {
         if (event.getType().equals("payment_intent.succeeded") && stripeObject instanceof PaymentIntent payment) {
             System.out.println(payment.getAmountReceived());
             payment.getAmount();
-        } else if (event.getType().equals("checkout.session.completed") && stripeObject instanceof Session session) {
-            var checkoutSessionId = session.getId();
-            var customerName = session.getCustomerObject().getName();
-            var customerEmail = session.getCustomerObject().getEmail();
-            var paymentIntentId = session.getPaymentIntentObject().getId();
-
         } else {
             log.info("Ignore Stripe event: {}", event.getType());
         }
@@ -118,8 +134,27 @@ public class ApplicationRESTAPIController {
     }
 
     @GetMapping("/test")
-    public String test() {
-        return userSession.getUser().toString();
+    public ResponseEntity<InputStreamResource> test() {
+        var contentDisposition = ContentDisposition
+            .builder("inline")
+            .filename("sample.xlsx")
+            .build();
+
+        try (var baos = new FastByteArrayOutputStream()) {
+            ExcelExport.createExcel(
+                List.of("Foo", "bar"),
+                List.of(List.of("Foo", (Double) 1.3), List.of("Bar", (Double) 2.3)),
+                baos
+            );
+
+            return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .headers(headers -> {
+                    headers.setContentDisposition(contentDisposition);
+                })
+                .body(new InputStreamResource(baos.getInputStream()));
+        }
     }
 
     @Value

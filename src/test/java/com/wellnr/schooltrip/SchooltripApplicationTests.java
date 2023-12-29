@@ -1,5 +1,6 @@
 package com.wellnr.schooltrip;
 
+import com.sun.jna.platform.win32.DsGetDC;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CreateSchoolTripCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.RegisterSchoolClassCommand;
@@ -134,6 +135,60 @@ class SchooltripApplicationTests {
 
         System.out.println("http://localhost:8080/students/response/" + egon.getToken());
         System.out.println("http://localhost:8080/students/confirm-registration/" + edgar.getConfirmationToken());
+
+        for (var i = 0; i < 10; i++) {
+            var schoolClass = "8a";
+            var firstName = "Test FirstName " + i;
+            var lastName = "Test LastName " + i;
+
+            RegisterStudentCommand.apply(
+                "skikurs-2024",
+                schoolClass,
+                firstName,
+                lastName,
+                LocalDate.now(),
+                Gender.Male
+            ).run(user, registry);
+
+            var student = registry
+                .getStudents()
+                .getStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(
+                    new SchoolTripId(trip.getId()), schoolClass, firstName, lastName
+                );
+
+            student.completeOrUpdateStudentRegistrationByOrganizer(
+                Questionnaire.fakeSki(), registry.getStudents()
+            );
+
+            student.confirmStudentRegistration(registry.getStudents());
+        }
+
+        for (var i = 10; i < 17; i++) {
+            var schoolClass = "8a";
+            var firstName = "Test FirstName " + i;
+            var lastName = "Test LastName " + i;
+
+            RegisterStudentCommand.apply(
+                "skikurs-2024",
+                schoolClass,
+                firstName,
+                lastName,
+                LocalDate.now(),
+                Gender.Male
+            ).run(user, registry);
+
+            var student = registry
+                .getStudents()
+                .getStudentBySchoolTripAndSchoolClassNameAndFirstNameAndLastName(
+                    new SchoolTripId(trip.getId()), schoolClass, firstName, lastName
+                );
+
+            student.completeOrUpdateStudentRegistrationByOrganizer(
+                Questionnaire.fakeSnowboard(), registry.getStudents()
+            );
+
+            student.confirmStudentRegistration(registry.getStudents());
+        }
     }
 
 }

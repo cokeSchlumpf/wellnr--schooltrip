@@ -706,6 +706,16 @@ public interface SchoolTripMessages {
         return "Expert - Already has a lot of experience, can go in a sportive and safe style.";
     }
 
+    @DE("Ausleihe Excel")
+    default String exportRentals() {
+        return "Export Rentals";
+    }
+
+    @DE("Download der Excel-Dateien mit den Ausleih-Daten.")
+    default String exportRentalsDescription() {
+        return "Creates Excel files with rental data for the school trip.";
+    }
+
     @DE("Datei enthält Tabellenüberschriften.")
     default String fileIncludesHeaderRow() {
         return "File includes header row.";
@@ -754,6 +764,11 @@ public interface SchoolTripMessages {
     @DE("Preis Helm-Ausleihe")
     default String helmetRentalPrice() {
         return "Hemlet rental price";
+    }
+
+    @DE("ID")
+    default String id() {
+        return "ID";
     }
 
     @DE("Daten importieren")

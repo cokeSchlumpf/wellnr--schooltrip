@@ -60,8 +60,12 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
             new TaskCard(i18n.importStudents(), i18n.importStudentsDescription(), this::runExcelImport),
             new TaskCard(i18n.invitationMailing(), i18n.invitationMailingDescription(),
                 this::exportInvitationMailingData),
-            new TaskCard(i18n.closeRegistration(), i18n.closeRegistrationDescription(), this::closeRegistration),
-            new TaskCard(i18n.reassignIDs(), i18n.reassignIDsDescription(), this::reassignStudentIDs)
+            new TaskCard(i18n.closeRegistration(), i18n.closeRegistrationDescription(), this::closeRegistration)
+        ));
+
+        this.add(new HorizontalLayout(
+            new TaskCard(i18n.reassignIDs(), i18n.reassignIDsDescription(), this::reassignStudentIDs),
+            new TaskCard(i18n.exportRentals(), i18n.exportRentalsDescription(), this::exportRentals)
         ));
     }
 
@@ -74,6 +78,12 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
     private void exportInvitationMailingData() {
         UI.getCurrent().getPage().setLocation(
             "/api/trips/" + schoolTrip.schoolTrip().getName() + "/exports/invitation-mailing"
+        );
+    }
+
+    private void exportRentals() {
+        UI.getCurrent().getPage().setLocation(
+            "/api/trips/" + schoolTrip.schoolTrip().getName() + "/exports/rentals"
         );
     }
 
