@@ -156,9 +156,15 @@ class SchooltripApplicationTests {
                     new SchoolTripId(trip.getId()), schoolClass, firstName, lastName
                 );
 
-            student.completeOrUpdateStudentRegistrationByOrganizer(
-                Questionnaire.fakeSki(), registry.getStudents()
-            );
+            if (i % 2 == 0) {
+                student.completeOrUpdateStudentRegistrationByOrganizer(
+                    Questionnaire.fakeSki(), registry.getStudents()
+                );
+            } else {
+                student.completeOrUpdateStudentRegistrationByOrganizer(
+                    Questionnaire.empty(), registry.getStudents()
+                );
+            }
 
             student.confirmStudentRegistration(registry.getStudents());
         }

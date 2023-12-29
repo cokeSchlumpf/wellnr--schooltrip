@@ -128,8 +128,8 @@ public class ExcelExport {
             }
 
             for (var i = 0; i < row.size(); i++) {
-                // Null values are allowed.
-                if (row.get(i) == null) {
+                // Null or empty values are allowed.
+                if (row.get(i) == null || row.get(i).toString().isEmpty()) {
                     continue;
                 }
 
