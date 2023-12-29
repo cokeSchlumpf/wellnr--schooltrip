@@ -1,6 +1,5 @@
 package com.wellnr.schooltrip.core.ports.i18n;
 
-import com.vaadin.flow.component.Component;
 import com.wellnr.common.markup.Either;
 import com.wellnr.schooltrip.core.model.schooltrip.SchoolTrip;
 import com.wellnr.schooltrip.core.model.student.Gender;
@@ -148,6 +147,11 @@ public interface SchoolTripMessages {
     @DE("bar vor Ort")
     default String cash() {
         return "cash at the trip";
+    }
+
+    @DE("Stadtgang erlaubt")
+    default String cityTripAllowance() {
+        return "City Trip Allowed";
     }
 
     default  String cityTripAllowanceText(Student student) {
@@ -706,6 +710,26 @@ public interface SchoolTripMessages {
         return "Expert - Already has a lot of experience, can go in a sportive and safe style.";
     }
 
+    @DE("Export Alle")
+    default String exportAllStudents() {
+        return "Export all students";
+    }
+
+    @DE("Erstellt eine Excel Datei mit den Daten aller Schüler.")
+    default String exportAllStudentsDescription() {
+        return "Exports all students into a single Excel file.";
+    }
+
+    @DE("Export Teilnehmer")
+    default String exportRegisteredStudents() {
+        return "Export registered students";
+    }
+
+    @DE("Erstellt eine Excel Datei mit den Daten der Teilnehmer.")
+    default String exportRegisteredStudentsDescription() {
+        return "Exports an Excel file with all registered students.";
+    }
+
     @DE("Ausleihe Excel")
     default String exportRentals() {
         return "Export Rentals";
@@ -729,6 +753,14 @@ public interface SchoolTripMessages {
     @DE("Geschlecht")
     default String gender() {
         return "Gender";
+    }
+
+    default String gender(Gender gender, SchoolTripMessages i18n) {
+        return switch (gender) {
+            case Female -> i18n.genderFemaleAbbreviation();
+            case Male -> i18n.genderMaleAbbreviation();
+            default -> "-";
+        };
     }
 
     @DE("w")
@@ -1301,7 +1333,7 @@ public interface SchoolTripMessages {
                                 
                 Bitte beachten Sie, dass die erste Zahlung von %s € bis 17. November und die zweite Zahlung über %s € am 15. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchführen.
                 
-                Die restlichen Kosten für Ausleihe und T-Shirt (falls bestellt) werden in Hinterglemm in bar eingesammelt. Bitte geben Sie die Leihgebühren (ohne T-Shirt Betrag) in einem beschriebenen Umschlag (Name, Betrag und Klasse) ihrem Kind mit. Der finale T-Shirt Preis kann sich je nach Bestellmenge leicht verändern, auch dieser Betrag wird vor Ort in bar eingesammelt. 
+                Die restlichen Kosten für Ausleihe und T-Shirt (falls bestellt) werden in Hinterglemm in bar eingesammelt. Bitte geben Sie die Leihgebühren (ohne T-Shirt Betrag) in einem beschriebenen Umschlag (Name, Betrag und Klasse) ihrem Kind mit. Der finale T-Shirt Preis kann sich je nach Bestellmenge leicht verändern, auch dieser Betrag wird vor Ort in bar eingesammelt.
                                 
                 ---
                                 
@@ -1829,6 +1861,19 @@ public interface SchoolTripMessages {
     @DE("T-Shirt Preis")
     default String tShirtPrice() {
         return "T-Shirt price";
+    }
+
+    default String tShirtSelection(TShirtSelection selection, SchoolTripMessages i18n) {
+        if (selection.equals(TShirtSelection.NONE)) {
+            return i18n.noShirt();
+        } else {
+            return selection.toString();
+        }
+    }
+
+    @DE("Kein T-Shirt")
+    default String noShirt() {
+        return "No shirt";
     }
 
     @DE("Spalte")

@@ -4,13 +4,11 @@ import com.google.zxing.EncodeHintType;
 import com.wellnr.common.Operators;
 import com.wellnr.common.markup.Tuple2;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
-import com.wellnr.schooltrip.core.model.student.Gender;
-import com.wellnr.schooltrip.core.model.student.RegistrationState;
-import com.wellnr.schooltrip.core.model.student.Student;
-import com.wellnr.schooltrip.core.model.student.StudentsReadRepository;
+import com.wellnr.schooltrip.core.model.student.*;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.core.model.user.User;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
+import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.core.utils.ExcelExport;
 import com.wellnr.schooltrip.core.utils.FileZipper;
 import lombok.AllArgsConstructor;
@@ -35,6 +33,75 @@ public class SchoolTripExports {
 
     SchoolTrip schoolTrip;
 
+    public Path exportAllStudents(
+        User executor, StudentsReadRepository students, boolean registeredOnly
+    ) {
+        // Check permissions
+        executor.checkPermission(
+            DomainPermissions.ManageSchoolTrips.apply(),
+            DomainPermissions.ManageSchoolTrip.apply(this.schoolTrip.getId())
+        );
+
+        var i18n = executor.getMessages();
+
+        var outputFile = Operators.suppressExceptions(
+            () -> Files.createTempFile("schooltrips", ".xlsx")
+        );
+
+        var rows = new ArrayList<List<Object>>();
+        var headers = List.of(
+            i18n.id(), i18n.schoolClass(), i18n.lastName(), i18n.firstName(),
+            i18n.gender(), i18n.status(), i18n.nutrition(), i18n.cityTripAllowance(), i18n.tripTShirt());
+
+        getAllStudents(students)
+            .stream()
+            .filter(s -> !registeredOnly || s.getRegistrationState().equals(RegistrationState.REGISTERED))
+            .forEach(student -> rows.add(List.of(
+                student.getSchoolTripStudentId().map(Object::toString).orElse("-"),
+                student.getSchoolClass(),
+                student.getLastName(),
+                student.getFirstName(),
+                i18n.gender(student.getGender(), i18n),
+                getStatus(student, i18n),
+                getNutrition(student, i18n),
+                getCityTripAllowance(student, i18n),
+                getTShirtSelection(student, i18n)
+            )));
+
+        try (
+            var fos = new FileOutputStream(outputFile.toFile());
+        ) {
+            ExcelExport.createExcel(headers, rows, fos);
+        } catch (IOException e) {
+            throw new RuntimeException("An exception ocurred while creating Excel export.", e);
+        }
+
+        return outputFile;
+    }
+
+    private String getTShirtSelection(Student student, SchoolTripMessages i18n) {
+        if (student.getQuestionnaire().isPresent()) {
+            var questionnaire = student.getQuestionnaire().get();
+            return i18n.tShirtSelection(questionnaire.getTShirtSelection(), i18n);
+        } else {
+            return "-";
+        }
+    }
+
+    private String getCityTripAllowance(Student student, SchoolTripMessages i18n) {
+        if (student.getQuestionnaire().isPresent()) {
+            var questionnaire = student.getQuestionnaire().get();
+
+            if (questionnaire.isCityTripAllowance()) {
+                return i18n.yes();
+            } else {
+                return i18n.no();
+            }
+        } else {
+            return "-";
+        }
+    }
+
     /**
      * This operation creates an Excel file containing the student data for the invitation
      * mailing. The file returned will be a ZIP-file the Excel file and QR-code images.
@@ -47,7 +114,6 @@ public class SchoolTripExports {
     public Path exportInviteLetterMailingData(
         User executor, StudentsReadRepository students, SchoolTripApplicationConfiguration config
     ) {
-
         // Check permissions
         executor.checkPermission(
             DomainPermissions.ManageSchoolTrips.apply(),
@@ -129,6 +195,13 @@ public class SchoolTripExports {
         return tmpOutputFile;
     }
 
+    /**
+     * Creates a Zip-file containing two Excel files: Ski and Snowboard rental information.
+     *
+     * @param executor The user requesting the Zip-file.
+     * @param students The repository to read/write student information.
+     * @return The path to the generated Zip-file.
+     */
     public Path exportRentals(
         User executor, StudentsReadRepository students
     ) {
@@ -237,6 +310,43 @@ public class SchoolTripExports {
                     .thenComparing(Student::getFirstName)
             )
             .toList();
+    }
+
+    private String getNutrition(Student student, SchoolTripMessages i18n) {
+        if (student.getQuestionnaire().isPresent()) {
+            var q = student.getQuestionnaire().get();
+            if (q.getNutrition().isVegetarian()) {
+                return i18n.nutritionVegetarian();
+            } else if (q.getNutrition().isHalal()) {
+                return i18n.nutritionHalal();
+            } else {
+                return "-";
+            }
+        } else {
+            return "-";
+        }
+    }
+
+    private String getStatus(Student student, SchoolTripMessages i18n) {
+        if (student.getRegistrationState().equals(RegistrationState.REGISTERED)) {
+            return i18n.registered();
+        } else if (student.getRegistrationState().equals(RegistrationState.WAITING_FOR_CONFIRMATION)) {
+            return i18n.waitingForConfirmation();
+        } else if (student.getRegistrationState().equals(RegistrationState.CREATED)) {
+            return i18n.noResponse();
+        } else if (student.getRegistrationState().equals(RegistrationState.REJECTED)) {
+            if (student.getRejectionReason().isPresent()) {
+                var reason = student.getRejectionReason().get();
+
+                if (reason.equals(RejectionReason.OUT_OF_SNOW)) {
+                    return "Out of Snow";
+                } else if (reason.equals(RejectionReason.GO_TO_SCHOOL)) {
+                    return i18n.goToSchool();
+                }
+            }
+        }
+
+        return "n/a";
     }
 
 }

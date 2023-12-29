@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.atmosphere.config.service.PathParam;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
@@ -74,6 +75,33 @@ public class ApplicationRESTAPIController {
         var contentDisposition = ContentDisposition
             .builder("inline")
             .filename(schoolTrip + "--rentals.zip")
+            .build();
+
+        return ResponseEntity
+            .ok()
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .headers(headers -> {
+                headers.setContentDisposition(contentDisposition);
+            })
+            .body(new InputStreamResource(
+                Operators.suppressExceptions(() -> new FileInputStream(outputFile.toFile()))
+            ));
+    }
+
+    @GetMapping("/api/trips/{name}/exports/students")
+    public ResponseEntity<InputStreamResource> exportSchoolTripStudents(
+        @PathVariable("name") String schoolTrip,
+        @RequestParam(value = "registered-only", required = false, defaultValue = "false") boolean registeredOnly) {
+
+        var outputFile = domainRegistry
+            .getSchoolTrips()
+            .getSchoolTripByName(schoolTrip)
+            .getExports()
+            .exportAllStudents(userSession.getUser(), domainRegistry.getStudents(), registeredOnly);
+
+        var contentDisposition = ContentDisposition
+            .builder("inline")
+            .filename(schoolTrip + "--students.xlsx")
             .build();
 
         return ResponseEntity

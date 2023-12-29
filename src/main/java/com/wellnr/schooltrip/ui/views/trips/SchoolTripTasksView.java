@@ -65,7 +65,13 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
 
         this.add(new HorizontalLayout(
             new TaskCard(i18n.reassignIDs(), i18n.reassignIDsDescription(), this::reassignStudentIDs),
-            new TaskCard(i18n.exportRentals(), i18n.exportRentalsDescription(), this::exportRentals)
+            new TaskCard(i18n.exportRentals(), i18n.exportRentalsDescription(), this::exportRentals),
+            new TaskCard(i18n.exportAllStudents(), i18n.exportAllStudentsDescription(), this::exportAllStudents)
+        ));
+
+        this.add(new HorizontalLayout(
+            new TaskCard(i18n.exportRegisteredStudents(), i18n.exportRegisteredStudentsDescription(),
+                this::exportRegisteredStudents)
         ));
     }
 
@@ -75,9 +81,21 @@ public class SchoolTripTasksView extends AbstractSchoolTripView {
         ));
     }
 
+    private void exportAllStudents() {
+        UI.getCurrent().getPage().setLocation(
+            "/api/trips/" + schoolTrip.schoolTrip().getName() + "/exports/students"
+        );
+    }
+
     private void exportInvitationMailingData() {
         UI.getCurrent().getPage().setLocation(
             "/api/trips/" + schoolTrip.schoolTrip().getName() + "/exports/invitation-mailing"
+        );
+    }
+
+    private void exportRegisteredStudents() {
+        UI.getCurrent().getPage().setLocation(
+            "/api/trips/" + schoolTrip.schoolTrip().getName() + "/exports/students?registered-only=true"
         );
     }
 
