@@ -50,7 +50,7 @@ public class SchoolTripExports {
 
         var rows = new ArrayList<List<Object>>();
         var headers = List.of(
-            i18n.id(), i18n.schoolClass(), i18n.lastName(), i18n.firstName(),
+            i18n.id(), i18n.schoolClass(), i18n.lastName(), i18n.firstName(), i18n.dateOfBirth(),
             i18n.gender(), i18n.status(), i18n.nutrition(), i18n.cityTripAllowance(), i18n.tripTShirt());
 
         getAllStudents(students)
@@ -61,6 +61,7 @@ public class SchoolTripExports {
                 student.getSchoolClass(),
                 student.getLastName(),
                 student.getFirstName(),
+                student.getBirthday(),
                 i18n.gender(student.getGender(), i18n),
                 getStatus(student, i18n),
                 getNutrition(student, i18n),
@@ -290,7 +291,7 @@ public class SchoolTripExports {
             ExcelExport.createExcel(skiHeaders, skiRentals, skiFos);
             ExcelExport.createExcel(snowboardHeaders, snowboardRentals, snowboardFos);
         } catch (IOException e) {
-            throw new RuntimeException("An exception ocurred while creating rental Excel exports.", e);
+            throw new RuntimeException("An exception occurred while creating rental Excel exports.", e);
         }
 
         var zipFile = outputDir.resolve("rentals.zip");

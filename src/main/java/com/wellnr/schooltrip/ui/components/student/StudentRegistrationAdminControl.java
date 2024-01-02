@@ -44,7 +44,7 @@ public class StudentRegistrationAdminControl extends VerticalLayout {
         this.i18n = i18n;
 
         this.infoText = new Paragraph();
-        this.registerStudent = new Button(i18n.addRegisteredUser());
+        this.registerStudent = new Button(i18n.registerStudent());
 
         this.registerStudent.addClickListener(event -> {
             var cmd = CompleteOrUpdateStudentRegistrationByOrganizerCommand.apply(

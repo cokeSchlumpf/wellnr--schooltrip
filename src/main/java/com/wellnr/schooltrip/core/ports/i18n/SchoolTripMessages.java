@@ -1979,4 +1979,10 @@ public interface SchoolTripMessages {
     default String noRental() {
         return "No rental";
     }
+
+    @DE("Schüler registrieren")
+    default String registerStudent() {
+        return "Register Student";
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.wellnr.schooltrip;
 
-import com.sun.jna.platform.win32.DsGetDC;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.CreateSchoolTripCommand;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.RegisterSchoolClassCommand;
