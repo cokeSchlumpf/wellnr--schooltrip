@@ -1,6 +1,5 @@
 package com.wellnr.schooltrip.ui.views.trips;
 
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.Route;
@@ -12,6 +11,7 @@ import com.wellnr.schooltrip.core.model.student.payments.AbstractLineItems;
 import com.wellnr.schooltrip.core.ports.i18n.SchoolTripMessages;
 import com.wellnr.schooltrip.infrastructure.ApplicationCommandRunner;
 import com.wellnr.schooltrip.infrastructure.ApplicationUserSession;
+import com.wellnr.schooltrip.ui.components.EnterPaymentsDialog;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationAmountLabelBuilder;
 import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.components.student.StudentsGrid;
@@ -22,11 +22,14 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
 
     private final SchoolTripMessages i18n;
 
+    private final ApplicationCommandRunner commandRunner;
+
     public SchoolTripPaymentsView(
             ApplicationCommandRunner commandRunner, ApplicationUserSession userSession
     ) {
         super(commandRunner, userSession);
         this.i18n = userSession.getMessages();
+        this.commandRunner = commandRunner;
     }
 
     /**
@@ -87,11 +90,17 @@ public class SchoolTripPaymentsView extends AbstractSchoolTripGridView {
                     .setSortable(true);
 
             var bttNew = this.getMenuBar().addItem(i18n.enterPayments());
-            bttNew.addClickListener(ignore -> UI.getCurrent().navigate(
-                    SchoolTripAddStudentView.class, SchoolTripAddStudentView.getRouteParameters(
-                            schoolTrip.schoolTrip().getName()
-                    )
-            ));
+            bttNew.addClickListener(ignore -> {
+                var dialog = new EnterPaymentsDialog(i18n, SchoolTripPaymentsView.this.commandRunner, SchoolTripPaymentsView.this.schoolTrip.students());
+
+                dialog.addOpenedChangeListener(event -> {
+                    if (!event.isOpened()) {
+                        SchoolTripPaymentsView.this.reload();
+                    }
+                });
+
+                dialog.open();
+            });
         }
 
     }

@@ -38,7 +38,7 @@ public class ApplicationCommandForm<RESULT extends CommandResult, CMD extends Ab
                     ApplicationNotifications.success(msg.getMessage());
                 }
 
-                fireEvent(new ApplicationCommandFormCompletedEvent<>(this, result));
+                fireEvent(new ApplicationCommandFormCompletedEvent<>(this, cmd, result));
             } catch (Exception ex) {
                 ApplicationNotifications.error(ex.getMessage());
                 log.warn("Exception occurred while executing command `{}`.", cmd, ex);
@@ -50,7 +50,7 @@ public class ApplicationCommandForm<RESULT extends CommandResult, CMD extends Ab
     public Registration addCompletionListener(
         ComponentEventListener<ApplicationCommandFormCompletedEvent<RESULT, CMD>> listener) {
 
-        var dummy = new ApplicationCommandFormCompletedEvent<RESULT, CMD>(this, null);
+        var dummy = new ApplicationCommandFormCompletedEvent<>(this, null, null);
         return addListener((Class<ApplicationCommandFormCompletedEvent<RESULT, CMD>>) dummy.getClass(), listener);
     }
 

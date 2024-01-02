@@ -10,10 +10,7 @@ import com.wellnr.schooltrip.core.model.student.payments.PaymentType;
 import com.wellnr.schooltrip.core.model.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -53,6 +50,10 @@ public class AddPaymentCommand implements AbstractSchoolTripCommand<MessageResul
         return MessageResult.formatted(
             user.getMessages().successfullyAddedPaymentForUser(student)
         );
+    }
+
+    public AddPaymentCommand withStudentId(Student student) {
+        return new AddPaymentCommand(student.getId(), date, type, description, amount);
     }
 
 }

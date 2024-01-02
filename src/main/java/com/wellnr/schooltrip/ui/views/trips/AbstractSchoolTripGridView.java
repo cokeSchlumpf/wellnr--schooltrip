@@ -10,6 +10,7 @@ import com.wellnr.schooltrip.ui.components.grid.ApplicationGridWithControls;
 import com.wellnr.schooltrip.ui.components.student.StudentDetailsControl;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
