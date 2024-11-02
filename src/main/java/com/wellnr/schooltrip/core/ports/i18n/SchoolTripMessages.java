@@ -13,9 +13,9 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unused")
 public interface SchoolTripMessages {
 
     @DE("Manager hinzufügen")
@@ -45,12 +45,12 @@ public interface SchoolTripMessages {
 
     @DE("Weitere Informationen")
     default String additionalInformation() {
-        return "Additional infomrmation";
+        return "Additional information";
     }
 
     @DE("Gibt es etwas abseits der Piste zu beachten?")
     default String additionalInformationInfo() {
-        return "Furthermore we need some infomration regarding nutrition, and if there is something else we need to " +
+        return "Furthermore we need some information regarding nutrition, and if there is something else we need to " +
             "know.";
     }
 
@@ -74,7 +74,7 @@ public interface SchoolTripMessages {
         return "Do you want to give us any additional information? E.g., allergies, medications, etc..";
     }
 
-    @DE("Anwendungs-Einstelltungen")
+    @DE("App Einstellungen")
     default String applicationSettings() {
         return "Application settings";
     }
@@ -111,17 +111,17 @@ public interface SchoolTripMessages {
 
     @DE("Körpergröße (in cm)")
     default String bodyHeight() {
-        return "Bodysize (in cm)";
+        return "Body size (in cm)";
     }
 
     @DE("Körpergewicht (in KG)")
     default String bodyWeight() {
-        return "Bodyweight (in KG)";
+        return "Body weight (in KG)";
     }
 
     @DE("Ausleihe Schuhe")
     default String bootRental() {
-        return "Boot Rental";
+        return "Boot rental";
     }
 
     @DE("Abmelden - Teilnahme Out of Snow")
@@ -154,11 +154,11 @@ public interface SchoolTripMessages {
         return "City Trip Allowed";
     }
 
-    default  String cityTripAllowanceText(Student student) {
-        return "We agree, that " + student.getFirstName() + " can visit in agroup of three or more students the village Hinterglemm after finishing the daily courses and go back to the hostel by bus individually.";
+    default String cityTripAllowanceText(Student student) {
+        return "We agree, that " + student.getFirstName() + " can visit in a group of three or more students the village Hinterglemm after finishing the daily courses and go back to the hostel by bus individually.";
     }
 
-    default  String cityTripAllowanceText$DE(Student student) {
+    default String cityTripAllowanceText$DE(Student student) {
         return "Wir sind damit einverstanden, dass sich " + student.getFirstName() + " nach dem täglichen Ski-Kurs in einer Gruppe von mindestens 3 SchülerInnen in der Ortschaft Hinterglemm frei bewegen und anschließend mit dem Bus in das Jugendgästehaus zurück fahren darf.";
     }
 
@@ -169,7 +169,7 @@ public interface SchoolTripMessages {
 
     @DE("Registrierung beenden; alle Schüler die nicht registriert sind werden aus der Schülerliste entfernt.")
     default String closeRegistrationDescription() {
-        return "Close registration and remove studens who are not registered.";
+        return "Close registration and remove students who are not registered.";
     }
 
     default List<String> commonEmailContent(
@@ -255,7 +255,7 @@ public interface SchoolTripMessages {
             ));
         }
 
-        if (questionnaire.getComment().length() > 0) {
+        if (!questionnaire.getComment().isEmpty()) {
             additionalInformation.add("- Additional information for us:\n" + (questionnaire.getComment()
                 .indent(6)));
         }
@@ -312,7 +312,7 @@ public interface SchoolTripMessages {
         parts.add(
             """
                 We are looking forward!
-                Team of Ski- und Snowboard-Freizeit 2024
+                Team of Ski- und Snowboard-Freizeit 2025
                 """
         );
 
@@ -355,7 +355,7 @@ public interface SchoolTripMessages {
                     %s möchte Ski fahren.
                         - Erfahrung: %s
                         - Ski-Ausleihe gewünscht: %s
-                        - Ski-Schuh-Aushleihe gewünscht: %s
+                        - Ski-Schuh-Ausleihe gewünscht: %s
                         - Helm-Ausleihe gewünscht: %s
                     """
                     .stripIndent()
@@ -373,7 +373,7 @@ public interface SchoolTripMessages {
                     %s möchte Snowboard fahren.
                         - Erfahrung: %s
                         - Snowboard-Ausleihe gewünscht: %s
-                        - Snowboard-Boots-Aushleihe gewünscht: %s
+                        - Snowboard-Boots-Ausleihe gewünscht: %s
                         - Helm-Ausleihe gewünscht: %s
                     """
                     .stripIndent()
@@ -397,12 +397,12 @@ public interface SchoolTripMessages {
         if (questionnaire.getNutrition().isVegetarian()) nutritionNotes.add(i18n.nutritionVegetarian());
 
         if (!nutritionNotes.isEmpty()) {
-            additionalInformation.add("- %s ernärht sich %s".formatted(
+            additionalInformation.add("- %s ernährt sich %s".formatted(
                 student.getFirstName(), String.join(" und ", nutritionNotes)
             ) + ".");
         }
 
-        if (questionnaire.getComment().length() > 0) {
+        if (!questionnaire.getComment().isEmpty()) {
             additionalInformation.add("- Zusätzliche Informationen für uns:\n" + (questionnaire.getComment()
                 .indent(6)));
         }
@@ -459,7 +459,7 @@ public interface SchoolTripMessages {
         parts.add(
             """
                 Wir freuen uns auf %s! Viele Grüße!
-                Das Team der Ski- und Snowboard-Freizeit 2024
+                Das Team der Ski- und Snowboard-Freizeit 2025
                 """
                 .formatted(student.getFirstName())
         );
@@ -647,7 +647,7 @@ public interface SchoolTripMessages {
 
     default String dontParticipateSchool$DE(Student student) {
         return String.format(
-            "%s wird an keiner Veranstaltung teinehmen und während der Zeit die Schule besuchen.",
+            "%s wird an keiner Veranstaltung teilnehmen und während der Zeit die Schule besuchen.",
             student.getFirstName()
         );
     }
@@ -735,7 +735,7 @@ public interface SchoolTripMessages {
         return "Export Rentals";
     }
 
-    @DE("Download der Excel-Dateien mit den Ausleih-Daten.")
+    @DE("Download der Excel-Dateien mit den Leih-Daten.")
     default String exportRentalsDescription() {
         return "Creates Excel files with rental data for the school trip.";
     }
@@ -790,12 +790,12 @@ public interface SchoolTripMessages {
 
     @DE("Auf der Piste besteht für alle Teilnehmer Helmpflicht.")
     default String helmetRentalInfo() {
-        return "Everyone is required to wear a helmet on the pist.";
+        return "Everyone is required to wear a helmet on the ski slope.";
     }
 
     @DE("Preis Helm-Ausleihe")
     default String helmetRentalPrice() {
-        return "Hemlet rental price";
+        return "Helmet rental price";
     }
 
     @DE("ID")
@@ -847,7 +847,7 @@ public interface SchoolTripMessages {
         return "Internal server error";
     }
 
-    @DE("Einladungs-Schreiben")
+    @DE("Einladungsschreiben")
     default String invitationMailing() {
         return "Invitation mailing";
     }
@@ -922,7 +922,7 @@ public interface SchoolTripMessages {
         return "Rental Options";
     }
 
-    @DE("Wir haben die Möglichkeit Materialen günstig vor Ort auszuleihen. Gerne kann aber auch eigenes Material genutzt werden.")
+    @DE("Wir haben die Möglichkeit Ausrüstung günstig vor Ort auszuleihen. Gerne kann aber auch eigen Ausrüstung genutzt werden.")
     default String materialRentalInfo() {
         return "Please indicate whether materials should be rented by us at Hinterglemm, or own materials should be " +
             "used.";
@@ -974,7 +974,7 @@ public interface SchoolTripMessages {
         return "No response";
     }
 
-    @DE("Leider nicht authorisiert.")
+    @DE("Leider kein Zugriff.")
     default String notAuthorized() {
         return "You're not authorized.";
     }
@@ -1061,11 +1061,11 @@ public interface SchoolTripMessages {
 
             parts.add(String.format("""                                    
                     Please send the remaining amount of **%s €** to the following account:
-                                    
+                                        
                     Marcus Ortinau<br>
                     IBAN DE32 5935 1040 0000 2374 12<br>
                     BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
-                                    
+                                        
                     The remaining payment is expected until **December 15th**.
                     """,
                 decimalFormat.format(expectedPaymentAmount - alreadyPaidAmount)
@@ -1078,12 +1078,12 @@ public interface SchoolTripMessages {
 
             parts.add(String.format("""
                     Please send the money to:
-                                        
+                    
                     Marcus Ortinau<br>
                     IBAN DE32 5935 1040 0000 2374 12<br>
                     BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
-                                        
-                    The initial payment of **%s €** is expected to be paid until **November 17th**, the remaining payment of **%s €** is expected until **December 15th**.
+                    
+                    The initial payment of **%s €** is expected to be paid until **November 15th**, the remaining payment of **%s €** is expected until **December 20th**.
                     """,
                 decimalFormat.format(expectedInitialPaymentAmount),
                 decimalFormat.format(expectedRemainingPaymentAmount)
@@ -1096,7 +1096,7 @@ public interface SchoolTripMessages {
                 """
                     The rental fees of **%s €** will be collected in cash at Hinterglemm. Please ensure that %s has an envelope containing the money and the amount written on the envelope when travelling to Hinterglemm. We'll collect the money on the first evening.
 
-                    We also collect the money for the T-Shirts at Hinterglemm. Please sparate the money for the T-Shirt from the money for the rental fees (use two envelops).""",
+                    We also collect the money for the T-Shirts at Hinterglemm. Please separate the money for the T-Shirt from the money for the rental fees (use two envelops).""",
                 decimalFormat.format(rentalPaymentAmount),
                 student.getFirstName()
             ));
@@ -1132,12 +1132,12 @@ public interface SchoolTripMessages {
 
             parts.add(String.format("""                                    
                     Bitte überweisen Sie die verbleibende Zahlung an:
-                                    
+                                        
                     Marcus Ortinau<br>
                     IBAN DE32 5935 1040 0000 2374 12<br>
                     BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
-                                    
-                    Die verbleibende Zahlung von **%s €** ist am **15. Dezember** fällig.
+                                        
+                    Die verbleibende Zahlung von **%s €** ist am **20. Dezember** fällig.
                     """,
                 decimalFormat.format(expectedPaymentAmount - alreadyPaidAmount)
             ));
@@ -1154,7 +1154,7 @@ public interface SchoolTripMessages {
                     IBAN DE32 5935 1040 0000 2374 12<br>
                     BIC MERZDE55XXX (Kreissparkasse Merzig)<br>
                                         
-                    Die Anzahlung von **%s €** ist am **17. November** fällig. Die verbleibende Vorauszahlung von **%s €** am **15. Dezember**.
+                    Die Anzahlung von **%s €** ist am **15. November** fällig. Die verbleibende Vorauszahlung von **%s €** am **20. Dezember**.
                     """,
                 decimalFormat.format(expectedInitialPaymentAmount),
                 decimalFormat.format(expectedRemainingPaymentAmount)
@@ -1259,21 +1259,15 @@ public interface SchoolTripMessages {
     default String registrationConfirmationMailText(
         SchoolTripMessages i18n, SchoolTrip trip, Student student,
         double initialPayment, double remainingPayment,
-        String confirmationUrl, String updateUrl, Map<String, String> paymentLinks) {
+        String updateUrl) {
 
         var parts = new ArrayList<String>();
 
         parts.add(
             """
-                Registration Ski- und Snowboard-Freizeit 2024
-                            
-                We received the registration for %s. Please confirm the registration by following the link below:
-                            
-                %s
-                            
-                The registration is only complete after visiting the link.
+                Registration Ski- und Snowboard-Freizeit 2025
                                 
-                You may change some of the registration options, to do so, follow the link below:
+                We received the registration for %s. You may change some of the registration options, to do so, follow the link below:
                                 
                 %s
                                 
@@ -1283,17 +1277,16 @@ public interface SchoolTripMessages {
                 IBAN: DE32 5935 1040 0000 2374 12
                 BIC: MERZDE55XXX (Kreissparkasse Merzig)
                                 
-                Please ensure, that initial payment of %s € must be paid until November 17th, and remaining payment of %s € until December 15th. You may also make the whole payment at once. The remaining costs are collected in cash at Hinterglemm.
+                Please ensure, that initial payment of %s € must be paid until November 15th, and remaining payment of %s € until December 20th. You may also make the whole payment at once. The remaining costs are collected in cash at Hinterglemm.
                                 
                 ---
                                 
                 Below you find the registered options.
-                            
+                                
                 """
                 .stripIndent()
                 .formatted(
                     student.getFirstName(),
-                    confirmationUrl,
                     updateUrl,
                     i18n.currencyNumberFormat().format(initialPayment),
                     i18n.currencyNumberFormat().format(remainingPayment)
@@ -1307,21 +1300,15 @@ public interface SchoolTripMessages {
     default String registrationConfirmationMailText$DE(
         SchoolTripMessages i18n, SchoolTrip trip, Student student,
         double initialPayment, double remainingPayment,
-        String confirmationUrl, String updateUrl, Map<String, String> paymentLinks) {
+        String updateUrl) {
 
         var parts = new ArrayList<String>();
 
         parts.add(
             """
-                Anmeldung zur Ski- und Snowboard-Freizeit 2024
-                            
-                Die Anmeldung für %s für die Ski- und Snowboard-Freizeit haben wir entgegenegenommen. Bitte validieren Sie die Anmeldung in dem Sie den folgenden Link besuchen:
-                            
-                %s
-                            
-                Erst nach Besuch des Links, ist die Anmeldung vollständig abgeschlossen.
+                Anmeldung zur Ski- und Snowboard-Freizeit 2025
                                 
-                Einige Angaben können Sie bis eine Woche vor dem Ski-Kurs bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
+                Die Anmeldung für %s für die Ski- und Snowboard-Freizeit haben wir entgegen genommen. Einige Angaben können Sie bis eine Woche vor dem Ski-Kurs bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
                                 
                 %s
                                 
@@ -1331,19 +1318,18 @@ public interface SchoolTripMessages {
                 IBAN: DE32 5935 1040 0000 2374 12
                 BIC: MERZDE55XXX (Kreissparkasse Merzig)
                                 
-                Bitte beachten Sie, dass die erste Zahlung von %s € bis 17. November und die zweite Zahlung über %s € am 15. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchführen.
-                
+                Bitte beachten Sie, dass die erste Zahlung von %s € bis 15. November und die zweite Zahlung über %s € am 20. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchführen.
+                                
                 Die restlichen Kosten für Ausleihe und T-Shirt (falls bestellt) werden in Hinterglemm in bar eingesammelt. Bitte geben Sie die Leihgebühren (ohne T-Shirt Betrag) in einem beschriebenen Umschlag (Name, Betrag und Klasse) ihrem Kind mit. Der finale T-Shirt Preis kann sich je nach Bestellmenge leicht verändern, auch dieser Betrag wird vor Ort in bar eingesammelt.
                                 
                 ---
                                 
                 Im folgenden finden Sie die registrierten Angaben.
-                            
+                                
                 """
                 .stripIndent()
                 .formatted(
                     student.getFirstName(),
-                    confirmationUrl,
                     updateUrl,
                     i18n.currencyNumberFormat().format(initialPayment),
                     i18n.currencyNumberFormat().format(remainingPayment)
@@ -1367,7 +1353,7 @@ public interface SchoolTripMessages {
 
         parts.add(
             """
-                Registration for Ski- und Snowboard-Freizeit 2024
+                Registration for Ski- und Snowboard-Freizeit 2025
                             
                 The registration of %s has been updated.
                                 
@@ -1394,7 +1380,7 @@ public interface SchoolTripMessages {
 
         parts.add(
             """
-                Anmeldung zur Ski- und Snowboard-Freizeit 2024
+                Anmeldung zur Ski- und Snowboard-Freizeit 2025
                             
                 Die Anmeldung für %s für die Ski- und Snowboard-Freizeit wurde aktualisiert. Im folgenden finden Sie die aktualisierten Angaben.
                                 

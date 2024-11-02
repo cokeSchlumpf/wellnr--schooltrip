@@ -36,7 +36,7 @@ import java.util.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Student extends AggregateRoot<String, Student> {
 
-    public static final double INITIAL_PAYMENT_AMOUNT = 160.00;
+    public static final double INITIAL_PAYMENT_AMOUNT = 165.00;
 
     private final String id;
 
@@ -141,7 +141,7 @@ public class Student extends AggregateRoot<String, Student> {
      * @param firstName   The first name of the student.
      * @param lastName    The full name of this student.
      * @param birthday    The birthday of the student.
-     * @param gender      The hender of the student.
+     * @param gender      The gender of the student.
      * @return The new instance.
      */
     public static Student createNew(
@@ -224,7 +224,7 @@ public class Student extends AggregateRoot<String, Student> {
         var trip = schoolTrips.getSchoolTripById(this.schoolTrip);
 
         this.questionnaire = questionnaire;
-        this.registrationState = RegistrationState.WAITING_FOR_CONFIRMATION;
+        this.registrationState = RegistrationState.REGISTERED;
         this.notificationEmail = notificationEmail;
 
         students.insertOrUpdateStudent(this);
@@ -251,16 +251,9 @@ public class Student extends AggregateRoot<String, Student> {
                 messages, trip, this, updateUrl
             );
         } else {
-            var confirmationUrl = String
-                .format(
-                    "%s/students/confirm-registration/%s", config.getUi().getBaseUrl(), confirmationToken
-                )
-                .replaceAll("([^:])//", "$1/");
-
             mailText = messages.registrationConfirmationMailText(
                 messages, trip, this,
-                INITIAL_PAYMENT_AMOUNT, toBePaid - INITIAL_PAYMENT_AMOUNT,
-                confirmationUrl, updateUrl, getPaymentLinks(schoolTrips, messages)
+                INITIAL_PAYMENT_AMOUNT, toBePaid - INITIAL_PAYMENT_AMOUNT, updateUrl
             );
         }
 
@@ -533,7 +526,7 @@ public class Student extends AggregateRoot<String, Student> {
      * @param id The id of the payment.
      */
     public void removePayment(
-        User executor, String id, StudentsRepository studens, SchoolTripsReadRepository schoolTrips) {
+        User executor, String id, StudentsRepository students, SchoolTripsReadRepository schoolTrips) {
 
         /*
          * Validate if creator is allowed.
