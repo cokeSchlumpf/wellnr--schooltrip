@@ -158,7 +158,7 @@ public class SchoolTripExports {
             var qrCodeFileName =
                 student.getSchoolClass() + "--" + Operators.stringToKebabCase(student.getLastName()) + "--" + Operators.stringToKebabCase(student.getFirstName()) + ".png";
 
-            var qrCodeLink = config.getUi().getBaseUrl() + "students/response/" + student.getToken();
+            var qrCodeLink = config.getUi().getBaseUrl() + "students/complete-registration/" + student.getToken();
 
             var qrCodeFile = QRCode
                 .from(qrCodeLink)
