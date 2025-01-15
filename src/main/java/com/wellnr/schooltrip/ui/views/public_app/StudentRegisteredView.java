@@ -78,7 +78,7 @@ public class StudentRegisteredView extends AbstractPublicAppView implements Befo
         var rentalFees = projection
             .student()
             .getPriceLineItems(Either.fromRight(schoolTrip), i18n)
-            .map(PriceLineItems::getRentalFees)
+            .map(PriceLineItems::getCashFees)
             .orElse(0d);
 
         var paymentInfo = i18n

@@ -21,6 +21,15 @@ public class PriceLineItems extends AbstractLineItems<PriceLineItem> {
             .orElse(0d);
     }
 
+    public double getCashFees() {
+        return getItems()
+            .stream()
+            .filter(PriceLineItem::cash)
+            .map(PriceLineItem::amount)
+            .reduce(Double::sum)
+            .orElse(0d);
+    }
+
     public double getRentalFees() {
         return getItems()
             .stream()

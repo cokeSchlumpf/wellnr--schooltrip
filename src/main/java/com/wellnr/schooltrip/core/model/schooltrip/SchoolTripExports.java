@@ -7,7 +7,6 @@ import com.wellnr.common.markup.Tuple2;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
 import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
 import com.wellnr.schooltrip.core.model.student.*;
-import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.core.model.user.User;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
