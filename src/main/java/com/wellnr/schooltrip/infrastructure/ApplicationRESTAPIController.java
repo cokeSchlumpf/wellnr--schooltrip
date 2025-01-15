@@ -7,6 +7,7 @@ import com.stripe.model.PaymentIntent;
 import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
 import com.wellnr.common.Operators;
+import com.wellnr.common.markup.Either;
 import com.wellnr.schooltrip.core.SchoolTripDomainRegistry;
 import com.wellnr.schooltrip.core.application.commands.schooltrip.ExportInviteMailingLetterData;
 import com.wellnr.schooltrip.core.utils.ExcelExport;
@@ -66,11 +67,13 @@ public class ApplicationRESTAPIController {
     public ResponseEntity<InputStreamResource> exportSchoolTripRentals(
         @PathVariable("name") String schoolTrip) {
 
-        var outputFile = domainRegistry
+        var trip = domainRegistry
             .getSchoolTrips()
-            .getSchoolTripByName(schoolTrip)
+            .getSchoolTripByName(schoolTrip);
+
+        var outputFile = trip
             .getExports()
-            .exportRentals(userSession.getUser(), domainRegistry.getStudents());
+            .exportRentals(userSession.getUser(), domainRegistry.getStudents(), Either.fromRight(trip));
 
         var contentDisposition = ContentDisposition
             .builder("inline")
