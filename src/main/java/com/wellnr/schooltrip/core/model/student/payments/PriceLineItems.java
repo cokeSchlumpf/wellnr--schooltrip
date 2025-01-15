@@ -25,6 +25,7 @@ public class PriceLineItems extends AbstractLineItems<PriceLineItem> {
         return getItems()
             .stream()
             .filter(PriceLineItem::cash)
+            .filter(p -> !p.label().toLowerCase().contains("t-shirt"))
             .map(PriceLineItem::amount)
             .reduce(Double::sum)
             .orElse(0d);
