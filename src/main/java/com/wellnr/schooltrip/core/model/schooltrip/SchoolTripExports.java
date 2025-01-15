@@ -2,9 +2,12 @@ package com.wellnr.schooltrip.core.model.schooltrip;
 
 import com.google.zxing.EncodeHintType;
 import com.wellnr.common.Operators;
+import com.wellnr.common.markup.Either;
 import com.wellnr.common.markup.Tuple2;
 import com.wellnr.schooltrip.core.application.SchoolTripApplicationConfiguration;
+import com.wellnr.schooltrip.core.model.schooltrip.repository.SchoolTripsReadRepository;
 import com.wellnr.schooltrip.core.model.student.*;
+import com.wellnr.schooltrip.core.model.student.payments.PriceLineItems;
 import com.wellnr.schooltrip.core.model.student.questionaire.*;
 import com.wellnr.schooltrip.core.model.user.User;
 import com.wellnr.schooltrip.core.model.user.rbac.DomainPermissions;
@@ -204,9 +207,10 @@ public class SchoolTripExports {
      * @return The path to the generated Zip-file.
      */
     public Path exportRentals(
-        User executor, StudentsReadRepository students
+        User executor, StudentsReadRepository students, Either<SchoolTripsReadRepository, SchoolTrip> schoolTrip
     ) {
         var i18n = executor.getMessages();
+        var currencyFormat = i18n.currencyNumberFormat();
 
         // Check permissions
         executor.checkPermission(
@@ -228,13 +232,13 @@ public class SchoolTripExports {
         List<String> skiHeaders = List.of(
             i18n.id(), i18n.schoolClass(), i18n.lastName(), i18n.firstName(), i18n.experience(),
             i18n.skiRental(), i18n.bodyHeight(), i18n.bodyWeight(), i18n.bootRental(), i18n.shoeSize(),
-            i18n.helmetRental()
+            i18n.helmetRental(), i18n.amountSum()
         );
 
         List<String> snowboardHeaders = List.of(
             i18n.id(), i18n.schoolClass(), i18n.lastName(), i18n.firstName(), i18n.experience(),
             i18n.snowboardRental(), i18n.bodyHeight(), i18n.bodyWeight(), i18n.bootRental(), i18n.shoeSize(),
-            i18n.helmetRental()
+            i18n.helmetRental(), i18n.amountSum()
         );
 
         this
@@ -262,7 +266,11 @@ public class SchoolTripExports {
                         ski.getRental().<Object>map(SkiRental::getWeight).orElse(""),
                         ski.getBootRental().isPresent() ? i18n.yes() : i18n.no(),
                         ski.getBootRental().<Object>map(SkiBootRental::getSize).orElse(""),
-                        ski.hasHelmRental() ? i18n.yes() : i18n.no()
+                        ski.hasHelmRental() ? i18n.yes() : i18n.no(),
+                        student
+                            .getPriceLineItems(schoolTrip, i18n)
+                            .map(item -> currencyFormat.format(item.getRentalFees()))
+                            .orElse("0")
                     ));
                 } else if (questionnaire.getDisziplin() instanceof Snowboard sb) {
                     snowboardRentals.add(List.of(
@@ -276,7 +284,11 @@ public class SchoolTripExports {
                         sb.getRental().<Object>map(SnowboardRental::getWeight).orElse(""),
                         sb.getBootRental().isPresent() ? i18n.yes() : i18n.no(),
                         sb.getBootRental().<Object>map(SnowboardBootRental::getSize).orElse(""),
-                        sb.hasHelmRental() ? i18n.yes() : i18n.no()
+                        sb.hasHelmRental() ? i18n.yes() : i18n.no(),
+                        student
+                            .getPriceLineItems(schoolTrip, i18n)
+                            .map(item -> currencyFormat.format(item.getRentalFees()))
+                            .orElse("0")
                     ));
                 }
             });
