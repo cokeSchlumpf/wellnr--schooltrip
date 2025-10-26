@@ -312,7 +312,7 @@ public interface SchoolTripMessages {
         parts.add(
             """
                 We are looking forward!
-                Team of Ski- und Snowboard-Freizeit 2025
+                Team of Ski- und Snowboard-Freizeit 2026
                 """
         );
 
@@ -459,7 +459,7 @@ public interface SchoolTripMessages {
         parts.add(
             """
                 Wir freuen uns auf %s! Viele Grüße!
-                Das Team der Ski- und Snowboard-Freizeit 2025
+                Das Team der Ski- und Snowboard-Freizeit 2026
                 """
                 .formatted(student.getFirstName())
         );
@@ -1265,7 +1265,7 @@ public interface SchoolTripMessages {
 
         parts.add(
             """
-                Registration Ski- und Snowboard-Freizeit 2025
+                Registration Ski- und Snowboard-Freizeit 2026
                                 
                 We received the registration for %s. You may change some of the registration options, to do so, follow the link below:
                                 
@@ -1277,7 +1277,7 @@ public interface SchoolTripMessages {
                 IBAN: DE32 5935 1040 0000 2374 12
                 BIC: MERZDE55XXX (Kreissparkasse Merzig)
                                 
-                Please ensure, that initial payment of %s € must be paid until November 15th, and remaining payment of %s € until December 20th. You may also make the whole payment at once. The remaining costs are collected in cash at Hinterglemm.
+                Please ensure, that initial payment of %s € must be paid until November 21st, and remaining payment of %s € until December 19th. You may also make the whole payment at once. The remaining costs are collected in cash at Hinterglemm.
                                 
                 ---
                                 
@@ -1306,7 +1306,7 @@ public interface SchoolTripMessages {
 
         parts.add(
             """
-                Anmeldung zur Ski- und Snowboard-Freizeit 2025
+                Anmeldung zur Ski- und Snowboard-Freizeit 2026
                                 
                 Die Anmeldung für %s für die Ski- und Snowboard-Freizeit haben wir entgegen genommen. Einige Angaben können Sie bis eine Woche vor dem Ski-Kurs bei Bedarf anpassen. Nutzen Sie dafür den folgenden Link:
                                 
@@ -1318,7 +1318,7 @@ public interface SchoolTripMessages {
                 IBAN: DE32 5935 1040 0000 2374 12
                 BIC: MERZDE55XXX (Kreissparkasse Merzig)
                                 
-                Bitte beachten Sie, dass die erste Zahlung von %s € bis 15. November und die zweite Zahlung über %s € am 20. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchführen.
+                Bitte beachten Sie, dass die erste Zahlung von %s € bis 21. November und die zweite Zahlung über %s € am 19. Dezember fällig ist. Sie können auch den gesamten Betrag in einer Überweisung durchführen.
                                 
                 Die restlichen Kosten für Ausleihe und T-Shirt (falls bestellt) werden in Hinterglemm in bar eingesammelt. Bitte geben Sie die Leihgebühren (ohne T-Shirt Betrag) in einem beschriebenen Umschlag (Name, Betrag und Klasse) ihrem Kind mit. Der finale T-Shirt Preis kann sich je nach Bestellmenge leicht verändern, auch dieser Betrag wird vor Ort in bar eingesammelt.
                                 
@@ -1353,7 +1353,7 @@ public interface SchoolTripMessages {
 
         parts.add(
             """
-                Registration for Ski- und Snowboard-Freizeit 2025
+                Registration for Ski- und Snowboard-Freizeit 2026
                             
                 The registration of %s has been updated.
                                 
@@ -1380,7 +1380,7 @@ public interface SchoolTripMessages {
 
         parts.add(
             """
-                Anmeldung zur Ski- und Snowboard-Freizeit 2025
+                Anmeldung zur Ski- und Snowboard-Freizeit 2026
                             
                 Die Anmeldung für %s für die Ski- und Snowboard-Freizeit wurde aktualisiert. Im folgenden finden Sie die aktualisierten Angaben.
                                 
